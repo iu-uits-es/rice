@@ -301,10 +301,13 @@ public class DocumentSearchGeneratorImpl implements DocumentSearchGenerator {
         String documentTypeName = rs.getString("DOC_TYP_NM");
         org.kuali.rice.kew.api.doctype.DocumentType documentType =
                 getApiDocumentTypeService().getDocumentTypeByName(documentTypeName);
+
+        String documentTypeId = "unavailable";
         if (documentType == null) {
-            throw new IllegalStateException("Failed to locate a document type with the given name: " + documentTypeName);
+            LOG.warn("Failed to locate a document type with the given name: " + documentTypeName);
+        } else {
+            documentTypeId = documentType.getId();
         }
-        String documentTypeId = documentType.getId();
 
         Document.Builder documentBuilder = Document.Builder.create(documentId, initiatorPrincipalId, documentTypeName, documentTypeId);
         DocumentSearchResult.Builder resultBuilder = DocumentSearchResult.Builder.create(documentBuilder);
@@ -384,7 +387,7 @@ public class DocumentSearchGeneratorImpl implements DocumentSearchGenerator {
 
         String sqlPrefix = "Select * from (";
         String sqlSuffix = ") FINAL_SEARCH order by FINAL_SEARCH.CRTE_DT desc";
-        
+
         // the DISTINCT here is important as it filters out duplicate rows which could occur as the result of doc search extension values...
         StringBuilder selectSQL = new StringBuilder("select DISTINCT("+ docHeaderTableAlias +".DOC_HDR_ID), "
                                                     + StringUtils.join(new String[] {

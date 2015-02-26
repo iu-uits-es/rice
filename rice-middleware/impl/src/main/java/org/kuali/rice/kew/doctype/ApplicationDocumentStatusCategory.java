@@ -24,6 +24,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * <p>Model bean representing a grouping of valid application document statuses for a document type
@@ -51,6 +52,24 @@ public class ApplicationDocumentStatusCategory extends PersistableBusinessObject
     @ManyToOne
     @JoinColumn(name = "DOC_TYP_ID")
     private DocumentType documentType;
+
+    /**
+     * Begin IU Customization
+     * 2014-09-02 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3800, KULRICE-13176
+     *
+     * Re-added (and deprecated) additional OJB compatibility fields.
+     */
+    @Deprecated
+    @Transient
+    private String documentTypeId;
+    @Deprecated
+    @Transient
+    private String categoryName;
+    /**
+     * End IU Customization
+     */
+
 
     /**
      * Gets the composite identifier, a {@link org.kuali.rice.kew.doctype.ApplicationDocumentStatusCategoryId}

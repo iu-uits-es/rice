@@ -64,8 +64,16 @@
 			<defaultExceptionGroupName namespace="KR-WKFLW">TestWorkgroup</defaultExceptionGroupName>
 			<active>true</active>
       <validApplicationStatuses>
-        <status>Cancelled</status>
-        <status>In Process</status>
+        <category name="food">
+          <status>Vegetarian Soups for all Seasons</status>
+          <status>5 Ingredient Gourmet</status>
+        </category>
+        <category name="SciFi">
+          <status>A Wrinkle in Time</status>
+          <status>His Dark Materials</status>
+          <status>Nine Princes in Amber</status>
+        </category>
+        <status>Waiting for Godot</status>
       </validApplicationStatuses>
 			<policies>
 				<policy>

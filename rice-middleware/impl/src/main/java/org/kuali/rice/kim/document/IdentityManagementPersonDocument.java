@@ -43,6 +43,7 @@ import org.kuali.rice.kim.api.services.KimApiServiceLocator;
 import org.kuali.rice.kim.api.type.KimType;
 import org.kuali.rice.kim.bo.ui.KimDocumentRoleMember;
 import org.kuali.rice.kim.bo.ui.KimDocumentRoleQualifier;
+import org.kuali.rice.kim.bo.ui.KimDocumentRoleResponsibilityAction;
 import org.kuali.rice.kim.bo.ui.PersonDocumentAddress;
 import org.kuali.rice.kim.bo.ui.PersonDocumentAffiliation;
 import org.kuali.rice.kim.bo.ui.PersonDocumentCitizenship;
@@ -81,7 +82,7 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
 
     protected static final long serialVersionUID = -534993712085516925L;
 
-    // principal data                       
+    // principal data
     @Column(name = "PRNCPL_ID")
     protected String principalId;
 
@@ -91,7 +92,7 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
     @Column(name = "ENTITY_ID")
     protected String entityId;
 
-    //@Type(type="org.kuali.rice.krad.util.HibernateKualiHashType")                       
+    //@Type(type="org.kuali.rice.krad.util.HibernateKualiHashType")
     @Column(name = "PRNCPL_PSWD")
     @Convert(converter = HashConverter.class)
     protected String password;
@@ -99,7 +100,7 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
     @Column(name = "UNIV_ID")
     protected String univId = "";
 
-    // affiliation data                       
+    // affiliation data
     @OneToMany(targetEntity = PersonDocumentAffiliation.class, orphanRemoval = true, cascade = { CascadeType.REFRESH, CascadeType.REMOVE, CascadeType.PERSIST })
     @JoinColumn(name = "FDOC_NBR", referencedColumnName = "FDOC_NBR", insertable = false, updatable = false)
     protected List<PersonDocumentAffiliation> affiliations;
@@ -107,7 +108,7 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
     @Transient
     protected String campusCode = "";
 
-    // external identifier data                       
+    // external identifier data
     @Transient
     protected Map<String, String> externalIdentifiers = null;
 
@@ -115,11 +116,11 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
     @Convert(converter = BooleanYNConverter.class)
     protected boolean active;
 
-    // citizenship                       
+    // citizenship
     @Transient
     protected List<PersonDocumentCitizenship> citizenships;
 
-    // protected List<DocEmploymentInfo> employmentInformations;                       
+    // protected List<DocEmploymentInfo> employmentInformations;
     @OneToMany(targetEntity = PersonDocumentName.class, orphanRemoval = true, cascade = { CascadeType.REFRESH, CascadeType.REMOVE, CascadeType.PERSIST })
     @JoinColumn(name = "FDOC_NBR", referencedColumnName = "FDOC_NBR", insertable = false, updatable = false)
     protected List<PersonDocumentName> names;
@@ -151,7 +152,7 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
     public IdentityManagementPersonDocument() {
         affiliations = new ArrayList<PersonDocumentAffiliation>();
         citizenships = new ArrayList<PersonDocumentCitizenship>();
-        // employmentInformations = new ArrayList<DocEmploymentInfo>();                       
+        // employmentInformations = new ArrayList<DocEmploymentInfo>();
         names = new ArrayList<PersonDocumentName>();
         addrs = new ArrayList<PersonDocumentAddress>();
         phones = new ArrayList<PersonDocumentPhone>();
@@ -175,7 +176,7 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
     }
 
     /*
-     * sets the principal name.  
+     * sets the principal name.
      * Principal names are converted to lower case.
      */
     public void setPrincipalName(String principalName) {
@@ -362,7 +363,13 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
                 }
                 for (KimDocumentRoleQualifier qualifier : rolePrncpl.getQualifiers()) {
                     qualifier.setDocumentNumber(getDocumentNumber());
+                    qualifier.setRoleMemberId(rolePrncpl.getRoleMemberId());
                     qualifier.setKimTypId(role.getKimTypeId());
+                }
+                for(KimDocumentRoleResponsibilityAction responsibilityAction : rolePrncpl.getRoleRspActions()) {
+                    responsibilityAction.setDocumentNumber(getDocumentNumber());
+                    responsibilityAction.setRoleMemberId(rolePrncpl.getRoleMemberId());
+                    responsibilityAction.setRoleResponsibilityId("*");
                 }
             }
         }

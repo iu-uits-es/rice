@@ -73,6 +73,25 @@ public class ApplicationDocumentStatus extends PersistableBusinessObjectBase{
     @Deprecated
     @Transient
     private String categoryName;
+    /**
+     * Begin IU Customization
+     * 2014-09-02 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3800, KULRICE-13176
+     *
+     * Re-added (and deprecated) additional OJB compatibility fields.
+     */
+    @Deprecated
+    @Transient
+    private String documentTypeId;
+    @Deprecated
+    @Transient
+    private String statusName;
+    /**
+     * End OJB compatibility fields
+     */
+    /**
+     * End IU Customization
+     */
 
     public ApplicationDocumentStatusId getApplicationDocumentStatusId() {
     	if (this.applicationDocumentStatusId == null) {

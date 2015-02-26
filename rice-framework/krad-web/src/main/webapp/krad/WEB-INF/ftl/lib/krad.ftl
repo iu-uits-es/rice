@@ -31,3 +31,4 @@
 <#include "tooltip.ftl" parse=true/>
 <#include "treeNode.ftl" parse=true/>
 <#include "wrappingTag.ftl" parse=true/>
+<#include "testBanner.ftl" parse=true/>

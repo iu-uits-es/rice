@@ -19,7 +19,6 @@ import org.kuali.rice.core.api.criteria.CountFlag;
 import org.kuali.rice.core.api.criteria.GenericQueryResults;
 import org.kuali.rice.core.api.criteria.QueryByCriteria;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,7 +80,7 @@ abstract class DataObjectCriteriaQueryBase<C, Q> implements CriteriaQuery {
             throw new IllegalArgumentException("criteria is null");
         }
 
-        final C parent = getQueryTranslator().translateCriteria(queryClass, criteria.getPredicate());
+        final C parent = getQueryTranslator().translateCriteria(queryClass, criteria);
 
         switch (criteria.getCountFlag()) {
             case ONLY:

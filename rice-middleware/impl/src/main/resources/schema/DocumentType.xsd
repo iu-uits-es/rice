@@ -537,6 +537,8 @@
       <enumeration value="allow_su_final_approval"/>
       <enumeration value="SUPPRESS_IMMEDIATE_EMAILS_ON_SU_ACTION"/>
       <enumeration value="suppress_immediate_emails_on_su_action"/>
+      <enumeration value="SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE"/>
+      <enumeration value="suppress_acknowledgements_on_disapprove"/>
     </restriction>
   </simpleType>
 

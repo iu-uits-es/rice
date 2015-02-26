@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.kuali.pom</groupId>
     <artifactId>kuali-common</artifactId>
-    <version>4.3.9</version>
+    <version>3.3.44</version>
   </parent>
   <groupId>org.kuali.rice</groupId>
   <artifactId>rice</artifactId>
@@ -54,8 +54,6 @@
     <kuali.release.goals>deploy</kuali.release.goals>
     <kuali.release.arguments>-DskipTests</kuali.release.arguments>
 
-    <!-- TODO: Remove after updating to kuali-common 4.4.x -->
-    <kuali-core.version>1.0.18</kuali-core.version>
     <appserver.port>8080</appserver.port>
     <gmaven.stubs.phase>generate-resources</gmaven.stubs.phase>
     <gmaven.compile.phase>compile</gmaven.compile.phase>
@@ -68,7 +66,6 @@
 
     <jmeter.phase>verify</jmeter.phase>
     <jmeter.goal>jmeter</jmeter.goal>
-    <jmeter.ignoreResultFailures>true</jmeter.ignoreResultFailures>
     <jmeter.testFilesDirectory>${basedir}/src/test/resources/jmeter</jmeter.testFilesDirectory>
     <jmeter.jMeterTestFile>**/*.jmx</jmeter.jMeterTestFile>
     <jmeter.excludeJmeterTestFile>NOT_NULL</jmeter.excludeJmeterTestFile>
@@ -336,7 +333,6 @@
                     <goal>${jmeter.goal}</goal>
                   </goals>
                   <configuration>
-                    <ignoreResultFailures>${jmeter.ignoreResultFailures}</ignoreResultFailures>
                     <testFilesDirectory>${jmeter.testFilesDirectory}</testFilesDirectory>
                     <testFilesIncluded>
                       <jMeterTestFile>${jmeter.jMeterTestFile}</jMeterTestFile>
@@ -960,7 +956,7 @@
             <fork>true</fork>
             <meminitial>256</meminitial>
             <maxmem>1024</maxmem>
-<!-- 
+<!--
 			  <source>1.7</source>
 			  <target>1.7</target>
  -->
@@ -2567,10 +2563,9 @@
   </issueManagement>
 
   <scm>
-    <developerConnection>scm:git:git@github.com:kuali/rice.git</developerConnection>
-    <connection>scm:git:git@github.com:kuali/rice.git</connection>
-    <url>https://github.com/kuali/rice/tree/${project.scm.tag}</url>
-    <tag>rice-2.4</tag>
+    <connection>scm:${project.scm.vendor}:https://svn.kuali.org/repos/rice/tags/rice-2.4.2</connection>
+    <developerConnection>scm:${project.scm.vendor}:https://svn.kuali.org/repos/rice/tags/rice-2.4.2</developerConnection>
+    <url>https://svn.kuali.org/repos/rice/tags/rice-2.4.2</url>
   </scm>
 
 </project>

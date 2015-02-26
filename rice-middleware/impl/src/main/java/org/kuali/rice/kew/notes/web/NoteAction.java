@@ -21,6 +21,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.upload.FormFile;
+import org.kuali.rice.core.api.resourceloader.GlobalResourceLoader;
 import org.kuali.rice.core.api.util.RiceConstants;
 import org.kuali.rice.coreservice.framework.CoreFrameworkServiceLocator;
 import org.kuali.rice.kew.notes.Attachment;
@@ -35,13 +36,17 @@ import org.kuali.rice.kew.web.KewKualiAction;
 import org.kuali.rice.kim.api.identity.Person;
 import org.kuali.rice.kim.api.services.KimApiServiceLocator;
 import org.kuali.rice.krad.UserSession;
+import org.kuali.rice.krad.data.DataObjectService;
+import org.kuali.rice.krad.service.KRADServiceLocator;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.KRADConstants;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -60,6 +65,8 @@ public class NoteAction extends KewKualiAction {
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NoteAction.class);
 
+    private DataObjectService dataObjectService;
+
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form,
             HttpServletRequest request, HttpServletResponse response)
@@ -67,12 +74,12 @@ public class NoteAction extends KewKualiAction {
         initForm(request, form);
         return super.execute(mapping, form, request, response);
     }
-    
+
     //public ActionForward start(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
     //    return mapping.findForward("allNotesReport");
     //}
-    
-   
+
+
     @Override
     public ActionForward start(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
     	NoteForm noteForm = (NoteForm) form;
@@ -82,7 +89,7 @@ public class NoteAction extends KewKualiAction {
     	return super.start(mapping, noteForm, request, response);
     }
 
-    
+
     public ActionForward add(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
         NoteForm noteForm = (NoteForm) form;
         noteForm.setShowEdit("no");
@@ -166,7 +173,7 @@ public class NoteAction extends KewKualiAction {
                     noteToSave.setAttachments(getNoteService().getNoteByNoteId(noteToSave.getNoteId()).getAttachments());
                 }
             }
-            getNoteService().saveNote(noteToSave);
+            noteToSave = getNoteService().saveNote(noteToSave);
         }
         if (noteForm.getShowEdit().equals("yes")) {
             noteForm.setNote(new Note());
@@ -176,6 +183,7 @@ public class NoteAction extends KewKualiAction {
         noteForm.setShowEdit("no");
         noteForm.setNoteIdNumber(null);
         retrieveNoteList(request, noteForm);
+        flushDocumentHeaderCache();
         return start(mapping, form, request, response);
     }
 
@@ -221,6 +229,7 @@ public class NoteAction extends KewKualiAction {
 //            List allNotes = getNoteService().getNotesByDocumentId(noteForm.getDocId());
 
             CustomNoteAttribute customNoteAttribute = null;
+            flushDocumentHeaderCache();
             DocumentRouteHeaderValue routeHeader = getRouteHeaderService().getRouteHeader(noteForm.getDocId());
 
             List<Note> allNotes = routeHeader.getNotes();
@@ -267,6 +276,8 @@ public class NoteAction extends KewKualiAction {
             } else if (noteForm.getNoteList().size() == 0) {
                 noteForm.setShowAdd(Boolean.FALSE);
             }
+            EntityManager entityManager = (EntityManager)GlobalResourceLoader.getService("rice.kew.entityManager");
+            entityManager.detach(routeHeader);
         }
     }
 
@@ -329,5 +340,16 @@ public class NoteAction extends KewKualiAction {
     }
     private static UserSession getUserSession() {
         return GlobalVariables.getUserSession();
+    }
+
+    public DataObjectService getDataObjectService() {
+        if(dataObjectService == null) {
+            dataObjectService = KRADServiceLocator.getDataObjectService();
+        }
+        return dataObjectService;
+    }
+
+    private void flushDocumentHeaderCache() {
+        getDataObjectService().flush(DocumentRouteHeaderValue.class);
     }
 }

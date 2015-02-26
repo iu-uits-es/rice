@@ -22,6 +22,7 @@ import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.kuali.rice.kim.api.KimApiConstants;
 import org.kuali.rice.kim.api.identity.name.EntityNameContract;
@@ -73,7 +74,7 @@ public abstract class EntityNameBase extends DataObjectBase implements EntityNam
     private Timestamp nameChangedDate;
 
     @Transient
-    private boolean suppressName;
+    private Boolean suppressName;
 
 
     @Override
@@ -162,7 +163,20 @@ public abstract class EntityNameBase extends DataObjectBase implements EntityNam
 
     @Override
     public String getCompositeNameUnmasked() {
-        return getLastName() + ", " + getFirstName() + (getMiddleName() == null ? "" : " " + getMiddleName());
+        //KULRICE-12360: The code below will account for null, an empty string, or spaces in the database for first and last name.
+
+        String lastNameTemp = "";
+        String firstNameTemp= "";
+        if (StringUtils.isNotBlank(getLastName())) {
+            lastNameTemp = getLastName();
+        }
+        if (StringUtils.isNotBlank(getFirstName())) {
+            firstNameTemp = getFirstName();
+        }
+        if (StringUtils.isNotBlank(lastNameTemp) && StringUtils.isNotBlank(firstNameTemp)) {
+            lastNameTemp = lastNameTemp + ", ";
+        }
+        return lastNameTemp + firstNameTemp + (getMiddleName()==null?"":" " + getMiddleName());
     }
 
     @Override
@@ -176,21 +190,21 @@ public abstract class EntityNameBase extends DataObjectBase implements EntityNam
 
     @Override
     public boolean isSuppressName() {
-        try {
-            EntityPrivacyPreferences privacy = KimApiServiceLocator.getIdentityService().getEntityPrivacyPreferences(
-                    getEntityId());
-            if (privacy != null) {
-                this.suppressName = privacy.isSuppressName();
-            } else {
-                this.suppressName = false;
+        if(this.suppressName == null) {
+            try {
+                EntityPrivacyPreferences privacy = KimApiServiceLocator.getIdentityService().getEntityPrivacyPreferences(getEntityId());
+                if(privacy != null) {
+                    this.suppressName = Boolean.valueOf(privacy.isSuppressName());
+                } else {
+                    this.suppressName = Boolean.FALSE;
+                }
+            } catch (NullPointerException e) {
+                return false;
+            } catch (ClassCastException c) {
+                return false;
             }
-        } catch (NullPointerException e) {
-            return false;
-        } catch (ClassCastException c) {
-            return false;
         }
-
-        return this.suppressName;
+        return this.suppressName.booleanValue();
     }
 
     @Override
@@ -287,11 +301,11 @@ public abstract class EntityNameBase extends DataObjectBase implements EntityNam
     }
 
     public boolean getSuppressName() {
-        return suppressName;
+        return suppressName.booleanValue();
     }
 
     public void setSuppressName(boolean suppressName) {
-        this.suppressName = suppressName;
+        this.suppressName = Boolean.valueOf(suppressName);
     }
 
 }

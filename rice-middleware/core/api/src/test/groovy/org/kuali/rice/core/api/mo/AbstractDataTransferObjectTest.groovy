@@ -24,7 +24,7 @@ import org.apache.commons.lang.SerializationUtils
 /**
  * This test verifies that AbstractDataTransferObjects work the way they are expected to work in terms of JAXB
  * marshalling/unmarshalling and standard java serialization/deserialization.
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  *
  */
@@ -46,7 +46,7 @@ class AbstractDataTransferObjectTest {
   <theseAreSomeFutureElements>which shouldn't get included in the unmarshalled version</theseAreSomeFutureElements>
 </sampleDataTransferObject>
     """
-    
+
     private static final JAXBContext JAXB = JAXBContext.newInstance(SampleDataTransferObject.class)
 
     private SampleDataTransferObject createDto() {
@@ -91,11 +91,11 @@ class AbstractDataTransferObjectTest {
     void test_serialize_deserialize_serialize() {
         SampleDataTransferObject dto = createDto()
         byte[] serialized = SerializationUtils.serialize(dto)
-        SampleDataTransferObject deserializedDto = SerializationUtils.deserialize(serialized)
+        SampleDataTransferObject deserializedDto = (SampleDataTransferObject)SerializationUtils.deserialize(serialized)
         assert dto == deserializedDto
         byte[] serializedAgain = SerializationUtils.serialize(deserializedDto)
-        assert serialized == serializedAgain
-        SampleDataTransferObject deserializedAgainDto = SerializationUtils.deserialize(serializedAgain)
+        SampleDataTransferObject deserializedAgainDto = (SampleDataTransferObject)SerializationUtils.deserialize(serializedAgain)
+        assert deserializedDto.equals(deserializedAgainDto);
         assert deserializedDto == deserializedAgainDto
     }
 

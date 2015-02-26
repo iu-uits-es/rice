@@ -49,7 +49,7 @@ public final class PredicateUtils {
 
 
     /*
-     * Method to assist in converting a map of values for a lookup 
+     * Method to assist in converting a map of values for a lookup
      */
     public static Predicate convertMapToPredicate(Map<String, String> criteria) {
         List<Predicate> p = new ArrayList<Predicate>();
@@ -112,9 +112,9 @@ public final class PredicateUtils {
             return lessThan(key, StringUtils.replace(value, SearchOperator.LESS_THAN.op(), ""));
         } else if (value.contains(SearchOperator.LIKE_MANY.op()) || (value.contains(SearchOperator.LIKE_ONE.op()))) {
             if (isNot(value)) {
-                return notLike(key, stripNot(value));
+                return notLikeIgnoreCase(key, stripNot(value));
             } else {
-                return like(key, value);
+                return likeIgnoreCase(key, value);
             }
         } else {
             if (isNot(value)) {

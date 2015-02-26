@@ -15,7 +15,6 @@
  */
 package org.kuali.rice.krad.data.jpa;
 
-import org.kuali.rice.core.api.criteria.Predicate;
 import org.kuali.rice.core.api.criteria.QueryByCriteria;
 
 /**
@@ -26,13 +25,23 @@ import org.kuali.rice.core.api.criteria.QueryByCriteria;
 interface QueryTranslator<C, Q> {
 
     /**
-     * Translates the given {@link Predicate} to a platform-specific criteria.
+     * Begin IU Customization
+     * 2014-08-28 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3820
+     *
+     * Modify Predicate param to QueryByCriteria param so we can extract ORDER BY expressions.
+     */
+    /**
+     * Translates the given {@link org.kuali.rice.core.api.criteria.Predicate} to a platform-specific criteria.
      *
      * @param queryClazz the type of the query.
-     * @param predicate the {@link Predicate} to translate.
-     * @return a criteria for the given {@link Predicate}.
+     * @param predicate  the {@link org.kuali.rice.core.api.criteria.QueryByCriteria} to translate.
+     * @return a criteria for the given {@link org.kuali.rice.core.api.criteria.QueryByCriteria}.
      */
-    C translateCriteria(Class queryClazz, Predicate predicate);
+    C translateCriteria(Class queryClazz, QueryByCriteria predicate);
+    /**
+     * End IU Customization
+     */
 
     /**
      * Creates a query from the given criteria.

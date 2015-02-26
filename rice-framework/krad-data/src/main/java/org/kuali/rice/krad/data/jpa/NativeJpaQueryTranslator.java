@@ -15,23 +15,24 @@
  */
 package org.kuali.rice.krad.data.jpa;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.kuali.rice.core.api.criteria.OrderDirection;
+import org.kuali.rice.core.api.criteria.PropertyPath;
+import org.kuali.rice.core.api.criteria.QueryByCriteria;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.kuali.rice.core.api.criteria.PropertyPath;
-import org.kuali.rice.core.api.criteria.QueryByCriteria;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * JPA QueryTranslator that translates queries directly into native JPA 2 Criteria API.
@@ -105,10 +106,10 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
         }
 
         /**
-         * 
+         *
          * Creates a new criteria parsing context for an inner subquery.  The parent context is stored
          * to allow references between the inner and outer queries.
-         * 
+         *
          * @param entityManager the entity manager to use for interacting with the database.
          * @param queryClass the type of the query.
          * @param parentContext The {@link TranslationContext} of the outer query into which the subquery will be added as a {@link Predicate}.
@@ -117,7 +118,7 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
         	this(entityManager, queryClass);
         	this.parentTranslationContext = parentContext;
         }
-        
+
         /**
          * Creates a new criteria parsing context that is a container for the inner predicates.
          *
@@ -150,9 +151,9 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
 
 		/**
 		 * Adds a JPA Subquery to the predicates.
-		 * 
-		 * @param predicate
-		 *            the predicate to AND.
+		 *
+		 * @param subquery
+		 *            the subquery to add.
 		 */
 		void addExistsSubquery(Subquery<?> subquery) {
 			predicates.add(builder.exists(subquery));
@@ -238,6 +239,7 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
         this.entityManager = entityManager;
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -320,7 +322,7 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
 	/**
 	 * Translates the Rice Criteria API {@link PropertyPath} object into a native JPA path which can be used in JPA
 	 * predicates.
-	 * 
+	 *
 	 * @param criteria
 	 *            The base criteria context for translation of the property if no specific data type is given.
 	 * @param value
@@ -418,7 +420,45 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
                 fixSearchPattern(value.toUpperCase())));
     }
 
-	/**
+    @Override
+    protected void addOrderBy(TranslationContext criteria, String fieldName, OrderDirection orderDirection) {
+        List<Order> orderList = criteria.query.getOrderList();
+        if (orderList == null) {
+            orderList = new ArrayList<Order>();
+        }
+        Order orderToAdd = null;
+        if(fieldName.contains(".")){
+            String fieldNameStart = StringUtils.substringBefore(fieldName, ".");
+            String fieldNameEnd = StringUtils.substringAfter(fieldName, ".");
+            switch (orderDirection) {
+                case ASCENDING:
+                    orderToAdd = criteria.builder.asc(criteria.root.get(fieldNameStart).get(fieldNameEnd));
+                    break;
+                case DESCENDING:
+                    orderToAdd = criteria.builder.desc(criteria.root.get(fieldNameStart).get(fieldNameEnd));
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            switch (orderDirection) {
+                case ASCENDING:
+                    orderToAdd = criteria.builder.asc(criteria.root.get(fieldName));
+                    break;
+                case DESCENDING:
+                    orderToAdd = criteria.builder.desc(criteria.root.get(fieldName));
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (orderToAdd != null) {
+            orderList.add(orderToAdd);
+        }
+        criteria.query.orderBy(orderList);
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -512,6 +552,14 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
      * {@inheritDoc}
      */
     @Override
+    protected void addNotLikeIgnoreCase(TranslationContext criteria, String propertyPath, String value) {
+        criteria.addPredicate(criteria.builder.notLike(criteria.builder.upper(criteria.attr(propertyPath)), fixSearchPattern(value.toUpperCase())));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void addIn(TranslationContext criteria, String propertyPath, Collection values) {
         criteria.addPredicate(criteria.attr(propertyPath).in(values));
     }
@@ -541,5 +589,6 @@ class NativeJpaQueryTranslator extends QueryTranslatorBase<NativeJpaQueryTransla
     protected String genUpperFunc(String pp) {
         throw new IllegalStateException("genUpperFunc should not have been invoked for NativeJpaQueryTranslator");
     }
+
 
 }

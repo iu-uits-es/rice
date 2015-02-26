@@ -19,7 +19,6 @@ package org.kuali.rice.kew.rule.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.kuali.rice.kew.api.KewApiConstants;
-import org.kuali.rice.kew.api.rule.RuleTemplate;
 import org.kuali.rice.kew.rule.RuleBaseValues;
 import org.kuali.rice.kew.rule.RuleDelegationBo;
 import org.kuali.rice.kew.rule.RuleExpressionDef;
@@ -34,8 +33,6 @@ import org.kuali.rice.kew.service.KEWServiceLocator;
 import org.kuali.rice.kew.test.KEWTestCase;
 import org.kuali.rice.krad.data.PersistenceOption;
 import org.kuali.rice.krad.service.KRADServiceLocator;
-import org.kuali.rice.krad.test.KRADTestCase;
-import org.kuali.rice.test.BaselineTestCase;
 
 import java.util.List;
 
@@ -152,7 +149,7 @@ public class KewRuleDataJpaTest extends KEWTestCase{
         RuleBaseValues ruleBaseValues = setupRuleBaseValues();
         RuleDelegationBo ruleDelegationBo = setupRuleDelegationBo(ruleBaseValues);
         List<RuleDelegationBo> ruleDelegationBos = KEWServiceLocator.getRuleDelegationService().
-                        findByDelegateRuleId(ruleDelegationBo.getRuleDelegationId());
+                findByDelegateRuleId(ruleDelegationBo.getDelegateRuleId());
         assertTrue("Rule Delegation Bo fetched by rule id",ruleDelegationBos != null && ruleDelegationBos.size() == 1);
     }
 
@@ -189,6 +186,7 @@ public class KewRuleDataJpaTest extends KEWTestCase{
         ruleDelegationBo.setGroupReviewerName("Testing");
         ruleDelegationBo.setPersonReviewer("blah");
         ruleDelegationBo.setDelegationRuleBaseValues(ruleBaseValues);
+        ruleDelegationBo.setDelegateRuleId(ruleBaseValues.getId());
         ruleDelegationBo.setResponsibilityId("1234");
 
         return KRADServiceLocator.getDataObjectService().save(ruleDelegationBo);

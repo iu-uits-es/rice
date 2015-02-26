@@ -15,14 +15,14 @@
  */
 package org.kuali.rice.krad.data.jpa;
 
-import java.util.Collection;
+import org.apache.commons.lang.StringUtils;
+import org.kuali.rice.core.api.criteria.OrderDirection;
+import org.kuali.rice.core.api.criteria.Predicate;
+import org.springframework.util.ClassUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-
-import org.apache.commons.lang.StringUtils;
-import org.kuali.rice.core.api.criteria.Predicate;
-import org.springframework.util.ClassUtils;
+import java.util.Collection;
 
 /**
  * Translates queries to JPA specific classes.
@@ -58,7 +58,7 @@ class JpaQueryTranslator extends QueryTranslatorBase<Criteria, Query> {
     protected Criteria createCriteriaForSubQuery(Class queryClazz, Criteria parentContext) {
 		throw new UnsupportedOperationException();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -182,6 +182,14 @@ class JpaQueryTranslator extends QueryTranslatorBase<Criteria, Query> {
      * {@inheritDoc}
      */
     @Override
+    protected void addNotLikeIgnoreCase(Criteria criteria, String propertyPath, String value) {
+        criteria.notLike(genUpperFunc(propertyPath), value.toUpperCase());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void addIn(Criteria criteria, String propertyPath, Collection values) {
         criteria.in(propertyPath, values);
     }
@@ -230,4 +238,9 @@ class JpaQueryTranslator extends QueryTranslatorBase<Criteria, Query> {
 	protected void addExistsSubquery(Criteria criteria, String subQueryType, Predicate subQueryPredicate) {
 		throw new UnsupportedOperationException();
 	}
+
+    @Override
+    protected void addOrderBy(Criteria criteria, String propertyPath, OrderDirection orderDirection) {
+        criteria.orderBy(propertyPath, orderDirection.getDirection().equals(OrderDirection.ASCENDING.getDirection()));
+    }
 }

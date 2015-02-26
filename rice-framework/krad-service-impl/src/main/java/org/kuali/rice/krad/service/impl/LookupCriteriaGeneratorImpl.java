@@ -269,7 +269,17 @@ public class LookupCriteriaGeneratorImpl implements LookupCriteriaGenerator {
             // If forceUppercase is true, both the database value and the user entry should be converted to Uppercase -- so change the caseInsensitive to false since we don't need to
             // worry about the values not matching.  However, if forceUppercase is false, make sure to do a caseInsensitive search because the database value and user entry
             // could be mixed case.  Thus, caseInsensitive will be the opposite of forceUppercase.
-            caseInsensitive = dataDictionaryService.getAttributeForceUppercase(type, propertyName);
+            /**
+             * Begin IU Customization
+             * 2014-11-04 - Francis Fernandez (fraferna@iu.edu)
+             * EN-3924
+             *
+             * Invert value of forceUppercase attribute so it matches the intention of the comment above.
+             */
+            caseInsensitive = !dataDictionaryService.getAttributeForceUppercase(type, propertyName);
+            /**
+             * End IU Customization
+             */
         }
         if (caseInsensitive == null) {
             caseInsensitive = Boolean.TRUE;
@@ -860,6 +870,25 @@ public class LookupCriteriaGeneratorImpl implements LookupCriteriaGenerator {
         criteria.addPredicate(PredicateFactory.like(propertyName, propertyValue));
     }
 
+    /**
+     * Begin IU Customization
+     * 2014-11-04 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3924
+     *
+     * Add IgnoreCase version of Like/NotLike to criteria.
+     */
+    protected void addLikeIgnoreCase(Predicates criteria, String propertyName, String propertyValue) {
+        criteria.addPredicate(PredicateFactory.likeIgnoreCase(propertyName, propertyValue));
+    }
+
+    protected void addNotLikeIgnoreCase(Predicates criteria, String propertyName, String propertyValue) {
+        criteria.addPredicate(PredicateFactory.notLikeIgnoreCase(propertyName, propertyValue));
+    }
+
+    /**
+     * End IU Customization
+     */
+
     protected void addNotLike(Predicates criteria, String propertyName, String propertyValue) {
         criteria.addPredicate(PredicateFactory.notLike(propertyName, propertyValue));
     }
@@ -939,8 +968,21 @@ public class LookupCriteriaGeneratorImpl implements LookupCriteriaGenerator {
     }
 
     protected void addLike(Predicates criteria, String propertyName, String propertyValue, boolean caseInsensitive) {
-        // XXX: QBC does not support case sensitivity for like
-        addLike(criteria, propertyName, propertyValue);
+        /**
+         * Begin IU Customization
+         * 2014-11-04 - Francis Fernandez (fraferna@iu.edu)
+         * EN-3924
+         *
+         * Handle case insensitive cases for like.
+         */
+        if (caseInsensitive) {
+            addLikeIgnoreCase(criteria, propertyName, propertyValue);
+        } else {
+            addLike(criteria, propertyName, propertyValue);
+        }
+        /**
+         * End IU Customization
+         */
     }
 
     protected void addBetween(Predicates criteria, String propertyName, String value1, String value2, boolean caseInsensitive) {
@@ -949,8 +991,21 @@ public class LookupCriteriaGeneratorImpl implements LookupCriteriaGenerator {
     }
 
     protected void addNotLike(Predicates criteria, String propertyName, String propertyValue, boolean caseInsensitive) {
-        // XXX: QBC does not support case sensitivity for notlike
-        addNotLike(criteria, propertyName, propertyValue);
+        /**
+         * Begin IU Customization
+         * 2014-11-04 - Francis Fernandez (fraferna@iu.edu)
+         * EN-3924
+         *
+         * Handle case insensitive cases for like.
+         */
+        if (caseInsensitive) {
+            addNotLikeIgnoreCase(criteria, propertyName, propertyValue);
+        } else {
+            addNotLike(criteria, propertyName, propertyValue);
+        }
+        /**
+         * End IU Customization
+         */
     }
 
     protected String parsePropertyName(Predicates criteria, String fullyQualifiedPropertyName) {

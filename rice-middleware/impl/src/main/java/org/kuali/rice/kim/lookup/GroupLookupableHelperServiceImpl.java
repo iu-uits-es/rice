@@ -134,7 +134,8 @@ public class GroupLookupableHelperServiceImpl  extends KimLookupableHelperServic
         if (StringUtils.isNotBlank(refToRef) && refToRef.equalsIgnoreCase("GroupBo")) {
             criteriaMap.remove(KRADConstants.REFERENCES_TO_REFRESH);
         }
-
+        boolean validPrncplFoundIfPrncplCritPresent = true;
+        Map<String, String> attribsMap = new HashMap<String, String>();
         if (!criteriaMap.isEmpty()) {
             List<Predicate> predicates = new ArrayList<Predicate>();
             //principalId doesn't exist on 'Group'.  Lets do this predicate conversion separately
@@ -161,27 +162,82 @@ public class GroupLookupableHelperServiceImpl  extends KimLookupableHelperServic
                                             or(isNull("members.activeToDateValue"), greaterThan("members.activeToDateValue", currentTime))
                                     )
                                 ));
+                }else {
+                    validPrncplFoundIfPrncplCritPresent = false;
                 }
 
             }
             criteriaMap.remove(KimConstants.UniqueKeyConstants.PRINCIPAL_NAME);
-
+            Map<String, String> criteriaCopy = new HashMap<String, String>();
+            // copy the criteria map so we can modify it
+            criteriaCopy.putAll(criteriaMap);
+            // check the attribute definitions for attribute names
+            for(String key : criteriaCopy.keySet()) {
+                /**
+                 * Begin IU Customization
+                 * 2014-09-11 - Francis Fernandez (fraferna@iu.edu)
+                 * EN-3849
+                 *
+                 * Attribute keys should be removed from the parameter map regardless of whether they have a
+                 * criteria value (but should only be added to the attribute map if they have a value).
+                 */
+                if (isParamAttribute(key)) {
+                    if (StringUtils.isNotBlank(criteriaMap.get(key))) {
+                        String attributeName = StringUtils.substringBetween(key, "attributes(", ")");
+                        attribsMap.put(attributeName, criteriaMap.get(key));
+                    }
+                    // valid attribute name so remove from criteria map
+                    criteriaMap.remove(key);
+                }
+                /**
+                 * End IU Customization
+                 */
+            }
             predicates.add(PredicateUtils.convertMapToPredicate(criteriaMap));
             criteria.setPredicates(and(predicates.toArray(new Predicate[predicates.size()])));
         }
-    	GroupQueryResults groupResults = KimApiServiceLocator.getGroupService().findGroups(criteria.build());
-    	List<Group> groups = groupResults.getResults();
+        List<Group> groups = new ArrayList<Group>();
+        if (validPrncplFoundIfPrncplCritPresent) {
+            GroupQueryResults groupResults = KimApiServiceLocator.getGroupService().findGroups(criteria.build());
+            groups = groupResults.getResults();
+        }
 
-        //have to convert back to Bos :(
+        //have to convert back to Bos
         Map<String, GroupBo> groupBos = new HashMap<String, GroupBo>(groups.size());
         for (Group group : groups) {
-            if (groupBos.get(group.getId()) == null) {
-                groupBos.put(group.getId(), GroupBo.from(group));
+            // filter by any attributes
+            if (attribsMap.isEmpty()) {
+                if (groupBos.get(group.getId()) == null) {
+                    groupBos.put(group.getId(), GroupBo.from(group));
+                }
+            } else {
+                boolean containsAllAttribs = true;
+                for (String attribute : attribsMap.keySet()) {
+                    containsAllAttribs &= group.getAttributes().containsKey(attribute) &&
+                            group.getAttributes().get(attribute).equalsIgnoreCase(attribsMap.get(attribute));
+                }
+                if (containsAllAttribs) {
+                    if (groupBos.get(group.getId()) == null) {
+                        groupBos.put(group.getId(), GroupBo.from(group));
+                    }
+                }
             }
         }
 
-
     	return new ArrayList<GroupBo>(groupBos.values());
+    }
+
+    /**
+     * Determines if the given parameter is wrapped with attributes() and the wrapped value is a non-empty
+     * <code>String</code>.
+     * @param param The string to test.
+     * @return <code>TRUE</code> if the parameter passed in is wrapped with attributes() and the wrapped value is
+     * non-empty, <code>FALSE</code> otherwise.
+     */
+    private boolean isParamAttribute(String param) {
+        return param.matches("attributes\\((.*?)\\)") &&
+                StringUtils.isNotBlank(StringUtils.substringBetween(param, "attributes(",")")) &&
+                StringUtils.substringBetween(param, "attributes(",")") != "null";
     }
 
     @Override
@@ -336,7 +392,19 @@ public class GroupLookupableHelperServiceImpl  extends KimLookupableHelperServic
                     prop = ((GroupBo)element).getGroupAttributeValueById(id);
                 }
                 if (prop == null) {
-                    prop = (String) KradDataServiceLocator.getDataObjectService().wrap(element).getPropertyValueNullSafe(col.getPropertyName());
+                    /**
+                     * Begin IU Customization
+                     * 2014-09-15 - Francis Fernandez (fraferna@iu.edu)
+                     * EN-3849
+                     *
+                     * Convert attributes to use the correct format for mappable properties
+                     * (i.e., change parentheses to square braces after "attributes")
+                     */
+                    prop = (String) KradDataServiceLocator.getDataObjectService().wrap(element)
+                            .getPropertyValueNullSafe(findAndConvertAttributeNamesToMappableProperty(col.getPropertyName()));
+                    /**
+                     * End IU Customization
+                     */
                 } else {
                 }
 
@@ -536,6 +604,27 @@ public class GroupLookupableHelperServiceImpl  extends KimLookupableHelperServic
 	public void setTypeId(String typeId) {
 		this.typeId = typeId;
 	}
+
+    /**
+     * Begin IU Customization
+     * 2014-09-15 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3849
+     *
+     * Utility method to determine if a property name is actually an attribute and, if so,
+     * returning a version of the property name that is understood by the bean wrapper to
+     * be part of a mappable property.
+     */
+    private String findAndConvertAttributeNamesToMappableProperty(String propertyName) {
+        if (isParamAttribute(propertyName)) {
+            // If the property is an attribute, we have to adjust the formatting so the wrapper recognizes it as being mappable.
+            return propertyName.replaceAll("attributes\\((.*?)\\)", "attributes\\[$1\\]");
+        } else {
+            return propertyName;
+        }
+    }
+    /**
+     * End IU Customization
+     */
 
     @Override
     public void performClear(LookupForm lookupForm) {

@@ -27,10 +27,10 @@ import java.util.Set;
 /**
  * An abstract implementation of a {@link CompositePredicate}.  This class defines all of the JAXB
  * annotations such that sub-classes should not have to.
- * 
+ *
  * <p>If a class subclasses this class then it *MUST* be sure to add itself to the JAXB
  * annotations for {@link #predicates}
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -43,7 +43,7 @@ abstract class AbstractCompositePredicate extends AbstractPredicate implements C
     /**
      * Defines the JAXB annotations for the List of predicates.  All supported predicates *MUST* be
      * included in this List in order for them to be supported in the XML schema.
-     * 
+     *
      * If a new type of predicate is created it *MUST* be added to this list.
      */
     @XmlElements(value = {
@@ -64,6 +64,7 @@ abstract class AbstractCompositePredicate extends AbstractPredicate implements C
             @XmlElement(name = NotInPredicate.Constants.ROOT_ELEMENT_NAME, type = NotInPredicate.class, required = false),
             @XmlElement(name = NotInIgnoreCasePredicate.Constants.ROOT_ELEMENT_NAME, type = NotInIgnoreCasePredicate.class, required = false),
             @XmlElement(name = NotLikePredicate.Constants.ROOT_ELEMENT_NAME, type = NotLikePredicate.class, required = false),
+            @XmlElement(name = NotLikeIgnoreCasePredicate.Constants.ROOT_ELEMENT_NAME, type = NotLikeIgnoreCasePredicate.class, required = false),
             @XmlElement(name = NotNullPredicate.Constants.ROOT_ELEMENT_NAME, type = NotNullPredicate.class, required = false),
             @XmlElement(name = NullPredicate.Constants.ROOT_ELEMENT_NAME, type = NullPredicate.class, required = false),
             @XmlElement(name = OrPredicate.Constants.ROOT_ELEMENT_NAME, type = OrPredicate.class, required = false)
@@ -72,7 +73,7 @@ abstract class AbstractCompositePredicate extends AbstractPredicate implements C
 
 	/**
 	 * This default constructor exists only to be invoked by sub-classes
-	 * in their default constructors which is used by JAXB. 
+	 * in their default constructors which is used by JAXB.
 	 */
     AbstractCompositePredicate() {
         this.predicates = null;
@@ -82,7 +83,7 @@ abstract class AbstractCompositePredicate extends AbstractPredicate implements C
      * When invoked by a subclass, this constructor will set the predicates
      * to the given set. If the set is null then it will be translated
      * internally to an empty set.
-     * 
+     *
      * @param predicates the list of predicates to set
      */
     AbstractCompositePredicate(final Set<Predicate> predicates) {

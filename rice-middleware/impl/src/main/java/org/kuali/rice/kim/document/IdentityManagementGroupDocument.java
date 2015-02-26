@@ -58,7 +58,7 @@ public class IdentityManagementGroupDocument extends IdentityManagementTypeAttri
     private static final Logger LOG = Logger.getLogger(IdentityManagementGroupDocument.class);
     private static final long serialVersionUID = 1L;
 
-    // principal data                       
+    // principal data
     @Column(name = "GRP_ID")
     protected String groupId;
 
@@ -77,7 +77,7 @@ public class IdentityManagementGroupDocument extends IdentityManagementTypeAttri
     @Column(name = "GRP_DESC")
     protected String groupDescription;
 
-    //@Type(type="yes_no")                       
+    //@Type(type="yes_no")
     @Column(name = "ACTV_IND")
     @Convert(converter = BooleanYNConverter.class)
     protected boolean active = true;
@@ -172,7 +172,7 @@ public class IdentityManagementGroupDocument extends IdentityManagementTypeAttri
             }
         }
         int index = 0;
-        // this needs to be checked - are all qualifiers present?                       
+        // this needs to be checked - are all qualifiers present?
         if (getDefinitions() != null) {
             for (KimAttributeField key : getDefinitions()) {
                 if (getQualifiers().size() > index) {
@@ -180,6 +180,7 @@ public class IdentityManagementGroupDocument extends IdentityManagementTypeAttri
                     qualifier.setKimAttrDefnId(getKimAttributeDefnId(key));
                     qualifier.setKimTypId(getKimType().getId());
                     qualifier.setGroupId(groupId);
+                    qualifier.setDocumentNumber(getDocumentNumber());
                 }
                 index++;
             }
@@ -197,9 +198,9 @@ public class IdentityManagementGroupDocument extends IdentityManagementTypeAttri
     }
 
     public String getGroupId() {
-        //		if(StringUtils.isBlank(this.groupId)){                       
-        //			initializeDocumentForNewGroup();                       
-        //		}                       
+        //		if(StringUtils.isBlank(this.groupId)){
+        //			initializeDocumentForNewGroup();
+        //		}
         return groupId;
     }
 

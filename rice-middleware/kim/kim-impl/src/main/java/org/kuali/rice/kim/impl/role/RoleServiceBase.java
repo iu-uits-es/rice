@@ -67,6 +67,8 @@ import org.kuali.rice.kim.impl.type.KimTypeBo;
 import org.kuali.rice.krad.data.DataObjectService;
 import org.kuali.rice.krad.data.KradDataServiceLocator;
 import org.kuali.rice.krad.util.KRADPropertyConstants;
+import org.kuali.rice.ksb.api.KsbApiServiceLocator;
+import org.kuali.rice.ksb.api.registry.ServiceInfo;
 
 abstract class RoleServiceBase {
     private static final Logger LOG = Logger.getLogger( RoleServiceBase.class );
@@ -982,5 +984,38 @@ abstract class RoleServiceBase {
     public void setDateTimeService(DateTimeService dateTimeService) {
         this.dateTimeService = dateTimeService;
     }
+    public void notifyOnMemberRemoval(RoleMember member) {
+        RoleBoLite roleBo = getRoleBoLite(member.getRoleId());
+        if(roleBo != null) {
+            KimType roleType = KimTypeBo.to(roleBo.getKimRoleType());
+            if (roleType != null) {
+                String serviceName = roleType.getServiceName();
+                if (serviceName != null) {
+                    KimTypeService service = null;
+                    try {
+                        // Check service version for compatibility since this was added in 2.1.2
+                        boolean validVersion = false;
+                        List<ServiceInfo> serviceInfos = KsbApiServiceLocator.getServiceRegistry().getOnlineServicesByName(QName.valueOf(serviceName));
+                        for(ServiceInfo serviceInfo : serviceInfos) {
+                            String version = serviceInfo.getServiceVersion();
+                            if(StringUtils.isNotBlank(version) && version.compareTo("2.1.2") >= 0) {
+                                validVersion = true;
+                                break;
+                            }
+                        }
+                        if(validVersion) {
+                            service = (KimTypeService) KsbApiServiceLocator.getMessageHelper().getServiceAsynchronously(QName.valueOf(serviceName));
+                            if (service != null && service instanceof RoleTypeService) {
+                                ((RoleTypeService) service).roleMemberRemoved(member);
+                            }
+                        }
+                    } catch (Exception ex) {
+                        LOG.error("Unable to find role type service with name: " + serviceName, ex);
+                    }
+                }
+            }
+        }
+    }
+
 
 }

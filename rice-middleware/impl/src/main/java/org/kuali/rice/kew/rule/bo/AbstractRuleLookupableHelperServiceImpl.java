@@ -104,7 +104,18 @@ public class AbstractRuleLookupableHelperServiceImpl extends KualiLookupableHelp
     public List<Column> getColumns() {
         List<Column> columns = new ArrayList<Column>();
 
-        for (Row row : rows) {
+        /**
+         * Begin IU Customization
+         * 2014-09-18 - Francis Fernandez (fraferna@iu.edu)
+         * EN-3864
+         *
+         * Use getRows() instead of directly accessing the property to get additional rows
+         * from child classes to populate the columns.
+         */
+        for (Row row : getRows()) {
+            /**
+             * End IU Customization
+             */
             for (Field field : row.getFields()) {
                 Column newColumn = new Column();
                 newColumn.setColumnTitle(field.getFieldLabel());

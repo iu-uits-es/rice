@@ -71,7 +71,7 @@ import java.util.Map;
  *
  */
 public class RuleBaseValuesLookupableHelperServiceImpl extends AbstractRuleLookupableHelperServiceImpl {
-    private List<Row> rows = new ArrayList<Row>();
+    private List<Row> additionalFieldRows = new ArrayList<Row>();
     private LookupableHelperService ruleDelegationLookupableHelperService;
     private List<?> delegationPkNames;
 
@@ -84,11 +84,18 @@ public class RuleBaseValuesLookupableHelperServiceImpl extends AbstractRuleLooku
     private static final String RULE_DESC_PROPERTY_NAME = "description";
 
     @Override
+    public List<Row> getRows() {
+        List<Row> rowReturn = new ArrayList<Row>(super.getRows());
+        rowReturn.addAll(additionalFieldRows);
+        return rowReturn;
+    }
+
+    @Override
     public boolean checkForAdditionalFields(Map<String, String> fieldValues) {
         String ruleTemplateNameParam = fieldValues.get(RULE_TEMPLATE_PROPERTY_NAME);
 
         if (StringUtils.isNotBlank(ruleTemplateNameParam)) {
-            rows = new ArrayList<Row>();
+            additionalFieldRows = new ArrayList<Row>();
             RuleTemplate ruleTemplate = KewApiServiceLocator.getRuleService().getRuleTemplateByName(ruleTemplateNameParam);
 
             for (RuleTemplateAttribute ruleTemplateAttribute : ruleTemplate.getActiveRuleTemplateAttributes()) {
@@ -125,13 +132,13 @@ public class RuleBaseValuesLookupableHelperServiceImpl extends AbstractRuleLooku
                         fieldValues.put(field.getPropertyName(), field.getPropertyValue());
                     }
                     row.setFields(fields);
-                    rows.add(row);
+                    additionalFieldRows.add(row);
 
                 }
             }
             return true;
         }
-        rows.clear();
+        additionalFieldRows.clear();
         return false;
     }
 
@@ -328,7 +335,7 @@ public class RuleBaseValuesLookupableHelperServiceImpl extends AbstractRuleLooku
         List pkNames = KRADServiceLocatorWeb.getLegacyDataAdapter().listPrimaryKeyFieldNames(getBusinessObjectClass());
         Person user = GlobalVariables.getUserSession().getPerson();
 
-        // iterate through result list and wrap rows with return url and action urls
+        // iterate through result list and wrap additionalFieldRows with return url and action urls
         for (Iterator iter = displayList.iterator(); iter.hasNext();) {
             BusinessObject element = (BusinessObject) iter.next();
             if(element instanceof PersistableBusinessObject){

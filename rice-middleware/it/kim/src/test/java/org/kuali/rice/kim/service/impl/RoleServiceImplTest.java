@@ -15,20 +15,7 @@
  */
 package org.kuali.rice.kim.service.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -56,7 +43,14 @@ import org.kuali.rice.kim.test.KIMTestCase;
 import org.kuali.rice.krad.data.KradDataServiceLocator;
 import org.kuali.rice.krad.data.PersistenceOption;
 
-import com.google.common.collect.Maps;
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class RoleServiceImplTest extends KIMTestCase {
     private RoleService roleService;
@@ -74,37 +68,40 @@ public class RoleServiceImplTest extends KIMTestCase {
 
     @Override
     public void setUp() throws Exception {
-		super.setUp();
-		roleService = (RoleService) GlobalResourceLoader.getService(
-                new QName(KimApiConstants.Namespaces.KIM_NAMESPACE_2_0, KimApiConstants.ServiceNames.ROLE_SERVICE_SOAP));
-	}
+        super.setUp();
+        roleService = (RoleService) GlobalResourceLoader.getService(new QName(
+                KimApiConstants.Namespaces.KIM_NAMESPACE_2_0, KimApiConstants.ServiceNames.ROLE_SERVICE_SOAP));
+    }
 
-	@Test
-	public void testPrincipaHasRoleOfDirectAssignment() {
-		List <String>roleIds = new ArrayList<String>();
-		roleIds.add("r1");
-		assertTrue( "p1 has direct role r1", roleService.principalHasRole("p1", roleIds,  Collections
-                .<String, String>emptyMap() ));
-		//assertFalse( "p4 has no direct/higher level role r1", roleService.principalHasRole("p4", roleIds, null ));
-		Map<String, String> qualification = new HashMap<String, String>();
-		qualification.put("Attribute 2", "CHEM");
-		assertTrue( "p1 has direct role r1 with rp2 attr data", roleService.principalHasRole("p1", roleIds, qualification));
-		qualification.clear();
-		//requested qualification rolls up to a higher element in some hierarchy
-		// method not implemented yet, not quite clear how this works
-		qualification.put("Attribute 3", "PHYS");
-		assertTrue( "p1 has direct role r1 with rp2 attr data", roleService.principalHasRole("p1", roleIds, Maps.newHashMap(
-                qualification)));
-	}
+    @Test
+    public void testPrincipaHasRoleOfDirectAssignment() {
+        List<String> roleIds = new ArrayList<String>();
+        roleIds.add("r1");
+        assertTrue("p1 has direct role r1", roleService.principalHasRole("p1", roleIds,
+                Collections.<String, String>emptyMap()));
+        //assertFalse( "p4 has no direct/higher level role r1", roleService.principalHasRole("p4", roleIds, null ));
+        Map<String, String> qualification = new HashMap<String, String>();
+        qualification.put("Attribute 2", "CHEM");
+        assertTrue("p1 has direct role r1 with rp2 attr data", roleService.principalHasRole("p1", roleIds,
+                qualification));
+        qualification.clear();
+        //requested qualification rolls up to a higher element in some hierarchy
+        // method not implemented yet, not quite clear how this works
+        qualification.put("Attribute 3", "PHYS");
+        assertTrue("p1 has direct role r1 with rp2 attr data", roleService.principalHasRole("p1", roleIds,
+                Maps.newHashMap(qualification)));
+    }
 
-	@Test
-	public void testPrincipalHasRoleOfHigherLevel() {
-		// "p3" is in "r2" and "r2 contains "r1"
-		List <String>roleIds = new ArrayList<String>();
-		roleIds.add("r2");
-		assertTrue( "p1 has assigned in higher level role r1", roleService.principalHasRole("p1", roleIds,  Collections.<String, String>emptyMap() ));
-        assertTrue( "p1 has assigned in higher level role r1", roleService.principalHasRole("p1", roleIds,  Collections.<String, String>emptyMap() ));
-	}
+    @Test
+    public void testPrincipalHasRoleOfHigherLevel() {
+        // "p3" is in "r2" and "r2 contains "r1"
+        List<String> roleIds = new ArrayList<String>();
+        roleIds.add("r2");
+        assertTrue("p1 has assigned in higher level role r1", roleService.principalHasRole("p1", roleIds,
+                Collections.<String, String>emptyMap()));
+        assertTrue("p1 has assigned in higher level role r1", roleService.principalHasRole("p1", roleIds,
+                Collections.<String, String>emptyMap()));
+    }
 
     @Test
     public void testDelegateMemberCreateUpdateRemove() {
@@ -130,34 +127,40 @@ public class RoleServiceImplTest extends KIMTestCase {
         delegateMemberInfo.setDelegationId(delegate.getDelegationId());
         delegateMemberInfo.setMemberId("user4");
         delegateMemberInfo.setRoleMemberId(rm1.getId());
-        delegateMemberInfo.setType( MemberType.PRINCIPAL );
-        DelegateMember inDelegateMember =  delegateMemberInfo.build();
+        delegateMemberInfo.setType(MemberType.PRINCIPAL);
+        DelegateMember inDelegateMember = delegateMemberInfo.build();
         DelegateMember newDelegateMember = roleService.createDelegateMember(inDelegateMember);
-        assertNotNull("delegateMember not created",newDelegateMember);
+        assertNotNull("delegateMember not created", newDelegateMember);
 
         //Update delegate member
         delegateMemberInfo.setDelegationMemberId(newDelegateMember.getDelegationMemberId());
-        DateTime dateTimeFrom   = DateTime.now().minusDays(3);
+        DateTime dateTimeFrom = DateTime.now().minusDays(3);
         delegateMemberInfo.setActiveFromDate(dateTimeFrom);
         DateTime dateTimeTo = DateTime.now().plusDays(3);
         delegateMemberInfo.setActiveToDate(dateTimeTo);
         inDelegateMember = delegateMemberInfo.build();
         roleService.updateDelegateMember(inDelegateMember);
-        DelegateMember updatedDelegateMember = DelegateMember.Builder.create( KradDataServiceLocator.getDataObjectService().find(DelegateMemberBo.class, inDelegateMember.getDelegationMemberId()) ).build();
+        DelegateMember updatedDelegateMember = DelegateMember.Builder.create(
+                KradDataServiceLocator.getDataObjectService().find(DelegateMemberBo.class,
+                        inDelegateMember.getDelegationMemberId())).build();
 
-        assertEquals("Delegate member was updated",newDelegateMember.getDelegationMemberId(),updatedDelegateMember.getDelegationMemberId());
-        assertNotNull("updateDelegateMember not created",updatedDelegateMember);
-        assertEquals("activeFromDate not updated",dateTimeFrom,updatedDelegateMember.getActiveFromDate());
-        assertEquals("activeToDate not updated",dateTimeTo,updatedDelegateMember.getActiveToDate());
+        assertEquals("Delegate member was updated", newDelegateMember.getDelegationMemberId(),
+                updatedDelegateMember.getDelegationMemberId());
+        assertNotNull("updateDelegateMember not created", updatedDelegateMember);
+        assertEquals("activeFromDate not updated", dateTimeFrom, updatedDelegateMember.getActiveFromDate());
+        assertEquals("activeToDate not updated", dateTimeTo, updatedDelegateMember.getActiveToDate());
 
         //remove (inactivate) delegate member
         roleService.removeDelegateMembers(Collections.singletonList(updatedDelegateMember));
-        DelegateMemberBo removedDelegateMember = KradDataServiceLocator.getDataObjectService().find(DelegateMemberBo.class, updatedDelegateMember.getDelegationMemberId());
+        DelegateMemberBo removedDelegateMember = KradDataServiceLocator.getDataObjectService().find(
+                DelegateMemberBo.class, updatedDelegateMember.getDelegationMemberId());
         //assertEquals("removeDelegateMembers did not remove the existing member",updatedDelegateMember.getDelegationMemberId(), removedDelegateMember.getDelegationMemberId() );
         assertNotNull("after removal, versionNumber should not be null", removedDelegateMember.getVersionNumber());
-        assertEquals("removeDelegateMembers did not update the existing member", new Long(updatedDelegateMember.getVersionNumber() + 1), removedDelegateMember.getVersionNumber() );
+        assertEquals("removeDelegateMembers did not update the existing member", new Long(
+                updatedDelegateMember.getVersionNumber() + 1), removedDelegateMember.getVersionNumber());
         assertNotNull("after removal, active to date should not be null", removedDelegateMember.getActiveToDate());
-        assertTrue("removeDelegateMembers did not update activeToDate",removedDelegateMember.getActiveToDate().isBeforeNow());
+        assertTrue("removeDelegateMembers did not update activeToDate",
+                removedDelegateMember.getActiveToDate().isBeforeNow());
     }
 
     @Test
@@ -167,17 +170,18 @@ public class RoleServiceImplTest extends KIMTestCase {
         List<String> roleIds = new ArrayList<String>();
         roleIds.add(roleId.getId());
 
-        Map<String,String> attributes = new HashMap<String,String>();
+        Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("parameterName", "parameterNameBefore");
         attributes.put("namespaceCode", "namespaceCodeBefore");
         attributes.put("componentName", "componentNameBefore");
 
-        RoleMember roleMember =  roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1, MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
+        RoleMember roleMember = roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1,
+                MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
         RoleMemberBo rmBo = getRoleMemberBo(roleMember.getId());
 
         RoleMember.Builder updatedRoleMember = RoleMember.Builder.create(roleMember);
         updatedRoleMember.setActiveToDate(ACTIVE_TO2);
-        Map<String,String> newAttributes = new HashMap<String,String>();
+        Map<String, String> newAttributes = new HashMap<String, String>();
         newAttributes.put("parameterName", "parameterNameAfter");
         newAttributes.put("namespaceCode", "namespaceCodeAfter");
         newAttributes.put("componentName", "componentNameAfter");
@@ -186,18 +190,60 @@ public class RoleServiceImplTest extends KIMTestCase {
         roleService.updateRoleMember(updatedRoleMember.build());
         RoleMemberBo updatedRmBo = getRoleMemberBo(roleMember.getId());
 
-        assertEquals(3,rmBo.getAttributeDetails().size());
-        assertEquals(3,updatedRmBo.getAttributeDetails().size());
+        assertEquals(3, rmBo.getAttributeDetails().size());
+        assertEquals(3, updatedRmBo.getAttributeDetails().size());
 
-        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo :  updatedRmBo.getAttributeDetails()) {
-            for (RoleMemberAttributeDataBo oldRoleMemberAttrDataBo :  rmBo.getAttributeDetails()) {
-                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId()) &&
-                    newRoleMemberAttrDataBo.getKimAttributeId().equals(oldRoleMemberAttrDataBo.getKimAttributeId())) {
-                        assertEquals("updated role member version number incorrect", new Long(2), newRoleMemberAttrDataBo.getVersionNumber());
+        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo : updatedRmBo.getAttributeDetails()) {
+            for (RoleMemberAttributeDataBo oldRoleMemberAttrDataBo : rmBo.getAttributeDetails()) {
+                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId())
+                        && newRoleMemberAttrDataBo.getKimAttributeId().equals(
+                        oldRoleMemberAttrDataBo.getKimAttributeId())) {
+                    assertEquals("updated role member version number incorrect", new Long(2),
+                            newRoleMemberAttrDataBo.getVersionNumber());
                 }
             }
         }
     }
+
+    /**
+     * Begin IU Customization
+     * 2014-09-19 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3844
+     *
+     * Add test to check creating/adding and removing a principal with qualifiers to/from a role
+     */
+    @Test
+    public void testPrincipalCreateRemoveWithQualifiers() {
+        Role roleId = roleService.getRole(ROLE_ID);
+        List<String> roleIds = new ArrayList<String>();
+        roleIds.add(roleId.getId());
+
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("parameterName", "parameterNameValue");
+        attributes.put("namespaceCode", "namespaceCodeValue");
+        attributes.put("componentName", "componentNameValue");
+        int memberCountBeforeAdding = getActiveRoleMemberCount(roleIds, attributes);
+
+        roleService.assignPrincipalToRole(MEMBER_ID, roleId.getNamespaceCode(), roleId.getName(), attributes);
+
+        assertTrue(roleService.principalHasRole(MEMBER_ID, roleIds, attributes));
+
+        int memberCountAfterAdding = getActiveRoleMemberCount(roleIds, attributes);
+        assertTrue("Member not added to role.", memberCountAfterAdding == memberCountBeforeAdding + 1);
+        roleService.removePrincipalFromRole(MEMBER_ID, roleId.getNamespaceCode(), roleId.getName(), attributes);
+        assertFalse(roleService.principalHasRole(MEMBER_ID, roleIds, attributes));
+        int memberCountAfterRemoving = getActiveRoleMemberCount(roleIds, attributes);
+        assertEquals("Member not removed from role.", memberCountBeforeAdding, memberCountAfterRemoving);
+    }
+
+    private int getActiveRoleMemberCount(List<String> roleIds, Map<String, String> qualifiers) {
+        final List<RoleMembership> roleMembers = roleService.getRoleMembers(roleIds, qualifiers);
+        return roleMembers.size();
+    }
+
+    /**
+     * End IU Customization
+     */
 
     @Test
     public void testRoleMemberCreateUpdateNoAttrChange() {
@@ -206,12 +252,13 @@ public class RoleServiceImplTest extends KIMTestCase {
         List<String> roleIds = new ArrayList<String>();
         roleIds.add(roleId.getId());
 
-        Map<String,String> attributes = new HashMap<String,String>();
+        Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("parameterName", "parameterNameBefore");
         attributes.put("namespaceCode", "namespaceCodeBefore");
         attributes.put("componentName", "componentNameBefore");
 
-        RoleMember roleMember =  roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1, MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
+        RoleMember roleMember = roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1,
+                MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
         RoleMemberBo rmBo = getRoleMemberBo(roleMember.getId());
 
         RoleMember.Builder updatedRoleMember = RoleMember.Builder.create(roleMember);
@@ -221,15 +268,19 @@ public class RoleServiceImplTest extends KIMTestCase {
         roleService.updateRoleMember(updatedRoleMember.build());
         RoleMemberBo updatedRmBo = getRoleMemberBo(roleMember.getId());
 
-        assertEquals(3,rmBo.getAttributeDetails().size());
-        assertEquals(3,updatedRmBo.getAttributeDetails().size());
+        assertEquals(3, rmBo.getAttributeDetails().size());
+        assertEquals(3, updatedRmBo.getAttributeDetails().size());
 
-        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo :  updatedRmBo.getAttributeDetails()) {
-            for (RoleMemberAttributeDataBo oldRoleMemberAttrDataBo :  rmBo.getAttributeDetails()) {
-                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId()) &&
-                        newRoleMemberAttrDataBo.getKimAttributeId().equals(oldRoleMemberAttrDataBo.getKimAttributeId())) {
-                    assertEquals(oldRoleMemberAttrDataBo.getAttributeValue(), newRoleMemberAttrDataBo.getAttributeValue());
-                    assertEquals("updated role member version number incorrect (since no update - should not have been changed)", new Long(1), newRoleMemberAttrDataBo.getVersionNumber());
+        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo : updatedRmBo.getAttributeDetails()) {
+            for (RoleMemberAttributeDataBo oldRoleMemberAttrDataBo : rmBo.getAttributeDetails()) {
+                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId())
+                        && newRoleMemberAttrDataBo.getKimAttributeId().equals(
+                        oldRoleMemberAttrDataBo.getKimAttributeId())) {
+                    assertEquals(oldRoleMemberAttrDataBo.getAttributeValue(),
+                            newRoleMemberAttrDataBo.getAttributeValue());
+                    assertEquals(
+                            "updated role member version number incorrect (since no update - should not have been changed)",
+                            new Long(1), newRoleMemberAttrDataBo.getVersionNumber());
                 }
             }
         }
@@ -242,18 +293,19 @@ public class RoleServiceImplTest extends KIMTestCase {
         List<String> roleIds = new ArrayList<String>();
         roleIds.add(roleId.getId());
 
-        Map<String,String> attributes = new HashMap<String,String>();
+        Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("parameterName", "parameterNameBefore");
         attributes.put("namespaceCode", "namespaceCodeBefore");
         attributes.put("componentName", "componentNameBefore");
 
-        RoleMember roleMember =  roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1, MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
+        RoleMember roleMember = roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1,
+                MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
         RoleMemberBo rmBo = getRoleMemberBo(roleMember.getId());
-        assertEquals(3,rmBo.getAttributeDetails().size());
+        assertEquals(3, rmBo.getAttributeDetails().size());
 
         RoleMember.Builder updatedRoleMember = RoleMember.Builder.create(roleMember);
         updatedRoleMember.setActiveToDate(ACTIVE_TO2);
-        Map<String,String> newAttributes = new HashMap<String,String>();
+        Map<String, String> newAttributes = new HashMap<String, String>();
         newAttributes.put("parameterName", "parameterNameAfter");
         newAttributes.put("namespaceCode", "namespaceCodeAfter");
         updatedRoleMember.setAttributes(newAttributes);
@@ -263,10 +315,11 @@ public class RoleServiceImplTest extends KIMTestCase {
 
         assertEquals(2, updatedRmBo.getAttributeDetails().size());
 
-        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo :  updatedRmBo.getAttributeDetails()) {
-            for (RoleMemberAttributeDataBo oldRoleMemberAttrDataBo :  rmBo.getAttributeDetails()) {
-                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId()) &&
-                        newRoleMemberAttrDataBo.getKimAttributeId().equals(oldRoleMemberAttrDataBo.getKimAttributeId())) {
+        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo : updatedRmBo.getAttributeDetails()) {
+            for (RoleMemberAttributeDataBo oldRoleMemberAttrDataBo : rmBo.getAttributeDetails()) {
+                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId())
+                        && newRoleMemberAttrDataBo.getKimAttributeId().equals(
+                        oldRoleMemberAttrDataBo.getKimAttributeId())) {
                     assertEquals(new Long(2), newRoleMemberAttrDataBo.getVersionNumber());
                 }
             }
@@ -280,17 +333,18 @@ public class RoleServiceImplTest extends KIMTestCase {
         List<String> roleIds = new ArrayList<String>();
         roleIds.add(roleId.getId());
 
-        Map<String,String> attributes = new HashMap<String,String>();
+        Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("parameterName", "parameterNameBefore");
         attributes.put("namespaceCode", "namespaceCodeBefore");
 
-        RoleMember roleMember =  roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1, MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
+        RoleMember roleMember = roleService.createRoleMember(RoleMember.Builder.create(ROLE_ID, ROLE_MEMBER_ID1,
+                MEMBER_ID, MEMBER_TYPE_R, ACTIVE_FROM, ACTIVE_TO1, attributes, "", "").build());
         RoleMemberBo rmBo = getRoleMemberBo(roleMember.getId());
-        assertEquals("Original role member number of attributes is incorrect", 2,rmBo.getAttributeDetails().size());
+        assertEquals("Original role member number of attributes is incorrect", 2, rmBo.getAttributeDetails().size());
 
         RoleMember.Builder updatedRoleMember = RoleMember.Builder.create(roleMember);
         updatedRoleMember.setActiveToDate(ACTIVE_TO2);
-        Map<String,String> newAttributes = new HashMap<String,String>();
+        Map<String, String> newAttributes = new HashMap<String, String>();
         newAttributes.put("parameterName", "parameterNameAfter");
         newAttributes.put("namespaceCode", "namespaceCodeAfter");
         newAttributes.put("componentName", "componentNameAfter");
@@ -301,20 +355,25 @@ public class RoleServiceImplTest extends KIMTestCase {
         RoleMemberBo updatedRmBo = getRoleMemberBo(roleMember.getId());
 
         //assertEquals("Original role member number of attributes is incorrect: " + rmBo, 2,rmBo.getAttributeDetails().size());
-        assertEquals("updated role member number of attributes is incorrect", 3,updatedRmBo.getAttributeDetails().size());
+        assertEquals("updated role member number of attributes is incorrect", 3,
+                updatedRmBo.getAttributeDetails().size());
 
-        System.err.println( updatedRmBo );
+        System.err.println(updatedRmBo);
 
-        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo : updatedRmBo.getAttributeDetails() ) {
-            assertEquals( newRoleMemberAttrDataBo.getKimAttribute().getAttributeName() + " value is incorrect", newRoleMemberAttrDataBo.getKimAttribute().getAttributeName() + "After", newRoleMemberAttrDataBo.getAttributeValue() );
+        for (RoleMemberAttributeDataBo newRoleMemberAttrDataBo : updatedRmBo.getAttributeDetails()) {
+            assertEquals(newRoleMemberAttrDataBo.getKimAttribute().getAttributeName() + " value is incorrect",
+                    newRoleMemberAttrDataBo.getKimAttribute().getAttributeName() + "After",
+                    newRoleMemberAttrDataBo.getAttributeValue());
             if (newRoleMemberAttrDataBo.getKimAttribute().getAttributeName().equals("componentName")) {
-                assertEquals("componentName (new attribute) versionNumber incorrect", new Long(1), newRoleMemberAttrDataBo.getVersionNumber());
+                assertEquals("componentName (new attribute) versionNumber incorrect", new Long(1),
+                        newRoleMemberAttrDataBo.getVersionNumber());
             } else {
-                assertEquals(newRoleMemberAttrDataBo.getKimAttribute().getAttributeName() + " (updated attribute) versionNumber incorrect", new Long(2), newRoleMemberAttrDataBo.getVersionNumber());
+                assertEquals(newRoleMemberAttrDataBo.getKimAttribute().getAttributeName()
+                                + " (updated attribute) versionNumber incorrect", new Long(2),
+                        newRoleMemberAttrDataBo.getVersionNumber());
             }
         }
     }
-
 
     @Test
     public void testDelegateMemberCreateUpdateRemoveWithAttr() {
@@ -339,25 +398,25 @@ public class RoleServiceImplTest extends KIMTestCase {
         delegateMemberInfo.setDelegationId(delegate.getDelegationId());
         delegateMemberInfo.setMemberId("user4");
         delegateMemberInfo.setRoleMemberId(rm1.getId());
-        delegateMemberInfo.setType( MemberType.PRINCIPAL );
-        Map<String,String> attributes = new HashMap<String,String>();
+        delegateMemberInfo.setType(MemberType.PRINCIPAL);
+        Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("parameterName", "parameterNameBefore");
         attributes.put("namespaceCode", "namespaceCodeBefore");
         attributes.put("componentName", "componentNameBefore");
         delegateMemberInfo.setAttributes(attributes);
-        DelegateMember inDelegateMember =  delegateMemberInfo.build();
+        DelegateMember inDelegateMember = delegateMemberInfo.build();
         DelegateMember newDelegateMember = roleService.createDelegateMember(inDelegateMember);
-        assertNotNull("delegateMember not created",newDelegateMember);
+        assertNotNull("delegateMember not created", newDelegateMember);
 
-//        DelegateMemberBo originalDelegateMemberBo = getDelegateMemberBo(newDelegateMember.getDelegationMemberId());
+        //        DelegateMemberBo originalDelegateMemberBo = getDelegateMemberBo(newDelegateMember.getDelegationMemberId());
 
         //Update delegate member
-        DateTime threeDaysAgo   = DateTime.now().minusDays(3);
+        DateTime threeDaysAgo = DateTime.now().minusDays(3);
         DateTime threeDaysFromNow = DateTime.now().plusDays(3);
         delegateMemberInfo.setActiveFromDate(threeDaysAgo);
         delegateMemberInfo.setActiveToDate(threeDaysFromNow);
         delegateMemberInfo.setDelegationMemberId(newDelegateMember.getDelegationMemberId());
-        Map<String,String> newAttributes = new HashMap<String,String>();
+        Map<String, String> newAttributes = new HashMap<String, String>();
         newAttributes.put("parameterName", "parameterNameAfter");
         newAttributes.put("namespaceCode", "namespaceCodeAfter");
         newAttributes.put("componentName", "componentNameAfter");
@@ -366,30 +425,37 @@ public class RoleServiceImplTest extends KIMTestCase {
         DelegateMember updateDelegateMember = roleService.updateDelegateMember(newDelegateMember);
 
         assertNotNull("updateDelegateMember not updated", updateDelegateMember);
-        assertEquals("activeFromDate not updated",threeDaysAgo,updateDelegateMember.getActiveFromDate());
-        assertEquals("activeToDate not updated",threeDaysFromNow,updateDelegateMember.getActiveToDate());
+        assertEquals("activeFromDate not updated", threeDaysAgo, updateDelegateMember.getActiveFromDate());
+        assertEquals("activeToDate not updated", threeDaysFromNow, updateDelegateMember.getActiveToDate());
 
         DelegateMemberBo updatedDelegateMemberBo = getDelegateMemberBo(updateDelegateMember.getDelegationMemberId());
 
-        for (DelegateMemberAttributeDataBo newRoleMemberAttrDataBo :  updatedDelegateMemberBo.getAttributeDetails()) {
-            for (DelegateMemberAttributeDataBo oldRoleMemberAttrDataBo :  updatedDelegateMemberBo.getAttributeDetails()) {
-                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId()) &&
-                        newRoleMemberAttrDataBo.getKimAttributeId().equals(oldRoleMemberAttrDataBo.getKimAttributeId())) {
-                    assertEquals("version number on new role member incorrect", new Long(2), newRoleMemberAttrDataBo.getVersionNumber());
+        for (DelegateMemberAttributeDataBo newRoleMemberAttrDataBo : updatedDelegateMemberBo.getAttributeDetails()) {
+            for (DelegateMemberAttributeDataBo oldRoleMemberAttrDataBo : updatedDelegateMemberBo
+                    .getAttributeDetails()) {
+                if (newRoleMemberAttrDataBo.getKimTypeId().equals(oldRoleMemberAttrDataBo.getKimTypeId())
+                        && newRoleMemberAttrDataBo.getKimAttributeId().equals(
+                        oldRoleMemberAttrDataBo.getKimAttributeId())) {
+                    assertEquals("version number on new role member incorrect", new Long(2),
+                            newRoleMemberAttrDataBo.getVersionNumber());
                 }
             }
         }
 
         //remove (inactivate) delegate member
-        List<DelegateMember>  removeDelegateMembers = new ArrayList<DelegateMember>();
+        List<DelegateMember> removeDelegateMembers = new ArrayList<DelegateMember>();
         removeDelegateMembers.add(updateDelegateMember);
         roleService.removeDelegateMembers(removeDelegateMembers);
-        DelegateMember removedDelegateMember = roleService.getDelegationMemberById(updateDelegateMember.getDelegationMemberId()) ;
-        assertTrue("removeDelegateMembers did not remove the existing member",removedDelegateMember.getDelegationMemberId().equals(updateDelegateMember.getDelegationMemberId()));
+        DelegateMember removedDelegateMember = roleService.getDelegationMemberById(
+                updateDelegateMember.getDelegationMemberId());
+        assertTrue("removeDelegateMembers did not remove the existing member",
+                removedDelegateMember.getDelegationMemberId().equals(updateDelegateMember.getDelegationMemberId()));
         assertNotNull("after removal, versionNumber should not be null", removedDelegateMember.getVersionNumber());
-        assertTrue("removeDelegateMembers did not remove the existing member",removedDelegateMember.getVersionNumber().equals(updateDelegateMember.getVersionNumber() + 1));
+        assertTrue("removeDelegateMembers did not remove the existing member",
+                removedDelegateMember.getVersionNumber().equals(updateDelegateMember.getVersionNumber() + 1));
         assertNotNull("after removal, active to date should not be null", removedDelegateMember.getActiveToDate());
-        assertTrue("removeDelegateMembers did not update activeToDate",removedDelegateMember.getActiveToDate().isBeforeNow());
+        assertTrue("removeDelegateMembers did not update activeToDate",
+                removedDelegateMember.getActiveToDate().isBeforeNow());
     }
 
     protected RoleMemberBo getRoleMemberBo(String roleMemberId) {
@@ -409,12 +475,13 @@ public class RoleServiceImplTest extends KIMTestCase {
     }
 
     @Test
-	public void testPrincipalHasRoleContainsGroupAssigned() {
-		// "p2" is in "g1" and "g1" assigned to "r2"
-		List <String>roleIds = new ArrayList<String>();
-		roleIds.add("r2");
-		assertTrue( "p2 is assigned to g1 and g1 assigned to r2", roleService.principalHasRole("p2", roleIds,  Collections.<String, String>emptyMap() ));
-	}
+    public void testPrincipalHasRoleContainsGroupAssigned() {
+        // "p2" is in "g1" and "g1" assigned to "r2"
+        List<String> roleIds = new ArrayList<String>();
+        roleIds.add("r2");
+        assertTrue("p2 is assigned to g1 and g1 assigned to r2", roleService.principalHasRole("p2", roleIds,
+                Collections.<String, String>emptyMap()));
+    }
 
     @Test
     public void testAddPrincipalToRoleAndRemove() {
@@ -434,10 +501,11 @@ public class RoleServiceImplTest extends KIMTestCase {
         RoleMember rm1 = roleService.assignPrincipalToRole("user4", r2.getNamespaceCode(), r2.getName(),
                 new HashMap<String, String>());
 
-        assertTrue("principal should be assigned to role", roleService.principalHasRole("user4", Collections.singletonList(
-                r2.getId()), new HashMap<String, String>()));
+        assertTrue("principal should be assigned to role", roleService.principalHasRole("user4",
+                Collections.singletonList(r2.getId()), new HashMap<String, String>()));
 
-        roleService.removePrincipalFromRole("user4", r2.getNamespaceCode(), r2.getName(), new HashMap<String, String>());
+        roleService.removePrincipalFromRole("user4", r2.getNamespaceCode(), r2.getName(),
+                new HashMap<String, String>());
 
         RoleMember rm2 = roleService.assignPrincipalToRole("user4", r2.getNamespaceCode(), r2.getName(),
                 new HashMap<String, String>());
@@ -491,10 +559,8 @@ public class RoleServiceImplTest extends KIMTestCase {
         int originalNumberOfPrincipals = roleService.getRoleMemberPrincipalIds(rCampus.getNamespaceCode(),
                 rCampus.getName(), Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL")).size();
 
-        roleService.assignPrincipalToRole("user3", rCampus.getNamespaceCode(), rCampus.getName(),
-                conditions);
-        roleService.assignPrincipalToRole("user4", rCampus.getNamespaceCode(), rCampus.getName(),
-                conditions);
+        roleService.assignPrincipalToRole("user3", rCampus.getNamespaceCode(), rCampus.getName(), conditions);
+        roleService.assignPrincipalToRole("user4", rCampus.getNamespaceCode(), rCampus.getName(), conditions);
 
         assertTrue("principal should be assigned to role", roleService.principalHasRole("user3",
                 Collections.singletonList(rCampus.getId()), conditions));
@@ -527,52 +593,67 @@ public class RoleServiceImplTest extends KIMTestCase {
     public void testAddQualifiedPrincipalToRoleDoesNotReuseWrongRoleMember() {
         Role rCampus = roleService.getRole("r-campus");
         // Test with qualifying conditions
-        Map<String, String> campusBLqualifier = Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL");
-        Map<String, String> campusKOqualifier = Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "KO");
+        Map<String, String> campusBLqualifier = Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE,
+                "BL");
+        Map<String, String> campusKOqualifier = Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE,
+                "KO");
 
-        List<RoleMembership> roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusBLqualifier);
+        List<RoleMembership> roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()),
+                campusBLqualifier);
         // clean the role out
-        for ( RoleMembership rm : roleMembers ) {
-            roleService.removePrincipalFromRole(rm.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(), campusBLqualifier);
+        for (RoleMembership rm : roleMembers) {
+            roleService.removePrincipalFromRole(rm.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(),
+                    campusBLqualifier);
         }
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusBLqualifier);
 
         // make sure they're gone
-        assertEquals("Pre-check failed - should not be any members with" + campusBLqualifier + ".  Members: " + roleMembers, 0, roleMembers.size());
+        assertEquals(
+                "Pre-check failed - should not be any members with" + campusBLqualifier + ".  Members: " + roleMembers,
+                0, roleMembers.size());
 
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusKOqualifier);
         // clean the role out
-        for ( RoleMembership rm : roleMembers ) {
-            roleService.removePrincipalFromRole(rm.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(), campusKOqualifier);
+        for (RoleMembership rm : roleMembers) {
+            roleService.removePrincipalFromRole(rm.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(),
+                    campusKOqualifier);
         }
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusKOqualifier);
 
         // make sure they're gone
-        assertEquals("Pre-check failed - should not be any members with" + campusKOqualifier + ".  Members: " + roleMembers, 0, roleMembers.size());
+        assertEquals(
+                "Pre-check failed - should not be any members with" + campusKOqualifier + ".  Members: " + roleMembers,
+                0, roleMembers.size());
 
         RoleMember rm1 = roleService.assignPrincipalToRole("user3", rCampus.getNamespaceCode(), rCampus.getName(),
                 campusBLqualifier);
-        assertTrue("user3 should be assigned to role", roleService.principalHasRole("user3",
-                Collections.singletonList(rCampus.getId()), campusBLqualifier));
-        assertNotNull( "Role member ID should have been assigned", rm1.getId() );
-        assertNotNull( "role member missing campus code qualifier", rm1.getAttributes().get(KimConstants.AttributeConstants.CAMPUS_CODE) );
-        assertEquals( "campus code on role member incorrect", "BL", rm1.getAttributes().get(KimConstants.AttributeConstants.CAMPUS_CODE) );
+        assertTrue("user3 should be assigned to role", roleService.principalHasRole("user3", Collections.singletonList(
+                rCampus.getId()), campusBLqualifier));
+        assertNotNull("Role member ID should have been assigned", rm1.getId());
+        assertNotNull("role member missing campus code qualifier", rm1.getAttributes().get(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
+        assertEquals("campus code on role member incorrect", "BL", rm1.getAttributes().get(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
 
         // attempt to add the user again, but with campus code KO
         RoleMember rm2 = roleService.assignPrincipalToRole("user3", rCampus.getNamespaceCode(), rCampus.getName(),
                 campusKOqualifier);
-        assertNotNull( "role member missing campus code qualifier", rm2.getAttributes().get(KimConstants.AttributeConstants.CAMPUS_CODE) );
-        assertEquals( "campus code on role member incorrect", "KO", rm2.getAttributes().get(KimConstants.AttributeConstants.CAMPUS_CODE) );
+        assertNotNull("role member missing campus code qualifier", rm2.getAttributes().get(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
+        assertEquals("campus code on role member incorrect", "KO", rm2.getAttributes().get(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
         assertTrue("user3 should be assigned to role for campus code KO", roleService.principalHasRole("user3",
                 Collections.singletonList(rCampus.getId()), campusKOqualifier));
-        assertNotNull( "Role member ID should have been assigned", rm1.getId() );
-        assertFalse( "Role member ID SHOULD NOT be the same as previous assignment since qualifiers are different",
-                rm1.getId().equals(rm2.getId()) );
+        assertNotNull("Role member ID should have been assigned", rm1.getId());
+        assertFalse("Role member ID SHOULD NOT be the same as previous assignment since qualifiers are different",
+                rm1.getId().equals(rm2.getId()));
 
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusBLqualifier);
-        assertEquals("Should only be one principal in role with " + campusBLqualifier + ".  Members: " + roleMembers, 1, roleMembers.size());
+        assertEquals("Should only be one principal in role with " + campusBLqualifier + ".  Members: " + roleMembers, 1,
+                roleMembers.size());
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusKOqualifier);
-        assertEquals("Should only be one principal in role with " + campusKOqualifier + ".  Members: " + roleMembers, 1, roleMembers.size());
+        assertEquals("Should only be one principal in role with " + campusKOqualifier + ".  Members: " + roleMembers, 1,
+                roleMembers.size());
 
         roleService.removePrincipalFromRole("user3", rCampus.getNamespaceCode(), rCampus.getName(), campusBLqualifier);
 
@@ -584,36 +665,40 @@ public class RoleServiceImplTest extends KIMTestCase {
     public void testAddQualifiedPrincipalToRoleTwice() {
         Role rCampus = roleService.getRole("r-campus");
         // Test with qualifying conditions
-        Map<String, String> campusBLqualifier = Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL");
+        Map<String, String> campusBLqualifier = Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE,
+                "BL");
 
-        List<RoleMembership> roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusBLqualifier);
+        List<RoleMembership> roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()),
+                campusBLqualifier);
         // clean the role out
-        for ( RoleMembership rm : roleMembers ) {
-            roleService.removePrincipalFromRole(rm.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(), campusBLqualifier);
+        for (RoleMembership rm : roleMembers) {
+            roleService.removePrincipalFromRole(rm.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(),
+                    campusBLqualifier);
         }
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusBLqualifier);
 
         // make sure they're gone
-        assertEquals("Pre-check failed - should not be any members with campus code BL.  Members: " + roleMembers, 0, roleMembers.size());
+        assertEquals("Pre-check failed - should not be any members with campus code BL.  Members: " + roleMembers, 0,
+                roleMembers.size());
 
         RoleMember rm1 = roleService.assignPrincipalToRole("user3", rCampus.getNamespaceCode(), rCampus.getName(),
                 campusBLqualifier);
-        assertTrue("user3 should be assigned to role", roleService.principalHasRole("user3",
-                Collections.singletonList(rCampus.getId()), campusBLqualifier));
-        assertNotNull( "Role member ID should have been assigned", rm1.getId() );
+        assertTrue("user3 should be assigned to role", roleService.principalHasRole("user3", Collections.singletonList(
+                rCampus.getId()), campusBLqualifier));
+        assertNotNull("Role member ID should have been assigned", rm1.getId());
         // attempt to add the user again
         RoleMember rm2 = roleService.assignPrincipalToRole("user3", rCampus.getNamespaceCode(), rCampus.getName(),
                 campusBLqualifier);
         assertTrue("user3 should be still assigned to role", roleService.principalHasRole("user3",
                 Collections.singletonList(rCampus.getId()), campusBLqualifier));
-        assertNotNull( "Role member ID should have been assigned", rm1.getId() );
-        assertEquals( "Role member ID be the same as previous assignment since user and qualifiers are the same",
-                rm1.getId(),
-                rm2.getId() );
+        assertNotNull("Role member ID should have been assigned", rm1.getId());
+        assertEquals("Role member ID be the same as previous assignment since user and qualifiers are the same",
+                rm1.getId(), rm2.getId());
 
         roleMembers = roleService.getRoleMembers(Collections.singletonList(rCampus.getId()), campusBLqualifier);
 
-        assertEquals("Should only be one principal in role with campus code BL.  Members: " + roleMembers, 1, roleMembers.size());
+        assertEquals("Should only be one principal in role with campus code BL.  Members: " + roleMembers, 1,
+                roleMembers.size());
 
         roleService.removePrincipalFromRole("user3", rCampus.getNamespaceCode(), rCampus.getName(), campusBLqualifier);
 
@@ -621,18 +706,18 @@ public class RoleServiceImplTest extends KIMTestCase {
                 Collections.singletonList(rCampus.getId()), campusBLqualifier));
     }
 
-	/**
-	 * Tests to ensure that a circular role membership cannot be created via the RoleService.
-	 *
-	 * @throws Exception
-	 */
-	@Test (expected=IllegalArgumentException.class)
-	public void testCircularRoleAssignment() {
-		Map<String, String> map = new HashMap<String, String>();
-		List <String>roleIds = new ArrayList<String>();
-		roleIds.add("r1");
-		roleService.assignRoleToRole("r5", "AUTH_SVC_TEST2", "RoleThree", map);
-	}
+    /**
+     * Tests to ensure that a circular role membership cannot be created via the RoleService.
+     *
+     * @throws Exception
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testCircularRoleAssignment() {
+        Map<String, String> map = new HashMap<String, String>();
+        List<String> roleIds = new ArrayList<String>();
+        roleIds.add("r1");
+        roleService.assignRoleToRole("r5", "AUTH_SVC_TEST2", "RoleThree", map);
+    }
 
     protected RoleResponsibilityAction createRoleResponsibilityAction() {
         List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList("r1"), null);
@@ -653,87 +738,99 @@ public class RoleServiceImplTest extends KIMTestCase {
     @Test
     public void testGetRoleMembers() {
         List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList("r1"), null);
-        assertNotNull( "returned member list should not be null", members);
+        assertNotNull("returned member list should not be null", members);
         assertEquals("Wrong numbers of members in the role", 2, members.size());
     }
 
     @Test
     public void testGetRoleMembersWithExactMatchRoleTypeEmptyQualifier() {
         Role rCampus = roleService.getRole("r-campus");
-        assertNotNull( "Campus-based role missing from test data", rCampus );
-        assertEquals( "Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
-        List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList("r-campus"), Collections.<String,String>emptyMap());
-        assertNotNull( "returned member list should not be null", members);
+        assertNotNull("Campus-based role missing from test data", rCampus);
+        assertEquals("Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
+        List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList("r-campus"),
+                Collections.<String, String>emptyMap());
+        assertNotNull("returned member list should not be null", members);
         assertEquals("Wrong numbers of members in the role: " + members, 2, members.size());
     }
 
     @Test
     public void testGetRoleMembersWithExactMatchRoleType() {
         Role rCampus = roleService.getRole("r-campus");
-        assertNotNull( "Campus-based role missing from test data", rCampus );
-        assertEquals( "Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
-        List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList("r-campus"), Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL"));
-        assertNotNull( "returned member list should not be null", members);
+        assertNotNull("Campus-based role missing from test data", rCampus);
+        assertEquals("Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
+        List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList("r-campus"),
+                Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL"));
+        assertNotNull("returned member list should not be null", members);
         assertEquals("Wrong numbers of members returned from role: " + members, 1, members.size());
     }
 
     @Test
     public void testRemoveRoleFromRoleWithExactQualification() {
         Role rCampus = roleService.getRole("r-campus-2");
-        assertNotNull( "Campus-based role missing from test data", rCampus );
-        assertEquals( "Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
+        assertNotNull("Campus-based role missing from test data", rCampus);
+        assertEquals("Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
 
-        List<RoleMembership> firstLevelRoleMembers = roleService.getFirstLevelRoleMembers(Collections.singletonList("r-campus-2"));
+        List<RoleMembership> firstLevelRoleMembers = roleService.getFirstLevelRoleMembers(Collections.singletonList(
+                "r-campus-2"));
         assertEquals("wrong number of role members: " + firstLevelRoleMembers, 2, firstLevelRoleMembers.size());
 
         // Find the role member for BL and run some sanity checks on the data
         RoleMembership blRoleMember = null;
         RoleMembership nonBlRoleMember = null;
-        for ( RoleMembership rm : firstLevelRoleMembers ) {
-            if ( StringUtils.equals( rm.getQualifier().get(KimConstants.AttributeConstants.CAMPUS_CODE), "BL" ) ) {
+        for (RoleMembership rm : firstLevelRoleMembers) {
+            if (StringUtils.equals(rm.getQualifier().get(KimConstants.AttributeConstants.CAMPUS_CODE), "BL")) {
                 blRoleMember = rm;
             } else {
                 nonBlRoleMember = rm;
             }
         }
-        assertNotNull( "Both role members have qualifer BL, the test can not function", nonBlRoleMember);
-        assertNotNull( "Neither role member has qualifer BL, the test can not function", blRoleMember);
-        assertEquals( "The BL role member needs to be a role", MemberType.ROLE, blRoleMember.getType() );
-        Role blMemberRole = roleService.getRole( blRoleMember.getMemberId() );
-        assertNotNull( "role specified on BL role member does not exist", blMemberRole );
+        assertNotNull("Both role members have qualifer BL, the test can not function", nonBlRoleMember);
+        assertNotNull("Neither role member has qualifer BL, the test can not function", blRoleMember);
+        assertEquals("The BL role member needs to be a role", MemberType.ROLE, blRoleMember.getType());
+        Role blMemberRole = roleService.getRole(blRoleMember.getMemberId());
+        assertNotNull("role specified on BL role member does not exist", blMemberRole);
 
-        roleService.removeRoleFromRole(blRoleMember.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(), Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL"));
+        roleService.removeRoleFromRole(blRoleMember.getMemberId(), rCampus.getNamespaceCode(), rCampus.getName(),
+                Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL"));
 
         firstLevelRoleMembers = roleService.getFirstLevelRoleMembers(Collections.singletonList("r-campus-2"));
-        assertEquals("wrong number of role members after removal: " + firstLevelRoleMembers, 1, firstLevelRoleMembers.size());
+        assertEquals("wrong number of role members after removal: " + firstLevelRoleMembers, 1,
+                firstLevelRoleMembers.size());
 
-        assertEquals("Wrong role member remains", "r1", firstLevelRoleMembers.get(0).getMemberId() );
+        assertEquals("Wrong role member remains", "r1", firstLevelRoleMembers.get(0).getMemberId());
     }
 
     @Test
     public void testGetRoleQualifersForPrincipalByNamespaceAndRolenameWithoutQualifier() {
         Role rCampus = roleService.getRoleByNamespaceCodeAndName("AUTH_SVC_TEST2", "Campus Reviewer");
-        assertNotNull( "Campus-based role missing from test data", rCampus );
-        assertEquals( "Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
+        assertNotNull("Campus-based role missing from test data", rCampus);
+        assertEquals("Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
 
-        List<Map<String, String>> qualifiers = roleService.getRoleQualifersForPrincipalByNamespaceAndRolename("p9", "AUTH_SVC_TEST2", "Campus Reviewer", Collections.<String,String>emptyMap() );
-        assertNotNull( "Returned qualifier list should not be null", qualifiers );
-        assertEquals( "Qualifier list should have one entry", 1, qualifiers.size() );
-        assertTrue( "campus code qualifier missing", qualifiers.get(0).containsKey(KimConstants.AttributeConstants.CAMPUS_CODE) );
-        assertEquals( "campus code qualifier incorrect", "BL", qualifiers.get(0).get(KimConstants.AttributeConstants.CAMPUS_CODE) );
+        List<Map<String, String>> qualifiers = roleService.getRoleQualifersForPrincipalByNamespaceAndRolename("p9",
+                "AUTH_SVC_TEST2", "Campus Reviewer", Collections.<String, String>emptyMap());
+        assertNotNull("Returned qualifier list should not be null", qualifiers);
+        assertEquals("Qualifier list should have one entry", 1, qualifiers.size());
+        assertTrue("campus code qualifier missing", qualifiers.get(0).containsKey(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
+        assertEquals("campus code qualifier incorrect", "BL", qualifiers.get(0).get(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
     }
 
     @Test
     public void testGetRoleQualifersForPrincipalByNamespaceAndRolenameWithQualifier() {
         Role rCampus = roleService.getRoleByNamespaceCodeAndName("AUTH_SVC_TEST2", "Campus Reviewer");
-        assertNotNull( "Campus-based role missing from test data", rCampus );
-        assertEquals( "Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
+        assertNotNull("Campus-based role missing from test data", rCampus);
+        assertEquals("Campus role type incorrect", "kt-campus", rCampus.getKimTypeId());
 
-        List<Map<String, String>> qualifiers = roleService.getRoleQualifersForPrincipalByNamespaceAndRolename("p9", "AUTH_SVC_TEST2", "Campus Reviewer", Collections.singletonMap(KimConstants.AttributeConstants.CAMPUS_CODE, "BL") );
-        assertNotNull( "Returned qualifier list should not be null", qualifiers );
-        assertEquals( "Qualifier list should have one entry", 1, qualifiers.size() );
-        assertTrue( "campus code qualifier missing", qualifiers.get(0).containsKey(KimConstants.AttributeConstants.CAMPUS_CODE) );
-        assertEquals( "campus code qualifier incorrect", "BL", qualifiers.get(0).get(KimConstants.AttributeConstants.CAMPUS_CODE) );
+        List<Map<String, String>> qualifiers = roleService.getRoleQualifersForPrincipalByNamespaceAndRolename("p9",
+                "AUTH_SVC_TEST2", "Campus Reviewer", Collections.singletonMap(
+                        KimConstants.AttributeConstants.CAMPUS_CODE, "BL"));
+        assertNotNull("Returned qualifier list should not be null", qualifiers);
+        assertEquals("Qualifier list should have one entry", 1, qualifiers.size());
+        assertTrue("campus code qualifier missing", qualifiers.get(0).containsKey(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
+        assertEquals("campus code qualifier incorrect", "BL", qualifiers.get(0).get(
+                KimConstants.AttributeConstants.CAMPUS_CODE));
     }
 
     @Test

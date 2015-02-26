@@ -15,14 +15,6 @@
  */
 package org.kuali.rice.kew.rule.web;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -51,6 +43,14 @@ import org.kuali.rice.kim.api.identity.principal.Principal;
 import org.kuali.rice.kns.web.ui.Field;
 import org.kuali.rice.kns.web.ui.Row;
 import org.kuali.rice.kns.web.ui.Section;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Some utilities which are utilized by the {@link RuleAction}.
@@ -274,7 +274,17 @@ public final class WebRuleUtils {
    		RuleTemplateBo ruleTemplate = rule.getRuleTemplate();
    		Map<String, String> fieldNameMap = new HashMap<String, String>();
    		// refetch rule template from service because after persistence in KNS, it comes back without any rule template attributes
-   		if (ruleTemplate != null) {
+		/**
+		 * Begin IU Customization
+		 * 2014-10-10 - Andy Hill (athill@iu.edu)
+		 * EN-3889
+		 *
+		 * Added check that ruleTemplate.getId() is not null before attempting to refetch
+		 */
+		if (ruleTemplate != null && ruleTemplate.getId() != null) {
+			/**
+			 * End IU Customization
+			 */
    			ruleTemplate = KEWServiceLocator.getRuleTemplateService().findByRuleTemplateId(ruleTemplate.getId());
    			if (ruleTemplate != null) {
    				List<RuleTemplateAttributeBo> ruleTemplateAttributes = ruleTemplate.getActiveRuleTemplateAttributes();

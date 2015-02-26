@@ -111,10 +111,10 @@ public class IdentityManagementRoleDocument extends IdentityManagementTypeAttrib
     private List<RoleDocumentDelegation> delegations = new AutoPopulatingList<RoleDocumentDelegation>(RoleDocumentDelegation.class);
 
     @Transient
-    protected List<KimDocumentRoleMember> searchResultMembers = new AutoPopulatingList<KimDocumentRoleMember>(KimDocumentRoleMember.class);
+    protected List<KimDocumentRoleMember> searchResultMembers = new ArrayList<KimDocumentRoleMember>();
 
     @Transient
-    protected List<KimDocumentRoleMember> members = new AutoPopulatingList<KimDocumentRoleMember>(KimDocumentRoleMember.class);
+    protected List<KimDocumentRoleMember> members = new ArrayList<KimDocumentRoleMember>();
 
     @Transient
     private transient ResponsibilityService responsibilityService;
@@ -571,12 +571,14 @@ public class IdentityManagementRoleDocument extends IdentityManagementTypeAttrib
                 }
                 for (KimDocumentRoleQualifier qualifier : member.getQualifiers()) {
                     qualifier.setDocumentNumber(getDocumentNumber());
+                    qualifier.setRoleMemberId(member.getRoleMemberId());
                     qualifier.setKimTypId(getKimType().getId());
                 }
                 for (KimDocumentRoleResponsibilityAction roleRespAction : member.getRoleRspActions()) {
                     if (StringUtils.isBlank(roleRespAction.getRoleResponsibilityActionId())) {
                         DataFieldMaxValueIncrementer incrementer = MaxValueIncrementerFactory.getIncrementer(KimImplServiceLocator.getDataSource(), KimConstants.SequenceNames.KRIM_ROLE_RSP_ACTN_ID_S);
                         roleRespAction.setRoleResponsibilityActionId(incrementer.nextStringValue());
+                        roleRespAction.setDocumentNumber(getDocumentNumber());
                     }
                     roleRespAction.setRoleMemberId(member.getRoleMemberId());
                     roleRespAction.setDocumentNumber(getDocumentNumber());
@@ -607,6 +609,7 @@ public class IdentityManagementRoleDocument extends IdentityManagementTypeAttrib
                     if (delegation.getDelegationId().equals(member.getDelegationId()) && delegation.getDelegationTypeCode().equals(member.getDelegationTypeCode())) {
                         for (RoleDocumentDelegationMemberQualifier qualifier : member.getQualifiers()) {
                             qualifier.setKimTypId(getKimType().getId());
+                            qualifier.setDocumentNumber(getDocumentNumber());
                         }
                     } else {
                         membersToRemove.add(member);

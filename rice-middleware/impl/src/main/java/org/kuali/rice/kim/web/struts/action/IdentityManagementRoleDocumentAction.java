@@ -42,6 +42,7 @@ import org.kuali.rice.kim.api.identity.Person;
 import org.kuali.rice.kim.api.identity.principal.Principal;
 import org.kuali.rice.kim.api.role.Role;
 import org.kuali.rice.kim.api.services.KimApiServiceLocator;
+import org.kuali.rice.kim.api.type.KimType;
 import org.kuali.rice.kim.bo.ui.KimDocumentRoleMember;
 import org.kuali.rice.kim.bo.ui.KimDocumentRolePermission;
 import org.kuali.rice.kim.bo.ui.KimDocumentRoleQualifier;
@@ -136,7 +137,8 @@ public class IdentityManagementRoleDocumentAction extends IdentityManagementDocu
         forward = super.execute(mapping, roleDocumentForm, request, response);
 
         roleDocumentForm.setCanAssignRole(validAssignRole(roleDocumentForm.getRoleDocument()));
-        if (KimTypeLookupableHelperServiceImpl.hasDerivedRoleTypeService(roleDocumentForm.getRoleDocument().getKimType())) {
+        KimType kimType = KimApiServiceLocator.getKimTypeInfoService().getKimType(roleDocumentForm.getRoleDocument().getRoleTypeId());
+        if (KimTypeLookupableHelperServiceImpl.hasDerivedRoleTypeService(kimType)) {
             roleDocumentForm.setCanModifyAssignees(false);
         }
         GlobalVariables.getUserSession().addObject(KimConstants.KimUIConstants.KIM_ROLE_DOCUMENT_SHORT_KEY, roleDocumentForm.getRoleDocument());

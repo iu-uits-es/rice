@@ -26,7 +26,8 @@ import org.kuali.rice.core.api.criteria.GreaterThanOrEqualPredicate;
 import org.kuali.rice.core.api.criteria.GreaterThanPredicate;
 import org.kuali.rice.core.api.criteria.LessThanOrEqualPredicate;
 import org.kuali.rice.core.api.criteria.LessThanPredicate;
-import org.kuali.rice.core.api.criteria.LikePredicate;
+import org.kuali.rice.core.api.criteria.LikeIgnoreCasePredicate;
+import org.kuali.rice.core.api.criteria.NotLikeIgnoreCasePredicate;
 import org.kuali.rice.core.api.criteria.OrPredicate;
 import org.kuali.rice.core.api.criteria.Predicate;
 import org.kuali.rice.core.api.criteria.QueryByCriteria;
@@ -131,8 +132,8 @@ public class LookupCriteriaGeneratorImplTest {
         boolean foundProp2 = false;
         boolean foundProp3 = false;
         for (Predicate predicate : predicates) {
-            if (predicate instanceof LikePredicate) {
-                LikePredicate like = (LikePredicate)predicate;
+            if (predicate instanceof LikeIgnoreCasePredicate) {
+                LikeIgnoreCasePredicate like = (LikeIgnoreCasePredicate) predicate;
                 if (like.getPropertyPath().equals("prop2")) {
                     assertEquals("c", like.getValue().getValue());
                     foundProp2 = true;
@@ -148,8 +149,8 @@ public class LookupCriteriaGeneratorImplTest {
                 OrPredicate orPredicate = (OrPredicate)predicate;
                 assertEquals(2, orPredicate.getPredicates().size());
                 for (Predicate orSubPredicate : orPredicate.getPredicates()) {
-                    if (orSubPredicate instanceof LikePredicate) {
-                        LikePredicate likeInternal = (LikePredicate)orSubPredicate;
+                    if (orSubPredicate instanceof LikeIgnoreCasePredicate) {
+                        LikeIgnoreCasePredicate likeInternal = (LikeIgnoreCasePredicate) orSubPredicate;
                         if (likeInternal.getPropertyPath().equals("prop1")) {
                             assertTrue("a".equals(likeInternal.getValue().getValue()) ||
                                     "b".equals(likeInternal.getValue().getValue()));
@@ -313,6 +314,69 @@ public class LookupCriteriaGeneratorImplTest {
         assertTrue(lessThan instanceof LessThanPredicate);
         assertEquals(((LessThanPredicate) lessThan).getValue().getValue(), date);
     }
+
+    /**
+     * Begin IU Customization
+     * 2014-11-04 - Francis Fernandez (fraferna@iu.edu)
+     * EN-3924
+     *
+     * Tests for generating Like/NotLike predicates that ignore case.
+     */
+    @Test
+    public void testGenerateCriteria_LikeIgnoreCase() {
+        Map<String, String> mapCriteria = new HashMap<String, String>();
+        mapCriteria.put("prop1", "test");
+
+        QueryByCriteria.Builder qbcBuilder = generator.generateCriteria(TestClass.class, mapCriteria, false);
+        assertNotNull(qbcBuilder);
+        QueryByCriteria qbc = qbcBuilder.build();
+
+        Predicate predicate = qbc.getPredicate();
+
+        boolean foundProp1 = false;
+        if (predicate instanceof LikeIgnoreCasePredicate) {
+            LikeIgnoreCasePredicate like = (LikeIgnoreCasePredicate) predicate;
+            if (like.getPropertyPath().equals("prop1")) {
+                assertEquals("test", like.getValue().getValue());
+                foundProp1 = true;
+            } else {
+                fail("Invalid like predicate encountered.");
+            }
+        } else {
+            fail("Invalid predicate: " + predicate);
+        }
+        assertTrue(foundProp1);
+    }
+
+    @Test
+    public void testGenerateCriteria_NotLikeIgnoreCase() {
+        Map<String, String> mapCriteria = new HashMap<String, String>();
+        mapCriteria.put("prop1", "!test");
+
+        QueryByCriteria.Builder qbcBuilder = generator.generateCriteria(TestClass.class, mapCriteria, false);
+        assertNotNull(qbcBuilder);
+        QueryByCriteria qbc = qbcBuilder.build();
+
+        Predicate predicate = qbc.getPredicate();
+
+        boolean foundProp1 = false;
+        if (predicate instanceof NotLikeIgnoreCasePredicate) {
+            NotLikeIgnoreCasePredicate notLike = (NotLikeIgnoreCasePredicate) predicate;
+            if (notLike.getPropertyPath().equals("prop1")) {
+                assertEquals("test", notLike.getValue().getValue());
+                foundProp1 = true;
+            } else {
+                fail("Invalid like predicate encountered.");
+            }
+        } else {
+            fail("Invalid predicate: " + predicate);
+        }
+        assertTrue(foundProp1);
+    }
+
+    /**
+     * End IU Customization
+     */
 
     public static final class TestClass {
 

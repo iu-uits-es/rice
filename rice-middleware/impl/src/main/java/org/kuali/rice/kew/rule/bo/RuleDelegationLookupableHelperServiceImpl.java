@@ -72,7 +72,7 @@ import java.util.Map;
  *
  */
 public class RuleDelegationLookupableHelperServiceImpl extends AbstractRuleLookupableHelperServiceImpl {
-    private List<Row> rows = new ArrayList<Row>();
+    private List<Row> additionalFieldRows = new ArrayList<Row>();
     private static final String PARENT_RESPONSIBILITY_ID_PROPERTY_NAME = "responsibilityId";
     private static final String PARENT_RULE_ID_PROPERTY_NAME = "ruleResponsibility.ruleBaseValuesId";
     private static final String RULE_TEMPLATE_PROPERTY_NAME = "delegationRule.ruleTemplate.name";
@@ -83,11 +83,18 @@ public class RuleDelegationLookupableHelperServiceImpl extends AbstractRuleLooku
     private static final String RULE_DESC_PROPERTY_NAME = "delegationRule.description";
 
     @Override
+    public List<Row> getRows() {
+        List<Row> rowReturn = new ArrayList<Row>(super.getRows());
+        rowReturn.addAll(additionalFieldRows);
+        return rowReturn;
+    }
+
+    @Override
     public boolean checkForAdditionalFields(Map<String, String> fieldValues) {
         String ruleTemplateNameParam = fieldValues.get(RULE_TEMPLATE_PROPERTY_NAME);
 
         if (StringUtils.isNotBlank(ruleTemplateNameParam)) {
-            rows = new ArrayList<Row>();
+            additionalFieldRows = new ArrayList<Row>();
             RuleTemplate ruleTemplate = KewApiServiceLocator.getRuleService().getRuleTemplateByName(ruleTemplateNameParam);
 
             for (RuleTemplateAttribute ruleTemplateAttribute : ruleTemplate.getActiveRuleTemplateAttributes()) {
@@ -124,13 +131,13 @@ public class RuleDelegationLookupableHelperServiceImpl extends AbstractRuleLooku
                         fieldValues.put(field.getPropertyName(), field.getPropertyValue());
                     }
                     row.setFields(fields);
-                    rows.add(row);
+                    additionalFieldRows.add(row);
 
                 }
             }
             return true;
         }
-        rows.clear();
+        additionalFieldRows.clear();
         return false;
     }
 

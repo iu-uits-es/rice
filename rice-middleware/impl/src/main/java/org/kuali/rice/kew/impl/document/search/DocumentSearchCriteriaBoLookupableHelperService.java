@@ -20,7 +20,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
 import org.kuali.rice.core.api.CoreApiServiceLocator;
 import org.kuali.rice.core.api.config.property.Config;
 import org.kuali.rice.core.api.config.property.ConfigContext;
@@ -45,12 +44,10 @@ import org.kuali.rice.kew.docsearch.service.DocumentSearchService;
 import org.kuali.rice.kew.doctype.bo.DocumentType;
 import org.kuali.rice.kew.exception.WorkflowServiceError;
 import org.kuali.rice.kew.exception.WorkflowServiceErrorException;
+import org.kuali.rice.kew.framework.document.search.AttributeFields;
 import org.kuali.rice.kew.framework.document.search.DocumentSearchCriteriaConfiguration;
 import org.kuali.rice.kew.framework.document.search.DocumentSearchResultSetConfiguration;
 import org.kuali.rice.kew.framework.document.search.StandardResultField;
-import org.kuali.rice.kew.impl.document.search.DocumentSearchCriteriaBo;
-import org.kuali.rice.kew.impl.document.search.DocumentSearchCriteriaTranslator;
-import org.kuali.rice.kew.impl.document.search.FormFields;
 import org.kuali.rice.kew.lookup.valuefinder.SavedSearchValuesFinder;
 import org.kuali.rice.kew.service.KEWServiceLocator;
 import org.kuali.rice.kew.user.UserUtils;
@@ -65,7 +62,6 @@ import org.kuali.rice.kns.web.ui.Column;
 import org.kuali.rice.kns.web.ui.Field;
 import org.kuali.rice.kns.web.ui.ResultRow;
 import org.kuali.rice.kns.web.ui.Row;
-import org.kuali.rice.krad.UserSession;
 import org.kuali.rice.krad.bo.BusinessObject;
 import org.kuali.rice.krad.exception.ValidationException;
 import org.kuali.rice.krad.service.KRADServiceLocatorWeb;
@@ -79,8 +75,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,7 +119,8 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
         criteria = loadCriteria(fieldValues);
         searchResults = null;
         try {
-            searchResults = KEWServiceLocator.getDocumentSearchService().lookupDocuments(GlobalVariables.getUserSession().getPrincipalId(), criteria);
+            //KULRICE-12307: Document search API saves searches to user's saved document searches
+            searchResults = KEWServiceLocator.getDocumentSearchService().lookupDocuments(GlobalVariables.getUserSession().getPrincipalId(), criteria, true);
             if (searchResults.isCriteriaModified()) {
                 criteria = searchResults.getCriteria();
             }
@@ -228,8 +227,14 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
                     StringUtils.join(parameters.get(KEWPropertyConstants.DOC_SEARCH_RESULT_PROPERTY_NAME_DOC_STATUS), ","));
         }
         Map<String, String> documentAttributeFieldValues = new HashMap<String, String>();
+        Set<String> validAttributeNames = getValidSearchableAttributeNames(fieldValues.get(DOCUMENT_TYPE_NAME_PARAM));
         for (String parameterName : parameters.keySet()) {
             if (parameterName.contains(KewApiConstants.DOCUMENT_ATTRIBUTE_FIELD_PREFIX)) {
+                // Check to see if this document attribute is in the list of valid attributes
+                String attributeName = StringUtils.substringAfter(parameterName, KewApiConstants.DOCUMENT_ATTRIBUTE_FIELD_PREFIX);
+                if(!validAttributeNames.contains(attributeName)) {
+                    continue;
+                }
                 String[] value = parameters.get(parameterName);
                 if (ArrayUtils.isNotEmpty(value)) {
                     if ( parameters.containsKey(parameterName + KRADConstants.CHECKBOX_PRESENT_ON_FORM_ANNOTATION)) {
@@ -248,7 +253,39 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
 
         return cleanedUpFieldValues;
     }
-    
+
+    /**
+     * This method takes in a document type name and returns a set containing
+     * the names of valid searchable attributes for that document type
+     * @param documentTypeName The name of the document type to find attributes for
+     * @return A set containing the names of the searchable attributes for the given document type
+     */
+    protected static Set<String> getValidSearchableAttributeNames(String documentTypeName) {
+        Set<String> validAttributeNames = new HashSet<String>();
+        if(StringUtils.isNotBlank(documentTypeName)) {
+            // We have a document type name in the search criteria so fetch the document type
+            DocumentType documentType = getValidDocumentType(documentTypeName);
+            if(documentType != null) {
+                // We have a valid document type so use the doc search mediator to find its searchable attribute fields
+                DocumentSearchCriteriaConfiguration searchConfiguration = KEWServiceLocator.getDocumentSearchCustomizationMediator()
+                        .getDocumentSearchCriteriaConfiguration(documentType);
+                if (searchConfiguration != null) {
+                    List<AttributeFields> attributeFields = searchConfiguration.getSearchAttributeFields();
+                    if (attributeFields != null) {
+                        for (AttributeFields fields : attributeFields) {
+                            if(fields.getRemotableAttributeFields() != null) {
+                                for(RemotableAttributeField field : fields.getRemotableAttributeFields()) {
+                                    validAttributeNames.add(field.getName());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return validAttributeNames;
+    }
+
     protected static void replaceCurrentUserInFields(Map<String, String> fields) {
         Person person = GlobalVariables.getUserSession().getPerson();
         // replace the dynamic CURRENT_USER token
@@ -477,7 +514,7 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
         } else if (KEWPropertyConstants.DOC_SEARCH_RESULT_PROPERTY_NAME_ROUTE_LOG.equals(propertyName)) {
             return generateRouteLogUrl(criteriaBo.getDocumentId());
         } else if(KEWPropertyConstants.DOC_SEARCH_RESULT_PROPERTY_NAME_INITIATOR_DISPLAY_NAME.equals(propertyName)) {
-            return generateInitiatorUrl(criteriaBo.getInitiatorPerson());
+            return generateInitiatorUrl(criteriaBo.getInitiatorPrincipalId());
         }
         return super.getInquiryUrl(bo, propertyName);
     }
@@ -532,9 +569,9 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
         return link;
     }
 
-    protected HtmlData.AnchorHtmlData generateInitiatorUrl(Person person) {
+    protected HtmlData.AnchorHtmlData generateInitiatorUrl(String principalId) {
         HtmlData.AnchorHtmlData link = new HtmlData.AnchorHtmlData();
-        if ( person == null || StringUtils.isBlank(person.getPrincipalId()) ) {
+        if (StringUtils.isBlank(principalId) ) {
             return link;
         }
         if (isRouteLogPopup()) {
@@ -543,9 +580,9 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
         else {
             link.setTarget("_self");
         }
-        link.setDisplayText("Initiator Inquiry for User with ID:" + person.getPrincipalId());
+        link.setDisplayText("Initiator Inquiry for User with ID:" + principalId);
         String url = ConfigContext.getCurrentContextConfig().getProperty(Config.KIM_URL) + "/" +
-            "identityManagementPersonInquiry.do?principalId=" + person.getPrincipalId();
+                "identityManagementPersonInquiry.do?principalId=" + principalId;
         link.setHref(url);
         return link;
     }
@@ -672,7 +709,7 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
      *
      * @return the DocumentType which matches the given name or null if no valid document type could be found
      */
-    private DocumentType getValidDocumentType(String documentTypeName) {
+    private static DocumentType getValidDocumentType(String documentTypeName) {
         if (StringUtils.isNotEmpty(documentTypeName)) {
             DocumentType documentType = KEWServiceLocator.getDocumentTypeService().findByNameCaseInsensitive(documentTypeName.trim());
             if (documentType != null && documentType.isActive()) {
@@ -734,13 +771,13 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
 
     private boolean checkForAdditionalFieldsMultiValued(Map<String, String[]> fieldValues) {
         String[] valArray = fieldValues.get(DOCUMENT_TYPE_NAME_PARAM);
-        String val = null; 
+        String val = null;
         if (valArray != null && valArray.length > 0) {
             val = valArray[0];
         }
         return checkForAdditionalFieldsForDocumentType(val);
     }
-    
+
     private boolean checkForAdditionalFieldsForDocumentType(String documentTypeName) {
         if (StringUtils.isNotBlank(documentTypeName)) {
             setRows(documentTypeName);
