@@ -464,6 +464,7 @@ public class AgendaEditorMaintainable extends MaintainableImpl {
                 newTerm.setDescription(propositionBo.getNewTermDescription());
                 newTerm.setSpecificationId(termSpecId);
                 newTerm.setId(termIdIncrementer.getNewId());
+                newTerm.getSpecification().setId(newTerm.getSpecificationId());
 
                 List<TermParameterBo> params = new ArrayList<TermParameterBo>();
                 for (Map.Entry<String, String> entry : propositionBo.getTermParameters().entrySet()) {
