@@ -924,12 +924,16 @@ public class DocumentSearchCriteriaBoLookupableHelperService extends KualiLookup
         populateCustomColumns(customColumns, searchResult);
 
         // if there is an action custom column, always put that before any other field
+        List<Column> columnsToRemove = new ArrayList<Column>();
         for (Column column : customColumns){
             if (column.getColumnTitle().equals(KRADConstants.ACTIONS_COLUMN_TITLE)){
                 newColumns.add(0, column);
-                customColumns.remove(column);
+                columnsToRemove.add(column);
                 break;
             }
+        }
+        for (Column column : columnsToRemove) {
+            customColumns.remove(column);
         }
 
         // now merge the custom columns into the standard columns right before the route log (if the route log column wasn't removed!)
