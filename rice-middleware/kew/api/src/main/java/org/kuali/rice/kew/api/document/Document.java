@@ -150,7 +150,7 @@ public final class Document extends AbstractDataTransferObject implements Docume
         this.dateLastModified = builder.getDateLastModified();
         this.dateApproved = builder.getDateApproved();
         this.dateFinalized = builder.getDateFinalized();
-        this.title = UserTextFilterForXml.CleanInvalidXmlChars(builder.getTitle());
+        this.title = UserTextFilterForXml.cleanInvalidXmlChars(builder.getTitle());
         this.applicationDocumentId = builder.getApplicationDocumentId();
         this.initiatorPrincipalId = builder.getInitiatorPrincipalId();
         this.routedByPrincipalId = builder.getRoutedByPrincipalId();
@@ -437,7 +437,7 @@ public final class Document extends AbstractDataTransferObject implements Docume
         	if (title == null) {
         		title = "";
         	}
-            this.title = UserTextFilterForXml.CleanInvalidXmlChars(title);
+            this.title = UserTextFilterForXml.cleanInvalidXmlChars(title);
         }
 
         public void setApplicationDocumentId(String applicationDocumentId) {

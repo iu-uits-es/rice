@@ -26,12 +26,12 @@ public class UserTextFilterForXmlTest {
     @Test
     public void testCleanInvalidXmlChars() {
         //Null input
-        assertEquals(UserTextFilterForXml.CleanInvalidXmlChars(null), null);
+        assertEquals(UserTextFilterForXml.cleanInvalidXmlChars(null), null);
         //Blank strings should be left alone
-        assertTrue(StringUtils.isBlank(UserTextFilterForXml.CleanInvalidXmlChars("")));
+        assertTrue(StringUtils.isBlank(UserTextFilterForXml.cleanInvalidXmlChars("")));
         String testString = "test";
-        assertEquals(UserTextFilterForXml.CleanInvalidXmlChars(testString), testString);
-        assertEquals(UserTextFilterForXml.CleanInvalidXmlChars(testString + "\u000F"), testString);
+        assertEquals(UserTextFilterForXml.cleanInvalidXmlChars(testString), testString);
+        assertEquals(UserTextFilterForXml.cleanInvalidXmlChars(testString + "\u000F"), testString);
     }
 
 }

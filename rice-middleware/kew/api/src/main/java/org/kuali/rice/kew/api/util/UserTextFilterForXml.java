@@ -16,8 +16,8 @@
 
 package org.kuali.rice.kew.api.util;
 
-import com.sun.org.apache.xml.internal.utils.XMLChar;
 import org.apache.commons.lang.StringUtils;
+import org.apache.xml.utils.XMLChar;
 
 public class UserTextFilterForXml {
     /**
@@ -25,18 +25,26 @@ public class UserTextFilterForXml {
      * @param text The String to clean
      * @return The resulting String
      */
-    public static String CleanInvalidXmlChars(String text) {
-        if (text == null || StringUtils.isBlank(text)) {
+    public static String cleanInvalidXmlChars(String text) {
+        if (StringUtils.isBlank(text)) {
             return text;
         } else {
             StringBuilder sb = new StringBuilder();
+            boolean strippedCharacter = false;
             for (int i = 0; i < text.length(); i++) {
                 char c = text.charAt(i);
                 if (XMLChar.isValid(c)) {
                     sb.append(c);
+                } else {
+                    strippedCharacter = true;
                 }
             }
-            return sb.toString();
+
+            if (strippedCharacter) {
+                return sb.toString();
+            } else {
+                return text;
+            }
         }
     }
 }
