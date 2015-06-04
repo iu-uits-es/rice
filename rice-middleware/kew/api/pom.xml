@@ -74,6 +74,10 @@
       <artifactId>groovy-all</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+    </dependency>
   </dependencies>
   <properties>
     <svc.wda.name>WorkflowDocumentActionsService</svc.wda.name>
