@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.kuali.rice.kew.xml.export;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.kuali.rice.core.api.CoreApiServiceLocator;
@@ -40,12 +40,17 @@ import static org.junit.Assert.*;
 
 @BaselineTestCase.BaselineMode(BaselineTestCase.Mode.NONE)
 public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
-    
+
     private static final Logger LOG = Logger.getLogger(DocumentTypeXmlExporterTest.class);
 
-	@Test public void testExportDynamicProcessConfig() throws Exception {
-    	loadXmlFile("DocTypeExportRuleTemplateConfig.xml");
+    @Test public void testExportDynamicProcessConfig() throws Exception {
+        loadXmlFile("DocTypeExportRuleTemplateConfig.xml");
         loadXmlFile("DocTypeExportConfig.xml");
+        assertExport();
+    }
+
+    @Test public void testExportAppDocStatusTestConfig() throws Exception {
+        loadXmlFile("org/kuali/rice/kew/routeheader/AppDocStatusTestConfig.xml");
         assertExport();
     }
 
@@ -66,7 +71,8 @@ public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
 
     private void assertDocTypeExport(DocumentType oldDocType, DocumentType newDocType) {
         // assert fields which should be different
-        assertFalse("Document type ids should be different.", oldDocType.getDocumentTypeId().equals(newDocType.getDocumentTypeId()));
+        assertFalse("Document type ids should be different.", oldDocType.getDocumentTypeId().equals(newDocType
+                .getDocumentTypeId()));
         assertTrue("Version should be one greater.", newDocType.getVersion().intValue() == oldDocType.getVersion().intValue()+1);
         assertEquals("Previous version should be old doc type.", oldDocType.getDocumentTypeId(), newDocType.getPreviousVersionId());
 
@@ -86,12 +92,10 @@ public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
         assertEquals(oldDocType.getPostProcessorName(), newDocType.getPostProcessorName());
         assertEquals(oldDocType.getAuthorizer(), newDocType.getAuthorizer());
         assertEquals(oldDocType.getRoutingVersion(), newDocType.getRoutingVersion());
-        assertEquals(oldDocType.getValidApplicationStatuses(), newDocType.getValidApplicationStatuses());
-        assertEquals(oldDocType.getApplicationStatusCategories(), newDocType.getApplicationStatusCategories());
         assertWorkgroupsEqual(oldDocType.getBlanketApproveWorkgroup(), newDocType.getBlanketApproveWorkgroup());
         assertEquals(oldDocType.getBlanketApprovePolicy(),newDocType.getBlanketApprovePolicy());
         assertEquals(oldDocType.getCurrentInd(), newDocType.getCurrentInd());
-        
+
         assertWorkgroupsEqual(oldDocType.getSuperUserWorkgroup(), newDocType.getSuperUserWorkgroup());
         assertWorkgroupsEqual(oldDocType.getSuperUserWorkgroupNoInheritence(), newDocType.getSuperUserWorkgroupNoInheritence());
         assertEquals(oldDocType.getActualNotificationFromAddress(), newDocType.getActualNotificationFromAddress());
@@ -113,7 +117,7 @@ public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
             assertNotNull(b);
             assertEquals(a.getId(), b.getId());
         }
-        
+
     }
 
     private void assertRoutePath(DocumentType oldDocType, DocumentType newDocType) {
@@ -127,7 +131,7 @@ public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
     private void assertRouteNodes(RouteNode oldNode, RouteNode newNode, Set processedNodeIds) {
         // it's possible that the doc type will have no route nodes
         if (oldNode == null && newNode == null) return;
-        
+
         if (processedNodeIds.contains(oldNode.getRouteNodeId())) {
             if (!processedNodeIds.contains(newNode.getRouteNodeId())) {
                 fail("If old node is processed, new node should also be processed.");
@@ -143,6 +147,7 @@ public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
         assertEquals(oldNode.getDocumentType().getName(), newNode.getDocumentType().getName());
         assertEquals(oldNode.getFinalApprovalInd(), newNode.getFinalApprovalInd());
         assertEquals(oldNode.getMandatoryRouteInd(), newNode.getMandatoryRouteInd());
+        assertEquals(oldNode.getNextDocumentStatus(), newNode.getNextDocumentStatus());
         assertBranches(oldNode.getBranch(), newNode.getBranch());
         assertEquals(oldNode.getNextNodes().size(), newNode.getNextNodes().size());
         processedNodeIds.add(oldNode.getRouteNodeId());
@@ -190,17 +195,23 @@ public class DocumentTypeXmlExporterTest extends XmlExporterTestCase {
 
     private void assertValidApplicationStatuses(DocumentType oldDocType, DocumentType newDocType) {
         assertEquals(oldDocType.getValidApplicationStatuses().size(), newDocType.getValidApplicationStatuses().size());
-        for (Iterator iterator = oldDocType.getValidApplicationStatuses().iterator(); iterator.hasNext();) {
-            ApplicationDocumentStatus oldApplicationDocumentStatus = (ApplicationDocumentStatus) iterator.next();
+        assertEquals(oldDocType.getApplicationStatusCategories().size(),
+                newDocType.getApplicationStatusCategories().size());
+
+        for (ApplicationDocumentStatus oldApplicationDocumentStatus : oldDocType.getValidApplicationStatuses()) {
+            String oldApplicationStatusCat = oldApplicationDocumentStatus.getCategoryName();
             boolean foundStatus = false;
-            for (Iterator iterator2 = newDocType.getValidApplicationStatuses().iterator(); iterator2.hasNext();) {
-                ApplicationDocumentStatus newApplicationDocumentStatus = (ApplicationDocumentStatus) iterator2.next();
-                if (oldApplicationDocumentStatus.getStatusName().equals(newApplicationDocumentStatus.getStatusName())) {
+
+            for (ApplicationDocumentStatus newApplicationDocumentStatus : newDocType.getValidApplicationStatuses()) {
+                String newApplicationStatusCat = newApplicationDocumentStatus.getCategoryName();
+
+                if (oldApplicationDocumentStatus.getStatusName().equals(newApplicationDocumentStatus.getStatusName())
+                        && StringUtils.equals(oldApplicationStatusCat, newApplicationStatusCat)) {
                     foundStatus = true;
                     break;
                 }
             }
-            assertTrue("Could not locate validApplicationStatus by status name " +
+            assertTrue("Could not locate validApplicationStatus by status name and category" +
                     oldApplicationDocumentStatus.getStatusName(), foundStatus);
         }
     }

@@ -203,30 +203,33 @@ public class DocumentTypeXmlExporter implements XmlExporter {
         List<ApplicationDocumentStatusCategory> appDocStatCategories = documentType.getApplicationStatusCategories();
         List<ApplicationDocumentStatus> appDocStats = documentType.getValidApplicationStatuses();
 
-        if (!appDocStats.isEmpty() && appDocStatCategories != null && !appDocStatCategories.isEmpty()) {
+        if (appDocStatCategories != null && !appDocStatCategories.isEmpty()) {
             Element appDocStatCategoriesElement = renderer.renderElement(parent, APP_DOC_STATUSES);
-            if (appDocStatCategories != null && !appDocStatCategories.isEmpty()) {
-                for (Iterator iterator = appDocStatCategories.iterator(); iterator.hasNext(); ) {
-                    ApplicationDocumentStatusCategory appDocStatCategory = (ApplicationDocumentStatusCategory) iterator.next();
-                    Element appStatusCatElement = renderer.renderElement(appDocStatCategoriesElement, CATEGORY);
-                    appStatusCatElement.setAttribute(NAME, appDocStatCategory.getCategoryName().trim());
-                    if (appDocStats != null) {
-                        for (Iterator iterator2 = appDocStats.iterator(); iterator2.hasNext(); ) {
-                            ApplicationDocumentStatus appDocStat = (ApplicationDocumentStatus) iterator2.next();
-                            if (StringUtils.equals(appDocStat.getCategoryName(), appDocStatCategory.getCategoryName())) {
-                                renderer.renderTextElement(appStatusCatElement, STATUS, appDocStat.getStatusName());
-                            }
+
+            for (ApplicationDocumentStatusCategory appDocStatCategory : appDocStatCategories) {
+                Element appStatusCatElement = renderer.renderElement(appDocStatCategoriesElement, CATEGORY);
+                appStatusCatElement.setAttribute(NAME, appDocStatCategory.getCategoryName().trim());
+
+                if (appDocStats != null) {
+                    for (ApplicationDocumentStatus appDocStat : appDocStats) {
+                        if (StringUtils.equals(appDocStat.getCategoryName(), appDocStatCategory.getCategoryName())) {
+                            renderer.renderTextElement(appStatusCatElement, STATUS, appDocStat.getStatusName());
                         }
                     }
                 }
             }
 
+            for (ApplicationDocumentStatus appDocStat : appDocStats) {
+                if (StringUtils.isEmpty(appDocStat.getCategoryName())) {
+                    renderer.renderTextElement(appDocStatCategoriesElement, STATUS, appDocStat.getStatusName());
+                }
+            }
+        } else {
             if (!appDocStats.isEmpty()) {
-                for (Iterator iterator = appDocStats.iterator(); iterator.hasNext(); ) {
-                    ApplicationDocumentStatus status = (ApplicationDocumentStatus) iterator.next();
-                    if (StringUtils.isEmpty(status.getCategoryName())) {
-                        renderer.renderTextElement(appDocStatCategoriesElement, STATUS, status.getStatusName());
-                    }
+                Element validApplicationStatusesElement = renderer.renderElement(parent, APP_DOC_STATUSES);
+
+                for (ApplicationDocumentStatus appDocStat : appDocStats) {
+                    renderer.renderTextElement(validApplicationStatusesElement, STATUS, appDocStat.getStatusName());
                 }
             }
         }
@@ -310,6 +313,9 @@ public class DocumentTypeXmlExporter implements XmlExporter {
         if (node.getNextNodes().size() == 1) {
             RouteNode nextNode = (RouteNode)node.getNextNodes().get(0);
             renderer.renderAttribute(simpleElement, NEXT_NODE, nextNode.getRouteNodeName());
+            if (node.getNextDocumentStatus() != null) {
+                renderer.renderAttribute(simpleElement, NEXT_APP_DOC_STATUS, node.getNextDocumentStatus());
+            }
             exportNodeGraph(parent, nextNode, splitJoinContext);
         }
     }
@@ -338,6 +344,9 @@ public class DocumentTypeXmlExporter implements XmlExporter {
             if (joinNode.getNextNodes().size() == 1) {
                 RouteNode nextNode = (RouteNode)joinNode.getNextNodes().get(0);
                 renderer.renderAttribute(splitElement, NEXT_NODE, nextNode.getRouteNodeName());
+                if (node.getNextDocumentStatus() != null) {
+                    renderer.renderAttribute(splitElement, NEXT_APP_DOC_STATUS, node.getNextDocumentStatus());
+                }
                 exportNodeGraph(parent, nextNode, splitJoinContext);
             }
         }
