@@ -171,6 +171,9 @@ public class ActionRequestValue implements Serializable {
     @Column(name = "RQST_LBL")
     private String requestLabel;
 
+    @Column(name = "PARNT_ID", insertable =  false, updatable = false)
+    private String parentId;
+
     @ManyToOne
 	@JoinColumn(name = "PARNT_ID")
 	private ActionRequestValue parentActionRequest;
@@ -941,6 +944,14 @@ public class ActionRequestValue implements Serializable {
 	public void setRequestLabel(String requestLabel) {
 		this.requestLabel = requestLabel;
 	}
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
 
     public String getGroupName() {
         return KimApiServiceLocator.getGroupService().getGroup(this.groupId).getName();
