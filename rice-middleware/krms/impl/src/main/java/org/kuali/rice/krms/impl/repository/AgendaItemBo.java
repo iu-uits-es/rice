@@ -17,6 +17,7 @@ package org.kuali.rice.krms.impl.repository;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.persistence.annotations.OptimisticLocking;
 import org.kuali.rice.core.api.mo.common.Versioned;
 import org.kuali.rice.core.api.util.io.SerializationUtils;
 import org.kuali.rice.krad.data.jpa.PortableSequenceGenerator;
@@ -48,6 +49,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "KRMS_AGENDA_ITM_T")
+@OptimisticLocking(cascade = true)
 public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -66,39 +68,36 @@ public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Se
     @Column(name = "AGENDA_ID")
     private String agendaId;
 
-    @Column(name = "RULE_ID")
-    private String ruleId;
-
     @Column(name = "SUB_AGENDA_ID")
     private String subAgendaId;
 
-    @Column(name = "WHEN_TRUE")
+    @Column(name = "WHEN_TRUE", insertable = false, updatable = false)
     private String whenTrueId;
 
-    @Column(name = "WHEN_FALSE")
+    @Column(name = "WHEN_FALSE", insertable = false, updatable = false)
     private String whenFalseId;
 
-    @Column(name = "ALWAYS")
+    @Column(name = "ALWAYS", insertable = false, updatable = false)
     private String alwaysId;
 
-    @ManyToOne(targetEntity = RuleBo.class, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    @JoinColumn(name = "RULE_ID", referencedColumnName = "RULE_ID", insertable = false, updatable = false)
+    @ManyToOne(targetEntity = RuleBo.class, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.PERSIST})
+    @JoinColumn(name = "RULE_ID", referencedColumnName = "RULE_ID")
     private RuleBo rule;
 
     @Column(name = "VER_NBR")
     @Version
     private Long versionNumber;
 
-    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH })
-    @JoinColumn(name = "WHEN_TRUE", referencedColumnName = "AGENDA_ITM_ID", insertable = false, updatable = false)
+    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
+    @JoinColumn(name = "WHEN_TRUE", referencedColumnName = "AGENDA_ITM_ID")
     private AgendaItemBo whenTrue;
 
-    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH })
-    @JoinColumn(name = "WHEN_FALSE", referencedColumnName = "AGENDA_ITM_ID", insertable = false, updatable = false)
+    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
+    @JoinColumn(name = "WHEN_FALSE", referencedColumnName = "AGENDA_ITM_ID")
     private AgendaItemBo whenFalse;
 
-    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH })
-    @JoinColumn(name = "ALWAYS", referencedColumnName = "AGENDA_ITM_ID", insertable = false, updatable = false)
+    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
+    @JoinColumn(name = "ALWAYS", referencedColumnName = "AGENDA_ITM_ID")
     private AgendaItemBo always;
 
     public String getUl(AgendaItemBo firstItem) {
@@ -107,7 +106,7 @@ public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Se
 
     public String getUlHelper(AgendaItemBo item) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<li>" + ruleId + "</li>");
+        sb.append("<li>" + getRuleId() + "</li>");
 
         if (whenTrue != null) {
             sb.append("<ul><li>when true</li><ul>");
@@ -204,15 +203,13 @@ public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Se
     /**
      * @return the ruleId
      */
+    @Override
     public String getRuleId() {
-        return this.ruleId;
-    }
+        if (rule != null) {
+            return rule.getId();
+        }
 
-    /**
-     * @param ruleId the ruleId to set
-     */
-    public void setRuleId(String ruleId) {
-        this.ruleId = ruleId;
+        return null;
     }
 
     /**
@@ -355,11 +352,6 @@ public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Se
      */
     public void setRule(RuleBo rule) {
         this.rule = rule;
-        if (rule != null) {
-            setRuleId(rule.getId());
-        } else {
-            setRuleId(null);
-        }
     }
 
     /**
@@ -382,7 +374,7 @@ public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Se
      * @param im immutable object
      * @return the mutable bo
      */
-    static AgendaItemBo from(AgendaItemDefinition im) {
+    public static AgendaItemBo from(AgendaItemDefinition im) {
         if (im == null) {
             return null;
         }
@@ -390,7 +382,6 @@ public class AgendaItemBo implements AgendaItemDefinitionContract, Versioned, Se
         AgendaItemBo bo = new AgendaItemBo();
         bo.id = im.getId();
         bo.agendaId = im.getAgendaId();
-        bo.ruleId = im.getRuleId();
         bo.subAgendaId = im.getSubAgendaId();
         bo.whenTrueId = im.getWhenTrueId();
         bo.whenFalseId = im.getWhenFalseId();

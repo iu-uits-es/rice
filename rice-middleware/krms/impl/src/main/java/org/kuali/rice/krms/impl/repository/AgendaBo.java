@@ -70,14 +70,18 @@ public class AgendaBo implements AgendaDefinitionContract, Serializable {
     @Convert(converter = BooleanYNConverter.class)
     private boolean active = true;
 
-    @Column(name = "INIT_AGENDA_ITM_ID")
+    @Column(name = "INIT_AGENDA_ITM_ID", insertable = false, updatable = false)
     private String firstItemId;
+
+    @ManyToOne(targetEntity = AgendaItemBo.class, cascade = { CascadeType.REFRESH, CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "INIT_AGENDA_ITM_ID")
+    private AgendaItemBo firstItem;
 
     @Column(name = "VER_NBR")
     @Version
     private Long versionNumber;
 
-    @OneToMany(orphanRemoval = true, mappedBy = "agenda", cascade = { CascadeType.REFRESH, CascadeType.REMOVE, CascadeType.PERSIST })
+    @OneToMany(orphanRemoval = true, mappedBy = "agenda", cascade = { CascadeType.REFRESH})
     @JoinColumn(name = "AGENDA_ID", referencedColumnName = "AGENDA_ID", insertable = true, updatable = true)
     private Set<AgendaAttributeBo> attributeBos;
 
@@ -160,6 +164,7 @@ public class AgendaBo implements AgendaDefinitionContract, Serializable {
 
                 if (initAgendaItemId != null && initAgendaItemId.equals(agendaItem.getId())) {
                     copiedAgenda.setFirstItemId(copiedAgendaItem.getId());
+                    copiedAgenda.setFirstItem(copiedAgendaItem);
                 }
 
                 copiedAgendaItems.add(copiedAgendaItem);
@@ -236,6 +241,18 @@ public class AgendaBo implements AgendaDefinitionContract, Serializable {
 
     public void setFirstItemId(String firstItemId) {
         this.firstItemId = firstItemId;
+    }
+
+    public AgendaItemBo getFirstItem() {
+        return firstItem;
+    }
+
+    public void setFirstItem(AgendaItemBo firstItem) {
+        this.firstItem = firstItem;
+
+        if (firstItem != null) {
+            firstItemId = firstItem.getId();
+        }
     }
 
     public Set<AgendaAttributeBo> getAttributeBos() {

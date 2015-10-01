@@ -60,19 +60,19 @@ import java.util.Map;
 public class AbstractAgendaBoTest extends AbstractBoTest {
 
     public static final String CAMPUS_CODE_TERM_NAME = "campusCodeTermSpec";
-    static final String NAMESPACE1 = "KRMS_TEST_1";
-    static final String NAMESPACE2 = "KRMS_TEST_2";
+    protected static final String NAMESPACE1 = "KRMS_TEST_1";
+    protected static final String NAMESPACE2 = "KRMS_TEST_2";
     static final String TSUNAMI_EVENT = "Tsunami";
     static final String EARTHQUAKE_EVENT = "Earthquake";
-    static final String CONTEXT1 = "Context1";
-    static final String CONTEXT2 = "Context2";
+    protected static final String CONTEXT1 = "Context1";
+    protected static final String CONTEXT2 = "Context2";
     static final String CONTEXT3 = "Context3";
     static final String CONTEXT1_QUALIFIER = "Context1Qualifier";
     static final String CONTEXT1_QUALIFIER_VALUE = "BLAH1";
     static final String CONTEXT2_QUALIFIER = "Context2Qualifier";
     static final String CONTEXT2_QUALIFIER_VALUE = "BLAH2";
-    static final String AGENDA1 = "TestAgenda1";
-    static final String AGENDA2 = "Agenda2";
+    protected static final String AGENDA1 = "TestAgenda1";
+    protected static final String AGENDA2 = "Agenda2";
     static final String AGENDA3 = "Agenda3";
     static final String AGENDA4 = "Agenda4";
     static final String AGENDA5 = "Agenda5";
@@ -166,26 +166,40 @@ public class AbstractAgendaBoTest extends AbstractBoTest {
 
         AgendaItemDefinition.Builder agendaItemBuilder1 = AgendaItemDefinition.Builder.create(null, agendaDef.getId());
         agendaItemBuilder1.setRuleId(createRuleDefinition1(contextDefinition, agendaName, nameSpace).getId());
+        agendaItemBuilder1.setRule(RuleDefinition.Builder.create(ruleBoService.getRuleByRuleId(
+                agendaItemBuilder1.getRuleId())));
 
         AgendaItemDefinition.Builder agendaItemBuilder2 = AgendaItemDefinition.Builder.create(null, agendaDef.getId());
         agendaItemBuilder1.setAlways(agendaItemBuilder2);
         agendaItemBuilder2.setRuleId(createRuleDefinition2(contextDefinition, agendaName, nameSpace).getId());
+        agendaItemBuilder2.setRule(RuleDefinition.Builder.create(ruleBoService.getRuleByRuleId(
+                agendaItemBuilder2.getRuleId())));
 
         AgendaItemDefinition.Builder agendaItemBuilder3 = AgendaItemDefinition.Builder.create(null, agendaDef.getId());
         agendaItemBuilder2.setAlways(agendaItemBuilder3);
         agendaItemBuilder3.setRuleId(createRuleDefinition3(contextDefinition, agendaName, nameSpace).getId());
+        agendaItemBuilder3.setRule(RuleDefinition.Builder.create(ruleBoService.getRuleByRuleId(
+                agendaItemBuilder3.getRuleId())));
 
         AgendaItemDefinition.Builder agendaItemBuilder4 = AgendaItemDefinition.Builder.create(null, agendaDef.getId());
         agendaItemBuilder3.setAlways(agendaItemBuilder4);
         agendaItemBuilder4.setRuleId(createRuleDefinition4(contextDefinition, agendaName, nameSpace).getId());
+        agendaItemBuilder4.setRule(RuleDefinition.Builder.create(ruleBoService.getRuleByRuleId(
+                agendaItemBuilder4.getRuleId())));
 
         // String these puppies together.  Kind of a PITA because you need the id from the next item before you insert the previous one
         AgendaItemDefinition agendaItem4 = agendaBoService.createAgendaItem(agendaItemBuilder4.build());
+
         agendaItemBuilder3.setAlwaysId(agendaItem4.getId());
+        agendaItemBuilder3.setAlways(AgendaItemDefinition.Builder.create(agendaItem4));
         AgendaItemDefinition agendaItem3 = agendaBoService.createAgendaItem(agendaItemBuilder3.build());
+
         agendaItemBuilder2.setAlwaysId(agendaItem3.getId());
+        agendaItemBuilder2.setAlways(AgendaItemDefinition.Builder.create(agendaItem3));
         AgendaItemDefinition agendaItem2 = agendaBoService.createAgendaItem(agendaItemBuilder2.build());
+
         agendaItemBuilder1.setAlwaysId(agendaItem2.getId());
+        agendaItemBuilder1.setAlways(AgendaItemDefinition.Builder.create(agendaItem2));
         AgendaItemDefinition agendaItem1 = agendaBoService.createAgendaItem(agendaItemBuilder1.build());
 
         AgendaDefinition.Builder agendaDefBuilder1 = AgendaDefinition.Builder.create(agendaDef);

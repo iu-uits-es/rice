@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 package org.kuali.rice.krms.impl.repository
-
 import groovy.mock.interceptor.MockFor
 import org.junit.Assert
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
-import org.kuali.rice.krad.bo.PersistableBusinessObject
 import org.kuali.rice.krad.data.DataObjectService
 import org.kuali.rice.krms.api.repository.agenda.AgendaDefinition
 import org.kuali.rice.krms.api.repository.type.KrmsAttributeDefinition
-import org.kuali.rice.krms.framework.engine.Agenda
 
-import static org.kuali.rice.krms.impl.repository.RepositoryTestUtils.*;
+import static org.kuali.rice.krms.impl.repository.RepositoryTestUtils.buildQueryResults;
 
 class AgendaBoServiceImplTest {
 
@@ -341,28 +338,30 @@ class AgendaBoServiceImplTest {
 
   @Test
   void test_updateAgenda_success() {
-		mockDataObjectService.demand.find(1..1) { clazz, id -> TEST_AGENDA_BO }
-		mockDataObjectService.demand.deleteMatching(1) { clazz, map -> }
-		mockDataObjectService.demand.save { bo, po ->
-            ((AgendaBo)bo).setId("1");
-            return bo;
+        mockDataObjectService.demand.find(1..1) { clazz, id -> TEST_AGENDA_BO }
+        mockDataObjectService.demand.find(1..1) { clazz, id -> TEST_AGENDA_BO.getFirstItem() }
+        mockDataObjectService.demand.deleteMatching(1) { clazz, map -> }
+        mockDataObjectService.demand.save { bo, po ->
+          ((AgendaBo)bo).setId("1");
+          return bo;
         }
 
         mockAttributeDefinitionService.demand.findAttributeDefinitionsByType { String typeId ->
-            [KrmsAttributeDefinition.Builder.create(ADB1).build(), KrmsAttributeDefinition.Builder.create(ADB2).build()] };
+          [KrmsAttributeDefinition.Builder.create(ADB1).build(), KrmsAttributeDefinition.Builder.create(ADB2).build()] };
         KrmsAttributeDefinitionService attributeDefinitionService = mockAttributeDefinitionService.proxyDelegateInstance();
 
-		DataObjectService dataObjectService = mockDataObjectService.proxyDelegateInstance()
-		AgendaBoService service = new AgendaBoServiceImpl()
-		service.setDataObjectService(dataObjectService)
+        DataObjectService dataObjectService = mockDataObjectService.proxyDelegateInstance()
+        AgendaBoService service = new AgendaBoServiceImpl()
+        service.setDataObjectService(dataObjectService)
         service.setAttributeDefinitionService(attributeDefinitionService);
 
-		KrmsAttributeDefinitionService kads = new KrmsAttributeDefinitionServiceImpl();
-		kads.setDataObjectService(dataObjectService)
-		KrmsRepositoryServiceLocator.setKrmsAttributeDefinitionService(kads)
-		
-		service.updateAgenda(TEST_EXISTING_AGENDA_DEF)
-		mockDataObjectService.verify(dataObjectService)
+        KrmsAttributeDefinitionService kads = new KrmsAttributeDefinitionServiceImpl();
+        kads.setDataObjectService(dataObjectService)
+        KrmsRepositoryServiceLocator.setKrmsAttributeDefinitionService(kads)
+
+        service.updateAgenda(TEST_EXISTING_AGENDA_DEF)
+      
+        mockDataObjectService.verify(dataObjectService)
   }
 
 }
