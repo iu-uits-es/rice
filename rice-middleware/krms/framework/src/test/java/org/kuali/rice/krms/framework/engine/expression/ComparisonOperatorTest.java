@@ -96,15 +96,15 @@ public class ComparisonOperatorTest {
     public void testExists() {
         ComparisonOperator op = ComparisonOperator.fromCode(ComparisonOperator.EXISTS.toString());
         op.setComparisonOperatorService(ComparisonOperatorServiceImpl.getInstance());
-        assertTrue(op.compare("123", "0"));
-        assertFalse(op.compare("123", null));
+        assertTrue(op.compare("123", null));
+        assertFalse(op.compare(null, null));
     }
 
     @Test
     public void testDoesNotExists() {
         ComparisonOperator op = ComparisonOperator.fromCode(ComparisonOperator.DOES_NOT_EXIST.toString());
         op.setComparisonOperatorService(ComparisonOperatorServiceImpl.getInstance());
-        assertFalse(op.compare("123", "0"));
-        assertTrue(op.compare("123", null));
+        assertFalse(op.compare("123", null));
+        assertTrue(op.compare(null, null));
     }
 }
