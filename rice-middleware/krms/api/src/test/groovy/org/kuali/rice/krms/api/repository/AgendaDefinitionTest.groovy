@@ -167,7 +167,7 @@ class AgendaDefinitionTest {
 	}
 
 	@Test
-	public void testXmlUnmarshal_small_AgendaDefinition() {
+	public void mlUnmarshal_small_AgendaDefinition() {
 	  JAXBContext jc = JAXBContext.newInstance(AgendaDefinition.class)
 	  Unmarshaller unmarshaller = jc.createUnmarshaller()
 	  AgendaDefinition myAgenda = (AgendaDefinition) unmarshaller.unmarshal(new StringReader(SMALL_AGENDA))

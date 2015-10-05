@@ -124,6 +124,9 @@ public final class AgendaBoServiceImpl implements AgendaBoService {
 
         // move over AgendaBo members that don't get populated from AgendaDefinition
         boToUpdate.setItems(existing.getItems());
+        if (StringUtils.isNotBlank(agenda.getFirstItemId())) {
+            boToUpdate.setFirstItem(dataObjectService.find(AgendaItemBo.class, agenda.getFirstItemId()));
+        }
 
         // delete any old, existing attributes
         Map<String,String> fields = new HashMap<String,String>(1);
@@ -211,6 +214,22 @@ public final class AgendaBoServiceImpl implements AgendaBoService {
         }
 
         AgendaItemBo bo = AgendaItemBo.from(agendaItem);
+        if (StringUtils.isNotBlank(agendaItem.getRuleId()) && agendaItem.getRule() == null ) {
+            bo.setRule(dataObjectService.find(RuleBo.class, agendaItem.getRuleId()));
+        }
+
+        if (StringUtils.isNotBlank(agendaItem.getAlwaysId()) && agendaItem.getAlways() == null ) {
+            bo.setAlways(dataObjectService.find(AgendaItemBo.class, agendaItem.getAlwaysId()));
+        }
+
+        if (StringUtils.isNotBlank(agendaItem.getWhenTrueId()) && agendaItem.getWhenTrue() == null ) {
+            bo.setWhenTrue(dataObjectService.find(AgendaItemBo.class, agendaItem.getWhenTrueId()));
+        }
+
+        if (StringUtils.isNotBlank(agendaItem.getWhenFalseId()) && agendaItem.getWhenFalse() == null ) {
+            bo.setWhenFalse(dataObjectService.find(AgendaItemBo.class, agendaItem.getWhenFalseId()));
+        }
+
         bo = dataObjectService.save(bo, PersistenceOption.FLUSH);
         return AgendaItemBo.to(bo);
     }

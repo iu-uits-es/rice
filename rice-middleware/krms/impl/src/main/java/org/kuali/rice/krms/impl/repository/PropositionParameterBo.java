@@ -66,7 +66,7 @@ public class PropositionParameterBo implements PropositionParameterContract, Ser
 
     @Column(name = "VER_NBR")
     @Version
-    private Long versionNumber;
+    private Long versionNumber = 0l;
 
     public TermDefinition getTermValue() {
         return termValue;
