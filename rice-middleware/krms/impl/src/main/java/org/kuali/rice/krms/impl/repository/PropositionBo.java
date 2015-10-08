@@ -45,6 +45,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -94,6 +95,7 @@ public class PropositionBo implements PropositionDefinitionContract, Versioned, 
     private Integer compoundSequenceNumber;
 
     @Column(name = "VER_NBR")
+    @Version
     private Long versionNumber;
 
     @OneToMany(targetEntity = PropositionBo.class, cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
