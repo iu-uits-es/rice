@@ -82,8 +82,9 @@ public class PropositionBo implements PropositionDefinitionContract, Versioned, 
     @Column(name = "DSCRM_TYP_CD")
     private String propositionTypeCode;
 
-    @OneToMany(mappedBy = "proposition", cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     @PrivateOwned
+    @OneToMany(orphanRemoval = true, targetEntity = PropositionParameterBo.class, mappedBy = "proposition",
+            cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     @OrderBy("sequenceNumber")
     private List<PropositionParameterBo> parameters = new ArrayList<PropositionParameterBo>();
 
