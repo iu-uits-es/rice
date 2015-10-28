@@ -1125,6 +1125,9 @@ Definitions are applied to the names in the routeNodes section.
       <enumeration value="uuid"/>
       <enumeration value="uuId"/>
       <enumeration value="UUID"/>
+      <enumeration value="workflowid"/>
+      <enumeration value="workflowId"/>
+      <enumeration value="WORKFLOWID"/>
     </restriction>
   </simpleType>
   
