@@ -287,7 +287,7 @@ public final class RuleBoServiceImpl implements RuleBoService {
 
                 if (attrDef != null) {
                     RuleAttributeBo attributeBo = new RuleAttributeBo();
-                    attributeBo.setRuleId( im.getId() );
+                    attributeBo.setRule(RuleBo.from(im));
                     attributeBo.setValue(entry.getValue());
                     attributeBo.setAttributeDefinition(KrmsAttributeDefinitionBo.from(attrDef));
                     attributes.add( attributeBo );
@@ -320,7 +320,7 @@ public final class RuleBoServiceImpl implements RuleBoService {
 
                 if (attrDef != null) {
                     RuleAttributeBo attributeBo = new RuleAttributeBo();
-                    attributeBo.setRuleId( im.getId() );
+                    attributeBo.setRule(RuleBo.from(im));
                     attributeBo.setValue(entry.getValue());
                     attributeBo.setAttributeDefinition(KrmsAttributeDefinitionBo.from(attrDef));
                     attributes.add( attributeBo );

@@ -93,6 +93,7 @@ public class AgendaBoTest {
         agendaItemBo02.setAlways(agendaItemBo03);
 
         agendaBo.setFirstItemId(agendaItemBo00.getId());
+        agendaBo.setFirstItem(agendaItemBo00);
 
         agendaBo.setItems(agendaItemBos);
 

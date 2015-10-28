@@ -25,6 +25,7 @@ import org.kuali.rice.krms.api.repository.type.KrmsAttributeDefinition;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -81,8 +82,9 @@ public class ActionBo implements ActionDefinitionContract, Versioned, Serializab
     @Version
     private Long versionNumber;
 
-    @OneToMany(orphanRemoval = true, mappedBy = "action",
-            cascade = { CascadeType.MERGE, CascadeType.REMOVE, CascadeType.PERSIST })
+    @OneToMany(orphanRemoval = true, mappedBy = "action", fetch = FetchType.LAZY,
+            cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.PERSIST })
+    @JoinColumn(name = "ACTN_ATTR_DATA_ID", referencedColumnName = "ACTN_ATTR_DATA_ID")
     private List<ActionAttributeBo> attributeBos;
 
     @Override

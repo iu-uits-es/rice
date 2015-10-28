@@ -64,7 +64,7 @@ public final class PropositionParameter extends AbstractDataTransferObject imple
 	@XmlElement(name = Elements.SEQUENCE, required=true)
 	private Integer sequenceNumber;
     @XmlElement(name = CoreConstants.CommonElements.VERSION_NUMBER, required = false)
-    private final Long versionNumber;
+	private Long versionNumber;
     @XmlElement(name = Elements.TERM_VALUE, required=false)
     private TermDefinition termValue;
 
