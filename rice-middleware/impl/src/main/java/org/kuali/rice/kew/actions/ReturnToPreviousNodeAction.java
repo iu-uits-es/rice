@@ -78,7 +78,7 @@ public class ReturnToPreviousNodeAction extends ActionTakenEvent {
     public ReturnToPreviousNodeAction(DocumentRouteHeaderValue routeHeader, PrincipalContract principal, String annotation, String nodeName, boolean sendNotifications) {
         this(KewApiConstants.ACTION_TAKEN_RETURNED_TO_PREVIOUS_CD, routeHeader, principal, annotation, nodeName, sendNotifications);
     }
-    
+
     public ReturnToPreviousNodeAction(DocumentRouteHeaderValue routeHeader, PrincipalContract principal, String annotation, String nodeName, boolean sendNotifications, boolean runPostProcessorLogic) {
         this(KewApiConstants.ACTION_TAKEN_RETURNED_TO_PREVIOUS_CD, routeHeader, principal, annotation, nodeName, sendNotifications, runPostProcessorLogic);
     }
@@ -89,7 +89,7 @@ public class ReturnToPreviousNodeAction extends ActionTakenEvent {
     protected ReturnToPreviousNodeAction(String overrideActionTakenCode, DocumentRouteHeaderValue routeHeader, PrincipalContract principal, String annotation, String nodeName, boolean sendNotifications) {
         this(overrideActionTakenCode, routeHeader, principal, annotation, nodeName, sendNotifications, DEFAULT_RUN_POSTPROCESSOR_LOGIC);
     }
-    
+
     /**
      * Constructor used to override the action taken code...e.g. when being performed as part of a Move action
      */
@@ -160,7 +160,7 @@ public class ReturnToPreviousNodeAction extends ActionTakenEvent {
     protected ActionRequestType getReturnToInitiatorActionRequestType() {
         return ActionRequestType.APPROVE;
     }
-    
+
     private void processReturnToInitiator(RouteNodeInstance newNodeInstance) {
 	    // important to pull this from the RouteNode's DocumentType so we get the proper version
         RouteNode initialNode = newNodeInstance.getRouteNode().getDocumentType().getPrimaryProcess().getInitialRouteNode();
@@ -441,7 +441,7 @@ public class ReturnToPreviousNodeAction extends ActionTakenEvent {
                 throw new InvalidActionTakenException(report.getMessage());
             }
         } catch (Exception ex) {
-            throw new WorkflowRuntimeException(ex.getMessage());
+            throw new WorkflowRuntimeException(ex.getMessage(), ex);
         }
     }
 
