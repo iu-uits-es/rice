@@ -23,8 +23,8 @@ import org.kuali.rice.core.api.delegation.DelegationType;
 import org.kuali.rice.core.api.util.RiceConstants;
 import org.kuali.rice.core.api.util.xml.XmlException;
 import org.kuali.rice.core.api.util.xml.XmlHelper;
+import org.kuali.rice.kew.api.KewApiConstants;
 import org.kuali.rice.kew.api.action.ActionRequestPolicy;
-import org.kuali.rice.kew.api.rule.RoleName;
 import org.kuali.rice.kew.doctype.bo.DocumentType;
 import org.kuali.rice.kew.rule.RuleBaseValues;
 import org.kuali.rice.kew.rule.RuleDelegationBo;
@@ -32,11 +32,6 @@ import org.kuali.rice.kew.rule.RuleExpressionDef;
 import org.kuali.rice.kew.rule.RuleResponsibilityBo;
 import org.kuali.rice.kew.rule.bo.RuleTemplateBo;
 import org.kuali.rice.kew.service.KEWServiceLocator;
-import org.kuali.rice.kew.api.KewApiConstants;
-import org.kuali.rice.kew.util.Utilities;
-import org.kuali.rice.kim.api.group.Group;
-import org.kuali.rice.kim.api.identity.principal.Principal;
-import org.kuali.rice.kim.api.services.KimApiServiceLocator;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,7 +40,6 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.kuali.rice.core.api.impex.xml.XmlConstants.*;
@@ -91,7 +85,7 @@ public class RuleXmlParser {
             throw new XmlException("Parse error.",e);
         }
     }
-    
+
     public List<RuleBaseValues> parseRules(InputStream input) throws IOException, XmlException {
         try {
             Document doc = XmlHelper.trimSAXXml(input);
@@ -122,7 +116,7 @@ public class RuleXmlParser {
         checkForDuplicateRules(rulesToSave);
         return KEWServiceLocator.getRuleService().saveRules(rulesToSave, false);
     }
-    
+
     /**
      * Parses and saves rule delegations
      * @param element top-level 'data' element which should contain a <rules> child element
@@ -139,9 +133,9 @@ public class RuleXmlParser {
         //checkForDuplicateRuleDelegations(ruleDelegationsToSave);
         return KEWServiceLocator.getRuleService().saveRuleDelegations(ruleDelegationsToSave, false);
     }
-    
+
     /**
-     * Checks for rules in the List that duplicate other Rules already in the system 
+     * Checks for rules in the List that duplicate other Rules already in the system
      */
     private void checkForDuplicateRules(List<RuleBaseValues> rules) throws XmlException {
     	for (RuleBaseValues rule : rules) {
@@ -151,9 +145,9 @@ public class RuleXmlParser {
     		}
     	}
     }
-    
+
     /**
-     * Checks for rule delegations in the List that duplicate other Rules already in the system 
+     * Checks for rule delegations in the List that duplicate other Rules already in the system
      */
     private void checkForDuplicateRuleDelegations(List<RuleDelegationBo> ruleDelegations) throws XmlException {
     	for (RuleDelegationBo ruleDelegation : ruleDelegations) {
@@ -175,18 +169,18 @@ public class RuleXmlParser {
         if (delegationType == null || DelegationType.parseCode(delegationType) == null) {
             throw new XmlException("Invalid delegation type specified for delegate rule '" + delegationType + "'");
         }
-        
+
         ruleDelegation.setResponsibilityId(parentResponsibilityId);
         ruleDelegation.setDelegationType(DelegationType.fromCode(delegationType));
-        
+
         Element ruleElement = element.getChild(RULE, element.getNamespace());
         RuleBaseValues rule = parseRule(ruleElement);
         rule.setDelegateRule(true);
         ruleDelegation.setDelegationRule(rule);
-    	
+
     	return ruleDelegation;
     }
-    
+
     private String parseParentResponsibilityId(Element element) throws XmlException {
     	String responsibilityId = element.getChildText(RESPONSIBILITY_ID, element.getNamespace());
     	if (!StringUtils.isBlank(responsibilityId)) {
@@ -204,7 +198,7 @@ public class RuleXmlParser {
     	if (ruleResponsibilityNameAndType == null) {
     		throw new XmlException("Could not locate a valid responsibility declaration for the parent responsibility.");
     	}
-    	String parentResponsibilityId = KEWServiceLocator.getRuleService().findResponsibilityIdForRule(parentRuleName, 
+    	String parentResponsibilityId = KEWServiceLocator.getRuleService().findResponsibilityIdForRule(parentRuleName,
     			ruleResponsibilityNameAndType.getRuleResponsibilityName(),
     			ruleResponsibilityNameAndType.getRuleResponsibilityType());
     	if (parentResponsibilityId == null) {
@@ -212,7 +206,7 @@ public class RuleXmlParser {
     	}
     	return parentResponsibilityId;
     }
-    
+
     /**
      * Parses, and only parses, a rule definition (be it a top-level rule, or a rule delegation).  This method will
      * NOT dirty or save any existing data, it is side-effect-free.
@@ -223,10 +217,10 @@ public class RuleXmlParser {
     private RuleBaseValues parseRule(Element element) throws XmlException {
         String name = element.getChildText(NAME, element.getNamespace());
         RuleBaseValues rule = createRule(name);
-        
+
         setDefaultRuleValues(rule);
         rule.setName(name);
-        
+
         String toDatestr = element.getChildText( TO_DATE, element.getNamespace());
         String fromDatestr = element.getChildText( FROM_DATE, element.getNamespace());
         rule.setToDateValue(formatDate("toDate", toDatestr));
@@ -236,7 +230,7 @@ public class RuleXmlParser {
         if (StringUtils.isBlank(description)) {
             throw new XmlException("Rule must have a description.");
         }
-                
+
         String documentTypeName = element.getChildText(DOCUMENT_TYPE, element.getNamespace());
         if (StringUtils.isBlank(documentTypeName)) {
         	throw new XmlException("Rule must have a document type.");
@@ -247,7 +241,7 @@ public class RuleXmlParser {
         }
 
         RuleTemplateBo ruleTemplate = null;
-        String ruleTemplateName = element.getChildText(RULE_TEMPLATE, element.getNamespace());        
+        String ruleTemplateName = element.getChildText(RULE_TEMPLATE, element.getNamespace());
         Element ruleExtensionsElement = element.getChild(RULE_EXTENSIONS, element.getNamespace());
         if (!StringUtils.isBlank(ruleTemplateName)) {
         	ruleTemplate = KEWServiceLocator.getRuleTemplateService().findByRuleTemplateName(ruleTemplateName);
@@ -272,7 +266,7 @@ public class RuleXmlParser {
         	ruleExpressionDef.setType(exprType);
         	ruleExpressionDef.setExpression(expression);
         }
-        
+
         String forceActionValue = element.getChildText(FORCE_ACTION, element.getNamespace());
         Boolean forceAction = Boolean.valueOf(DEFAULT_FORCE_ACTION);
         if (!StringUtils.isBlank(forceActionValue)) {
@@ -296,7 +290,7 @@ public class RuleXmlParser {
 
         return rule;
     }
-    
+
     /**
      * Creates the rule that the parser will populate.  If a rule with the given name
      * already exists, it's keys and responsibilities will be copied over to the
@@ -328,7 +322,7 @@ public class RuleXmlParser {
         	throw new XmlException("Rule '" + rule.getDescription() + "' on doc '" + rule.getDocTypeName() + "' is a duplicate of rule with rule Id " + ruleId);
         }
     }
-    
+
     private void checkRuleDelegationForDuplicate(RuleDelegationBo ruleDelegation) throws XmlException {
     	checkRuleForDuplicate(ruleDelegation.getDelegationRule());
     }
@@ -392,7 +386,7 @@ public class RuleXmlParser {
         responsibility.setActionRequestedCd(actionRequested);
         responsibility.setPriority(priorityNumber);
         responsibility.setApprovePolicy(approvePolicy);
-        
+
         RuleResponsibilityBo responsibilityNameAndType = CommonXmlParser.parseResponsibilityNameAndType(element);
         if (responsibilityNameAndType == null) {
         	throw new XmlException("Could not locate a valid responsibility declaration on a responsibility on rule with description '" + rule.getDescription() + "'");
@@ -403,10 +397,10 @@ public class RuleXmlParser {
         }
         responsibility.setRuleResponsibilityName(responsibilityNameAndType.getRuleResponsibilityName());
         responsibility.setRuleResponsibilityType(responsibilityNameAndType.getRuleResponsibilityType());
-        
+
         return responsibility;
     }
-    
+
     /**
      * Attempts to reconcile the given RuleResponsibility with the list of existing responsibilities (in the case of a
      * rule being updated via the XML).  This goal of this code is to copy responsibility ids from existing responsibilities
@@ -428,7 +422,7 @@ public class RuleXmlParser {
     		responsibility.setResponsibilityId(exactMatch.getResponsibilityId());
     	}
     }
-    
+
     /**
      * Checks if the given responsibilities are exact matches of one another.
      */
@@ -436,10 +430,11 @@ public class RuleXmlParser {
     	if (existingResponsibility.getResponsibilityId().equals(newResponsibility.getResponsibilityId())) {
     		return true;
     	}
-    	if (existingResponsibility.getRuleResponsibilityName().equals(newResponsibility.getRuleResponsibilityName()) &&
-    			existingResponsibility.getRuleResponsibilityType().equals(newResponsibility.getRuleResponsibilityType()) &&
-    			existingResponsibility.getApprovePolicy().equals(newResponsibility.getApprovePolicy()) &&
-    			existingResponsibility.getActionRequestedCd().equals(newResponsibility.getActionRequestedCd()) &&
+    	if (StringUtils.equals(existingResponsibility.getRuleResponsibilityName(), newResponsibility.getRuleResponsibilityName()) &&
+    			StringUtils.equals(existingResponsibility.getRuleResponsibilityType(), newResponsibility.getRuleResponsibilityType()) &&
+    			StringUtils.equals(existingResponsibility.getApprovePolicy(), newResponsibility.getApprovePolicy()) &&
+    			StringUtils.equals(existingResponsibility.getActionRequestedCd(), newResponsibility.getActionRequestedCd()) &&
+                existingResponsibility.getPriority() != null &&
     			existingResponsibility.getPriority().equals(newResponsibility.getPriority())) {
     		return true;
     	}
@@ -453,7 +448,7 @@ public class RuleXmlParser {
         RuleExtensionXmlParser parser = new RuleExtensionXmlParser();
         return parser.parseRuleExtensions(element, rule);
     }
-    
+
     public Timestamp formatDate(String dateLabel, String dateString) throws XmlException {
     	if (StringUtils.isBlank(dateString)) {
     		return null;
@@ -464,5 +459,5 @@ public class RuleXmlParser {
     		throw new XmlException(dateLabel + " is not in the proper format.  Should have been: " + RiceConstants.DEFAULT_DATE_FORMAT_PATTERN);
     	}
     }
-    
+
 }
