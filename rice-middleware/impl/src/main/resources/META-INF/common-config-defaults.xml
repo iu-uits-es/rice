@@ -134,6 +134,10 @@
 	  <param name="rice.portal.logout.redirectUrl" override="false">${application.url}/portal.do</param>
     <param name="rice.portal.allowed.regex" override="false">^${application.url}(/.*|)</param>
 
+    <!-- Back location Parameters -->
+    <param name="rice.backLocation.allowed.regex" override="false">^(${application.url}|${rice.server.url}|${appserver.url})(/.*|)</param>
+    <param name="rice.backLocation.default.url" override="false">${application.url}</param>
+
     <!-- App specific parameters -->
     <param name="externalizable.help.url" override="false">${application.url}/kr/static/help/</param>
     <param name="externalizable.images.url" override="false">${application.url}/kr/static/images/</param>
@@ -364,9 +368,9 @@
 	<param name="rice.kew.set.soap.services.as.default" override="false">true</param>
 	<param name="rice.kew.expose.services.on.bus" override="false">true</param>
   <param name="rice.kew.ignoreUnknownPrincipalIds" override="false">false</param>
-	<!-- This is used to get the standalone version of WorkflowDocumentActionsService when kew.mode is REMOTE or THIN --> 
+	<!-- This is used to get the standalone version of WorkflowDocumentActionsService when kew.mode is REMOTE or THIN -->
 	<param name="standalone.application.id" override="false">RICE</param>
-	
+
 	<!-- KIM -->
 	<param name="rice.kim.struts.config.files" override="false">/kim/WEB-INF/struts-config.xml</param>
 	<param name="kim.url" override="false">${application.url}/kim</param>

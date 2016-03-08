@@ -51,6 +51,7 @@ import org.apache.struts.upload.FormFile;
 import org.apache.struts.upload.MultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestWrapper;
 import org.kuali.rice.core.api.CoreApiServiceLocator;
+import org.kuali.rice.core.api.config.property.ConfigContext;
 import org.kuali.rice.core.api.config.property.ConfigurationService;
 import org.kuali.rice.core.api.util.RiceKeyConstants;
 import org.kuali.rice.kew.api.action.ActionRequest;
@@ -114,7 +115,7 @@ public class WebUtils {
 	/**
 	 * Checks for methodToCall parameter, and picks off the value using set dot
 	 * notation. Handles the problem of image submits.
-	 * 
+	 *
 	 * @param request
 	 * @return methodToCall String
 	 */
@@ -175,7 +176,7 @@ public class WebUtils {
 
     /**
 	 * Checks if a string signifies a methodToCall string
-	 * 
+	 *
 	 * @param string
 	 *            the string to check
 	 * @return true if is a methodToCall
@@ -189,7 +190,7 @@ public class WebUtils {
 	/**
 	 * Parses out the methodToCall command and also sets the request attribute
 	 * for the methodToCall.
-	 * 
+	 *
 	 * @param form
 	 *            the ActionForm
 	 * @param request
@@ -216,7 +217,7 @@ public class WebUtils {
 	/**
 	 * Iterates through and logs (at the given level) all attributes and
 	 * parameters of the given request onto the given Logger
-	 * 
+	 *
 	 * @param request
 	 * @param logger
 	 */
@@ -303,7 +304,7 @@ public class WebUtils {
 	/**
 	 * A file that is not of type text/plain or text/html can be output through
 	 * the response using this method.
-	 * 
+	 *
 	 * @param response
 	 * @param contentType
 	 * @param byteArrayOutputStream
@@ -339,7 +340,7 @@ public class WebUtils {
 	/**
 	 * A file that is not of type text/plain or text/html can be output through
 	 * the response using this method.
-	 * 
+	 *
 	 * @param response
 	 * @param contentType
 	 * @param inStream
@@ -375,7 +376,7 @@ public class WebUtils {
 
 	/**
 	 * JSTL function to return the tab state of the tab from the form.
-	 * 
+	 *
 	 * @param form
 	 * @param tabKey
 	 * @return
@@ -412,7 +413,7 @@ public class WebUtils {
 
 	/**
 	 * Generates a String from the title that can be used as a Map key.
-	 * 
+	 *
 	 * @param tabTitle
 	 * @return
 	 */
@@ -759,7 +760,7 @@ public class WebUtils {
 	/**
 	 * Excapes out HTML to prevent XSS attacks, and replaces the following
 	 * strings to allow for a limited set of HTML tags
-	 * 
+	 *
 	 * <li>[X] and [/X], where X represents any 1 or 2 letter string may be used
 	 * to specify the equivalent tag in HTML (i.e. &lt;X&gt; and &lt;/X&gt;) <li>
 	 * [font COLOR], where COLOR represents any valid html color (i.e. color
@@ -769,7 +770,7 @@ public class WebUtils {
 	 * into &lt;table class="CLASS"/&gt; <li>[/table] will be filtered into
 	 * &lt;/table&gt; <li>[td CLASS], where CLASS gives the style class to use,
 	 * will be filter into &lt;td class="CLASS"/&gt;
-	 * 
+	 *
 	 * @param inputString
 	 * @return
 	 */
@@ -788,7 +789,7 @@ public class WebUtils {
         //turn passed a href value into appropriate tag
         findAndReplacePatterns.put("\\[a (.+)\\]", "<a href=\"$1\">");
         findAndReplacePatterns.put("\\[/a\\]", "</a>");
-        
+
 		// filter any one character tags
 		findAndReplacePatterns.put("\\[([A-Za-z])\\]", "<$1>");
 		findAndReplacePatterns.put("\\[/([A-Za-z])\\]", "</$1>");
@@ -821,7 +822,7 @@ public class WebUtils {
 	 * Determines and returns the URL for question button images; looks first
 	 * for a property "application.custom.image.url", and if that is missing,
 	 * uses the image url returned by getDefaultButtonImageUrl()
-	 * 
+	 *
 	 * @param imageName
 	 *            the name of the image to find a button for
 	 * @return the URL where question button images are located
@@ -846,7 +847,7 @@ public class WebUtils {
 	/**
 	 * Generates a default button image URL, in the form of:
 	 * ${kr.externalizable.images.url}buttonsmall_${imageName}.gif
-	 * 
+	 *
 	 * @param imageName
 	 *            the image name to generate a default button name for
 	 * @return the default button image url
@@ -865,11 +866,11 @@ public class WebUtils {
 		}
 		return configurationService;
 	}
-	
+
     /**
      * Takes a string an converts the whitespace which would be ignored in an
      * HTML document into HTML elements so the whitespace is preserved
-     * 
+     *
      * @param startingString The string to preserve whitespace in
      * @return A string whose whitespace has been converted to HTML elements to preserve the whitespace in an HTML document
      */
@@ -878,14 +879,14 @@ public class WebUtils {
     	convertedString = convertedString.replaceAll("  ", "&nbsp;&nbsp;").replaceAll("(&nbsp; | &nbsp;)", "&nbsp;&nbsp;");
     	return convertedString;
     }
-    
+
     public static String getKimGroupDisplayName(String groupId) {
     	if(StringUtils.isBlank(groupId)) {
     		throw new IllegalArgumentException("Group ID must have a value");
     	}
     	return KimApiServiceLocator.getGroupService().getGroup(groupId).getName();
     }
-    
+
     public static String getPrincipalDisplayName(String principalId) {
     	if(StringUtils.isBlank(principalId)) {
     		throw new IllegalArgumentException("Principal ID must have a value");
@@ -952,6 +953,15 @@ public class WebUtils {
             return path;
         }
         return base + path;
+    }
+
+    public static String sanitizeBackLocation(String backLocation) {
+        Pattern pattern = Pattern.compile(ConfigContext.getCurrentContextConfig().getProperty(KRADConstants.BACK_LOCATION_ALLOWED_REGEX));
+        if(pattern.matcher(backLocation).matches()) {
+            return backLocation;
+        } else {
+            return ConfigContext.getCurrentContextConfig().getProperty(KRADConstants.BACK_LOCATION_DEFAULT_URL);
+        }
     }
 
 }

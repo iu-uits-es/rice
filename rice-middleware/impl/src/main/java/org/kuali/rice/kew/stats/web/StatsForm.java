@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.kuali.rice.kew.stats.Stats;
 import org.kuali.rice.kew.api.KewApiConstants;
+import org.kuali.rice.kns.util.WebUtils;
 import org.kuali.rice.kns.web.struts.form.KualiForm;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.KRADConstants;
@@ -68,25 +69,25 @@ public class StatsForm extends KualiForm {
 
     // KULRICE-3137: Added a backLocation parameter similar to the one from lookups.
     private String backLocation;
-    
+
 	public StatsForm() {
         stats = new Stats();
     }
 
 	/**
 	 * Retrieves the "returnLocation" parameter after calling "populate" on the superclass.
-	 * 
+	 *
 	 * @see org.kuali.rice.krad.web.struts.form.KualiForm#populate(javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
 	public void populate(HttpServletRequest request) {
 		super.populate(request);
-		
+
         if (getParameter(request, KRADConstants.RETURN_LOCATION_PARAMETER) != null) {
             setBackLocation(getParameter(request, KRADConstants.RETURN_LOCATION_PARAMETER));
         }
 	}
-	
+
     public void determineBeginDate() {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT);
 
@@ -276,11 +277,11 @@ public class StatsForm extends KualiForm {
     }
 
 	public String getBackLocation() {
-		return this.backLocation;
+		return WebUtils.sanitizeBackLocation(this.backLocation);
 	}
 
 	public void setBackLocation(String backLocation) {
 		this.backLocation = backLocation;
 	}
-    
+
 }
