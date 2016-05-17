@@ -16,14 +16,18 @@
 package org.kuali.rice.ksb.messaging.serviceconnectors;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.log4j.Logger;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.handler.WSHandlerConstants;
+import org.kuali.rice.core.api.config.property.ConfigContext;
 import org.kuali.rice.core.api.exception.RiceRuntimeException;
 import org.kuali.rice.ksb.api.bus.support.SoapServiceConfiguration;
 import org.kuali.rice.ksb.impl.cxf.interceptors.ImmutableCollectionsInInterceptor;
@@ -55,22 +59,22 @@ public class SOAPConnector extends AbstractServiceConnector {
 	public SoapServiceConfiguration getServiceConfiguration() {
 		return (SoapServiceConfiguration) super.getServiceConfiguration();
 	}
-	
+
 	/**
 	 * This overridden method returns a CXF client praoxy for web service.
-	 * 
+	 *
 	 * @see org.kuali.rice.ksb.messaging.serviceconnectors.ServiceConnector#getService()
 	 */
 	public Object getService() {
 		ClientProxyFactoryBean clientFactory;
-		
+
 		//Use the correct bean factory depending on pojo service or jaxws service
 		if (getServiceConfiguration().isJaxWsService()){
 			clientFactory = new JaxWsProxyFactoryBean();
 		} else {
 			clientFactory = new ClientProxyFactoryBean();
 			clientFactory.getServiceFactory().setDataBinding(new AegisDatabinding());
-		}		
+		}
 
 		try {
 			clientFactory.setServiceClass(Class.forName(getServiceConfiguration().getServiceInterface()));
@@ -80,7 +84,7 @@ public class SOAPConnector extends AbstractServiceConnector {
 		clientFactory.setBus(KSBServiceLocator.getCXFBus());
 		clientFactory.setServiceName(getServiceConfiguration().getServiceName());
 		clientFactory.setAddress(getActualEndpointUrl().toExternalForm());
-		
+
 		//Set logging, transformation, and security interceptors
         clientFactory.getOutInterceptors().add(new LoggingOutInterceptor());
         clientFactory.getOutFaultInterceptors().add(new LoggingOutInterceptor());
@@ -123,8 +127,18 @@ public class SOAPConnector extends AbstractServiceConnector {
         clientFactory.getInFaultInterceptors().add(inSecurityInterceptor);
         clientFactory.getInInterceptors().add(new ImmutableCollectionsInInterceptor());
 
-		
-		Object service = clientFactory.create();		
+
+		Object service = clientFactory.create();
+		Long serviceTimeout = ConfigContext.getCurrentContextConfig().getNumericProperty(String.format("soapTimeouts.%s.%s", soapServiceConfiguration.getApplicationId(), soapServiceConfiguration.getServiceName().toString()));
+		if(serviceTimeout != null && serviceTimeout > 0) {
+			final HTTPConduit http = (HTTPConduit) ClientProxy.getClient(service).getConduit();
+			final HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+			httpClientPolicy.setReceiveTimeout(serviceTimeout);
+			httpClientPolicy.setAllowChunking(false);
+			httpClientPolicy.setConnectionTimeout(serviceTimeout);
+
+			http.setClient(httpClientPolicy);
+		}
 		return getServiceProxyWithFailureMode(service, getServiceConfiguration());
-	}	
+	}
 }
