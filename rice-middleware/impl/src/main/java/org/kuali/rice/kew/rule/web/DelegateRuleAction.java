@@ -27,6 +27,9 @@ import org.kuali.rice.kew.web.KewKualiAction;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.KRADConstants;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 /**
  * Struts action for handling the initial Delegate Rule screen for selecting
  * the parent rule and responsibility. 
@@ -67,14 +70,18 @@ public class DelegateRuleAction extends KewKualiAction {
 		
 		return GlobalVariables.getMessageMap().hasNoErrors();
 	}
-	
-	protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) {
+
+	protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) throws UnsupportedEncodingException {
 		return getApplicationBaseUrl() + "/kr/" + KRADConstants.MAINTENANCE_ACTION + "?" +
-			KRADConstants.DISPATCH_REQUEST_PARAMETER + "=" + KRADConstants.START_METHOD + "&" +
-			KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE + "=" + RuleDelegationBo.class.getName() +  "&" +
-			WebRuleUtils.RESPONSIBILITY_ID_PARAM + "=" + form.getParentResponsibilityId() + "&" +
-			WebRuleUtils.RULE_TEMPLATE_ID_PARAM + "=" + form.getParentRule().getRuleTemplate().getDelegationTemplateId() + "&" +
-			WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM + "=" + form.getParentRule().getDocTypeName();
+				KRADConstants.DISPATCH_REQUEST_PARAMETER + "=" + URLEncoder.encode(KRADConstants.START_METHOD, "UTF-8") + "&" +
+				KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE + "=" + URLEncoder.encode(
+				RuleDelegationBo.class.getName(), "UTF-8") + "&" +
+				WebRuleUtils.RESPONSIBILITY_ID_PARAM + "=" + URLEncoder.encode(form.getParentResponsibilityId(),
+				"UTF-8") + "&" +
+				WebRuleUtils.RULE_TEMPLATE_ID_PARAM + "=" + URLEncoder.encode(
+				form.getParentRule().getRuleTemplate().getDelegationTemplateId(), "UTF-8") + "&" +
+				WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM + "=" + URLEncoder.encode(form.getParentRule().getDocTypeName(),
+				"UTF-8");
 	}
 	
 }
