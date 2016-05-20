@@ -71,17 +71,19 @@ public class DelegateRuleAction extends KewKualiAction {
 		return GlobalVariables.getMessageMap().hasNoErrors();
 	}
 
-	protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) throws UnsupportedEncodingException {
-		return getApplicationBaseUrl() + "/kr/" + KRADConstants.MAINTENANCE_ACTION + "?" +
-				KRADConstants.DISPATCH_REQUEST_PARAMETER + "=" + URLEncoder.encode(KRADConstants.START_METHOD, "UTF-8") + "&" +
-				KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE + "=" + URLEncoder.encode(
-				RuleDelegationBo.class.getName(), "UTF-8") + "&" +
-				WebRuleUtils.RESPONSIBILITY_ID_PARAM + "=" + URLEncoder.encode(form.getParentResponsibilityId(),
-				"UTF-8") + "&" +
-				WebRuleUtils.RULE_TEMPLATE_ID_PARAM + "=" + URLEncoder.encode(
-				form.getParentRule().getRuleTemplate().getDelegationTemplateId(), "UTF-8") + "&" +
-				WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM + "=" + URLEncoder.encode(form.getParentRule().getDocTypeName(),
+    protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) throws UnsupportedEncodingException {
+        return getApplicationBaseUrl() + "/kr/" + KRADConstants.MAINTENANCE_ACTION + "?" +
+                KRADConstants.DISPATCH_REQUEST_PARAMETER + "=" +
+					URLEncoder.encode(KRADConstants.START_METHOD, "UTF-8") + "&" +
+                KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE + "=" +
+					URLEncoder.encode(RuleDelegationBo.class.getName(), "UTF-8") + "&" +
+                WebRuleUtils.RESPONSIBILITY_ID_PARAM + "=" +
+					URLEncoder.encode(form.getParentResponsibilityId(), "UTF-8") + "&" +
+                WebRuleUtils.RULE_TEMPLATE_ID_PARAM + "=" +
+					URLEncoder.encode(form.getParentRule().getRuleTemplate().getDelegationTemplateId(), "UTF-8") + "&" +
+                WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM + "=" +
+					URLEncoder.encode(form.getParentRule().getDocTypeName(),
 				"UTF-8");
-	}
+    }
 	
 }
