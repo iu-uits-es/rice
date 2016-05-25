@@ -17,6 +17,7 @@ package org.kuali.rice.kew.rule.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -26,6 +27,9 @@ import org.kuali.rice.kew.rule.bo.RuleTemplateBo;
 import org.kuali.rice.kew.web.KewKualiAction;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.KRADConstants;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Struts action for handling the initial Delegate Rule screen for selecting
@@ -67,14 +71,25 @@ public class DelegateRuleAction extends KewKualiAction {
 		
 		return GlobalVariables.getMessageMap().hasNoErrors();
 	}
-	
-	protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) {
-		return getApplicationBaseUrl() + "/kr/" + KRADConstants.MAINTENANCE_ACTION + "?" +
-			KRADConstants.DISPATCH_REQUEST_PARAMETER + "=" + KRADConstants.START_METHOD + "&" +
-			KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE + "=" + RuleDelegationBo.class.getName() +  "&" +
-			WebRuleUtils.RESPONSIBILITY_ID_PARAM + "=" + form.getParentResponsibilityId() + "&" +
-			WebRuleUtils.RULE_TEMPLATE_ID_PARAM + "=" + form.getParentRule().getRuleTemplate().getDelegationTemplateId() + "&" +
-			WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM + "=" + form.getParentRule().getDocTypeName();
-	}
+
+    protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) {
+		/**
+		 * Begin IU Customization
+		 * 2016-05-25 - Andy Hill (athill@iu.edu)
+		 * EN-4465
+		 *
+		 * Using UriBuilder to properly escape parameters
+		 */
+		UriBuilder uriBuilder = UriBuilder.fromPath(getApplicationBaseUrl())
+				.path("/kr/" + KRADConstants.MAINTENANCE_ACTION)
+				.queryParam(KRADConstants.DISPATCH_REQUEST_PARAMETER, KRADConstants.START_METHOD)
+				.queryParam(KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE, RuleDelegationBo.class.toString())
+				.queryParam(WebRuleUtils.RESPONSIBILITY_ID_PARAM, form.getParentResponsibilityId())
+				.queryParam(WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM, form.getParentRule().getDocTypeName());
+		return uriBuilder.build().toString();
+		/**
+		 * End IU Customization
+		 */
+    }
 	
 }
