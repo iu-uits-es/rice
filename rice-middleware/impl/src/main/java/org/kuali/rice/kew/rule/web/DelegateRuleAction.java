@@ -17,6 +17,7 @@ package org.kuali.rice.kew.rule.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -71,19 +72,24 @@ public class DelegateRuleAction extends KewKualiAction {
 		return GlobalVariables.getMessageMap().hasNoErrors();
 	}
 
-    protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) throws UnsupportedEncodingException {
-        return getApplicationBaseUrl() + "/kr/" + KRADConstants.MAINTENANCE_ACTION + "?" +
-                KRADConstants.DISPATCH_REQUEST_PARAMETER + "=" +
-					URLEncoder.encode(KRADConstants.START_METHOD, "UTF-8") + "&" +
-                KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE + "=" +
-					URLEncoder.encode(RuleDelegationBo.class.getName(), "UTF-8") + "&" +
-                WebRuleUtils.RESPONSIBILITY_ID_PARAM + "=" +
-					URLEncoder.encode(form.getParentResponsibilityId(), "UTF-8") + "&" +
-                WebRuleUtils.RULE_TEMPLATE_ID_PARAM + "=" +
-					URLEncoder.encode(form.getParentRule().getRuleTemplate().getDelegationTemplateId(), "UTF-8") + "&" +
-                WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM + "=" +
-					URLEncoder.encode(form.getParentRule().getDocTypeName(),
-				"UTF-8");
+    protected String generateMaintenanceUrl(HttpServletRequest request, DelegateRuleForm form) {
+		/**
+		 * Begin IU Customization
+		 * 2016-05-25 - Andy Hill (athill@iu.edu)
+		 * EN-4465
+		 *
+		 * Using UriBuilder to properly escape parameters
+		 */
+		UriBuilder uriBuilder = UriBuilder.fromPath(getApplicationBaseUrl())
+				.path("/kr/" + KRADConstants.MAINTENANCE_ACTION)
+				.queryParam(KRADConstants.DISPATCH_REQUEST_PARAMETER, KRADConstants.START_METHOD)
+				.queryParam(KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE, RuleDelegationBo.class.toString())
+				.queryParam(WebRuleUtils.RESPONSIBILITY_ID_PARAM, form.getParentResponsibilityId())
+				.queryParam(WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM, form.getParentRule().getDocTypeName());
+		return uriBuilder.build().toString();
+		/**
+		 * End IU Customization
+		 */
     }
 	
 }
