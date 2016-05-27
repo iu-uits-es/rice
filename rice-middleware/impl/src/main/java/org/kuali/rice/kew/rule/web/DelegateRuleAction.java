@@ -15,10 +15,6 @@
  */
 package org.kuali.rice.kew.rule.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.UriBuilder;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -28,8 +24,9 @@ import org.kuali.rice.kew.web.KewKualiAction;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.KRADConstants;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * Struts action for handling the initial Delegate Rule screen for selecting
@@ -83,8 +80,10 @@ public class DelegateRuleAction extends KewKualiAction {
 		UriBuilder uriBuilder = UriBuilder.fromPath(getApplicationBaseUrl())
 				.path("/kr/" + KRADConstants.MAINTENANCE_ACTION)
 				.queryParam(KRADConstants.DISPATCH_REQUEST_PARAMETER, KRADConstants.START_METHOD)
-				.queryParam(KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE, RuleDelegationBo.class.toString())
+				.queryParam(KRADConstants.BUSINESS_OBJECT_CLASS_ATTRIBUTE, RuleDelegationBo.class.getName())
 				.queryParam(WebRuleUtils.RESPONSIBILITY_ID_PARAM, form.getParentResponsibilityId())
+				.queryParam(WebRuleUtils.RULE_TEMPLATE_ID_PARAM,
+						form.getParentRule().getRuleTemplate().getDelegationTemplateId())
 				.queryParam(WebRuleUtils.DOCUMENT_TYPE_NAME_PARAM, form.getParentRule().getDocTypeName());
 		return uriBuilder.build().toString();
 		/**
