@@ -137,7 +137,17 @@
 					</td>
 					<td align="left">
 						<div align="left">
+							<!--
+							 * Begin IU Customization
+							 * 2016-05-25 - Andy Hill (athill@iu.edu)
+							 * EN-4468
+							 *
+							 * Protect against XSS
+							-->
 							<font color="red"><c:out value="${displayMessage}"/></font>
+							<!--
+							* End IU Customization
+							-->
 						</div>
 					</td>
 				</tr>
@@ -192,7 +202,17 @@
 			<tr>
 				<td align="left" valign="top" colspan="2">
 					<div align="left">
+						<!--
+             * Begin IU Customization
+             * 2016-05-25 - Andy Hill (athill@iu.edu)
+             * EN-4468
+             *
+             * Protect against XSS
+            -->
 						<pre><c:out value="${stackTrace}"/></pre>
+						<!--
+            * End IU Customization
+            -->
 					</div>
 				</td>
 			</tr>
