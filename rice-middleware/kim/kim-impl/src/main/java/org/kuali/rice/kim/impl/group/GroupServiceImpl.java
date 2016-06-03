@@ -91,6 +91,30 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
 		return Collections.unmodifiableList(new ArrayList<Group>( groups ));
     }
 
+    public List<Group> getParentGroupsByGroupsIds(List<String> groupIds, Set<Group> existingGroups) {
+        final QueryByCriteria.Builder builder = QueryByCriteria.Builder.create();
+        builder.setPredicates(
+                and(
+                        in(KIMPropertyConstants.GroupMember.MEMBER_ID, groupIds),
+                        equal(KIMPropertyConstants.GroupMember.MEMBER_TYPE_CODE, KimConstants.KimGroupMemberTypes.GROUP_MEMBER_TYPE.getCode()),
+                        HistoryQueryUtils.between(KIMPropertyConstants.KimMember.ACTIVE_FROM_DATE_VALUE,
+                                KIMPropertyConstants.KimMember.ACTIVE_TO_DATE_VALUE, new DateTime(System.currentTimeMillis()))));
+
+        Set<Group> parentGroups = new HashSet<Group>(findGroups(builder.build()).getResults());
+        if (parentGroups.isEmpty()) {
+            return new ArrayList<Group>(existingGroups);
+        }
+
+        parentGroups.removeAll(existingGroups);
+        List<String> parentGroupIds = new ArrayList<String>();
+        for (Group parentGroup : parentGroups) {
+            parentGroupIds.add(parentGroup.getId());
+            existingGroups.add(parentGroup);
+        }
+
+        return getParentGroupsByGroupsIds(parentGroupIds, existingGroups);
+    }
+
     @Override
     public List<String> findGroupIds(final QueryByCriteria queryByCriteria) throws RiceIllegalArgumentException {
         incomingParamCheck(queryByCriteria, "queryByCriteria");
