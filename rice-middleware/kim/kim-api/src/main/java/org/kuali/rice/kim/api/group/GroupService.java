@@ -102,20 +102,6 @@ public interface GroupService {
             @WebParam(name = "namespaceCode") String namespaceCode) throws RiceIllegalArgumentException;
 
 
-
-    /**
-     * Get a a flat list of groups and their parent groups based on group ids.
-     *
-     * <p>
-     * This will include all groups directly assigned as well as those inferred
-     * by the fact that they are members of higher level groups, and filtered by Group namespace.
-     * </p>
-     *
-     * @param groupIds List of group ids
-     * @return a list of Group objects
-     */
-    List<Group> getParentGroupsByGroupsIds(List<String> groupIds);
-
     /**
      * Query for groups based on the given search criteria which is a Map of group field names to values.
      *

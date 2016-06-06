@@ -85,41 +85,11 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
         Set<Group> groups = new HashSet<Group>();
         groups.addAll(directGroups);
         for ( Group group : directGroups ) {
-            groups.add( group );
             groups.addAll( getParentGroups( group.getId() ) );
         }
         return Collections.unmodifiableList(new ArrayList<Group>( groups ));
     }
 
-    @Override
-    public List<Group> getParentGroupsByGroupsIds(List<String> groupIds) {
-        return getParentGroupsByGroupsIds(groupIds, Collections.EMPTY_SET);
-    }
-
-
-    protected List<Group> getParentGroupsByGroupsIds(List<String> groupIds, Set<Group> existingGroups) {
-        final QueryByCriteria.Builder builder = QueryByCriteria.Builder.create();
-        builder.setPredicates(
-                and(
-                        in(KIMPropertyConstants.GroupMember.MEMBER_ID, groupIds),
-                        equal(KIMPropertyConstants.GroupMember.MEMBER_TYPE_CODE, KimConstants.KimGroupMemberTypes.GROUP_MEMBER_TYPE.getCode()),
-                        HistoryQueryUtils.between(KIMPropertyConstants.KimMember.ACTIVE_FROM_DATE_VALUE,
-                                KIMPropertyConstants.KimMember.ACTIVE_TO_DATE_VALUE, new DateTime(System.currentTimeMillis()))));
-
-        Set<Group> parentGroups = new HashSet<Group>(findGroups(builder.build()).getResults());
-        if (parentGroups.isEmpty()) {
-            return new ArrayList<Group>(existingGroups);
-        }
-
-        parentGroups.removeAll(existingGroups);
-        List<String> parentGroupIds = new ArrayList<String>();
-        for (Group parentGroup : parentGroups) {
-            parentGroupIds.add(parentGroup.getId());
-            existingGroups.add(parentGroup);
-        }
-
-        return getParentGroupsByGroupsIds(parentGroupIds, existingGroups);
-    }
 
     @Override
     public List<String> findGroupIds(final QueryByCriteria queryByCriteria) throws RiceIllegalArgumentException {
@@ -500,11 +470,14 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
 
 
     protected List<Group> getDirectParentGroups(String groupId, DateTime asOfDate) {
+        incomingParamCheck(groupId, "groupId");
         return getDirectParentGroups(Arrays.asList(groupId), asOfDate);
     }
 
     protected List<Group> getDirectParentGroups(List<String> groupIds, DateTime asOfDate) {
-        incomingParamCheck(groupIds, "groupIds");
+        if (CollectionUtils.isEmpty(groupIds)) {
+            throw new RiceIllegalArgumentException("groupIds cannot be empty");
+        }
 
         final QueryByCriteria.Builder builder = QueryByCriteria.Builder.create();
         builder.setPredicates(
