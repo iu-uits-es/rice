@@ -567,8 +567,6 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
             return Collections.emptyList();
         }
 
-        //List<String> memberIds = getMemberIdsByType(group, memberType);
-        //List<GroupMember> members = new ArrayList<GroupMember>(getMembersOfGroup(group.getId()));
         ids.addAll( group.getMemberPrincipalIds());
         visitedGroupIds.add(group.getId());
 
@@ -936,14 +934,6 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
         }
 
         QueryResults<GroupMemberBo> groupMembers = this.dataObjectService.findMatching(GroupMemberBo.class, builder.build());
-
-        /*CollectionUtils.filter(groupMembers, new Predicate() {
-			@Override public boolean evaluate(Object object) {
-				GroupMemberBo member = (GroupMemberBo) object;
-				// keep in the collection (return true) if the activeToDate is null, or if it is set to a future date
-				return member.getActiveToDate() == null || today.before(member.getActiveToDate().toDate());
-			}
-		});*/
 
         return new ArrayList<GroupMemberBo>(groupMembers.getResults());
     }
