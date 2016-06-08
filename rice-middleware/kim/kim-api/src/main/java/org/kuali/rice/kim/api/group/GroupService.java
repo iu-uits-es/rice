@@ -101,6 +101,7 @@ public interface GroupService {
     List<Group> getGroupsByPrincipalIdAndNamespaceCode(@WebParam(name = "principalId") String principalId,
             @WebParam(name = "namespaceCode") String namespaceCode) throws RiceIllegalArgumentException;
 
+
     /**
      * Query for groups based on the given search criteria which is a Map of group field names to values.
      *
