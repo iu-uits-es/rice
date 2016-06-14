@@ -459,7 +459,7 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
         for ( Group group : parentGroups ) {
             if ( !groups.contains( group ) ) {
                 groups.add( group );
-                getParentGroupsInternal( group.getId(), groups );
+                getParentGroupsInternal(group.getId(), groups);
             }
         }
     }
@@ -475,19 +475,23 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
     }
 
     protected List<Group> getDirectParentGroups(List<String> groupIds, DateTime asOfDate) {
-        if (CollectionUtils.isEmpty(groupIds)) {
-            throw new RiceIllegalArgumentException("groupIds cannot be empty");
+        if (groupIds == null) {
+            throw new RiceIllegalArgumentException("groupIds cannot be null");
         }
 
         final QueryByCriteria.Builder builder = QueryByCriteria.Builder.create();
-        builder.setPredicates(
-                and(
-                        in(KIMPropertyConstants.GroupMember.MEMBER_ID, groupIds),
-                        equal(KIMPropertyConstants.GroupMember.MEMBER_TYPE_CODE, KimConstants.KimGroupMemberTypes.GROUP_MEMBER_TYPE.getCode()),
-                        HistoryQueryUtils.between(KIMPropertyConstants.KimMember.ACTIVE_FROM_DATE_VALUE,
-                                KIMPropertyConstants.KimMember.ACTIVE_TO_DATE_VALUE, asOfDate)));
+        List<GroupMember> groupMembers = new ArrayList<GroupMember>();
+        if (groupIds.size() > 0) {
 
-        List<GroupMember> groupMembers = findGroupMembers(builder.build()).getResults();
+            builder.setPredicates(
+                    and(
+                            in(KIMPropertyConstants.GroupMember.MEMBER_ID, groupIds),
+                            equal(KIMPropertyConstants.GroupMember.MEMBER_TYPE_CODE, KimConstants.KimGroupMemberTypes.GROUP_MEMBER_TYPE.getCode()),
+                            HistoryQueryUtils.between(KIMPropertyConstants.KimMember.ACTIVE_FROM_DATE_VALUE,
+                                    KIMPropertyConstants.KimMember.ACTIVE_TO_DATE_VALUE, asOfDate)));
+
+            groupMembers = findGroupMembers(builder.build()).getResults();
+        }
         Set<String> matchingGroupIds = new HashSet<String>();
         // filter to active groups
         for ( GroupMember gm : groupMembers ) {
@@ -542,7 +546,7 @@ public class GroupServiceImpl extends GroupServiceBase implements GroupService {
 
 
     protected List<Group> getParentGroups(List<String> groupIds) throws RiceIllegalArgumentException {
-        if ( CollectionUtils.isEmpty(groupIds) ) {
+        if (groupIds == null) {
             throw new RiceIllegalArgumentException("groupIds is cannot be empty");
         }
         Set<Group> groups = new HashSet<Group>();
