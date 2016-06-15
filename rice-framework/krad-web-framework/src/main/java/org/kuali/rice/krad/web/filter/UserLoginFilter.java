@@ -18,6 +18,7 @@ package org.kuali.rice.krad.web.filter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 import org.kuali.rice.core.api.CoreApiServiceLocator;
+import org.kuali.rice.core.api.config.property.ConfigContext;
 import org.kuali.rice.core.api.config.property.ConfigurationService;
 import org.kuali.rice.core.api.exception.RiceRuntimeException;
 import org.kuali.rice.core.api.resourceloader.GlobalResourceLoader;
@@ -28,6 +29,7 @@ import org.kuali.rice.kim.api.KimConstants;
 import org.kuali.rice.kim.api.identity.AuthenticationService;
 import org.kuali.rice.kim.api.identity.IdentityService;
 import org.kuali.rice.kim.api.identity.principal.Principal;
+import org.kuali.rice.kim.api.permission.Permission;
 import org.kuali.rice.kim.api.permission.PermissionService;
 import org.kuali.rice.kim.api.services.KimApiServiceLocator;
 import org.kuali.rice.krad.UserSession;
@@ -47,6 +49,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -56,6 +61,8 @@ import java.util.UUID;
  * @see org.kuali.rice.krad.UserSession
  */
 public class UserLoginFilter implements Filter {
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(UserLoginFilter.class);
 
     private static final String MDC_USER = "user";
 
@@ -166,26 +173,70 @@ public class UserLoginFilter implements Filter {
     /**
      * establishes the backdoor user on the established user id if backdoor capabilities are valid.
      */
-    private void establishBackdoorUser(HttpServletRequest request) {
+    protected void establishBackdoorUser(HttpServletRequest request) {
         final String backdoor = request.getParameter(KRADConstants.BACKDOOR_PARAMETER);
-        if (StringUtils.isNotBlank(backdoor)) {
-            if (!getKualiConfigurationService().getPropertyValueAsString(KRADConstants.PROD_ENVIRONMENT_CODE_KEY)
-                    .equalsIgnoreCase(getKualiConfigurationService().getPropertyValueAsString(
-                            KRADConstants.ENVIRONMENT_KEY))) {
-                if (getParameterService().getParameterValueAsBoolean(KRADConstants.KUALI_RICE_WORKFLOW_NAMESPACE,
-                        KRADConstants.DetailTypes.BACKDOOR_DETAIL_TYPE, KewApiConstants.SHOW_BACK_DOOR_LOGIN_IND)) {
-                    try {
-                        KRADUtils.getUserSessionFromRequest(request).setBackdoorUser(backdoor);
-                    } catch (RiceRuntimeException re) {
-                        //Ignore so BackdoorAction can redirect to invalid_backdoor_portal
-                    }
-                }
-            }
+        UserSession userSession = KRADUtils.getUserSessionFromRequest(request);
+
+        if (StringUtils.isNotBlank(backdoor) && !isProductionEnvironment() && showBackdoorLogin() &&
+                isBackdoorAuthorized(userSession)) {
+
+            KRADUtils.getUserSessionFromRequest(request).setBackdoorUser(backdoor);
         }
+    }
+
+    /**
+     * Determines if the Backdoor login form should be displayed
+     * @return True if the backdoor form should be displayed, False otherwise
+     */
+    private boolean showBackdoorLogin() {
+        return getParameterService().getParameterValueAsBoolean(KRADConstants.KUALI_RICE_WORKFLOW_NAMESPACE,
+                KRADConstants.DetailTypes.BACKDOOR_DETAIL_TYPE, KewApiConstants.SHOW_BACK_DOOR_LOGIN_IND);
+    }
+
+    /**
+     * Determines if the current server instance is a production environment
+     * @return True if the current server instance is a production environment, False otherwise
+     */
+    private boolean isProductionEnvironment() {
+        return getKualiConfigurationService().getPropertyValueAsString(KRADConstants.PROD_ENVIRONMENT_CODE_KEY)
+                .equalsIgnoreCase(getKualiConfigurationService().getPropertyValueAsString(KRADConstants.ENVIRONMENT_KEY));
     }
 
     private void addToMDC(HttpServletRequest request) {
         MDC.put(MDC_USER, KRADUtils.getUserSessionFromRequest(request).getPrincipalName());
+    }
+
+    /**
+     * Determines if the actual logged in user has backdoor permissions.
+     * @param uSession the current UserSession
+     * @return True if the user has permissions to user the backdoor function, False otherwise
+     */
+    private boolean isBackdoorAuthorized(UserSession uSession) {
+        boolean isAuthorized = true;
+
+        //we should check to see if a kim permission exists for the requested application first
+        Map<String, String> permissionDetails = new HashMap<String, String>();
+        String requestAppCode = ConfigContext.getCurrentContextConfig().getProperty("app.code");
+        permissionDetails.put(KimConstants.AttributeConstants.APP_CODE, requestAppCode);
+        List<Permission> perms = KimApiServiceLocator.getPermissionService().findPermissionsByTemplate(
+                KRADConstants.KUALI_RICE_SYSTEM_NAMESPACE, KimConstants.PermissionTemplateNames.BACKDOOR_RESTRICTION);
+        for (Permission kpi : perms) {
+            if (kpi.getAttributes().values().contains(requestAppCode)) {
+                //if a permission exists, is the user granted permission to use backdoor?
+                isAuthorized = KimApiServiceLocator.getPermissionService().isAuthorizedByTemplate(
+                        uSession.getActualPerson().getPrincipalId(), KRADConstants.KUALI_RICE_SYSTEM_NAMESPACE,
+                        KimConstants.PermissionTemplateNames.BACKDOOR_RESTRICTION, permissionDetails,
+                        Collections.<String, String>emptyMap());
+            }
+        }
+        if (!isAuthorized) {
+            LOG.warn("Attempt to backdoor was made by user: "
+                    + uSession.getPerson().getPrincipalId()
+                    + " into application with app code: "
+                    + requestAppCode
+                    + " but they do not have appropriate permissions. Backdoor processing aborted.");
+        }
+        return isAuthorized;
     }
 
     private void removeFromMDC() {
