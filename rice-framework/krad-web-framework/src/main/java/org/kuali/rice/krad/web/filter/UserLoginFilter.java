@@ -177,10 +177,14 @@ public class UserLoginFilter implements Filter {
         final String backdoor = request.getParameter(KRADConstants.BACKDOOR_PARAMETER);
         UserSession userSession = KRADUtils.getUserSessionFromRequest(request);
 
-        if (StringUtils.isNotBlank(backdoor) && !isProductionEnvironment() && showBackdoorLogin() &&
+        if (StringUtils.isNotBlank(backdoor) && !userSession.isProductionEnvironment() && showBackdoorLogin() &&
                 isBackdoorAuthorized(userSession)) {
 
-            KRADUtils.getUserSessionFromRequest(request).setBackdoorUser(backdoor);
+            try {
+                KRADUtils.getUserSessionFromRequest(request).setBackdoorUser(backdoor);
+            } catch (RuntimeException re) {
+                LOG.warn("Caught an exception while setting the backdoor user in the user session.");
+            }
         }
     }
 
@@ -188,18 +192,9 @@ public class UserLoginFilter implements Filter {
      * Determines if the Backdoor login form should be displayed
      * @return True if the backdoor form should be displayed, False otherwise
      */
-    private boolean showBackdoorLogin() {
+    protected boolean showBackdoorLogin() {
         return getParameterService().getParameterValueAsBoolean(KRADConstants.KUALI_RICE_WORKFLOW_NAMESPACE,
                 KRADConstants.DetailTypes.BACKDOOR_DETAIL_TYPE, KewApiConstants.SHOW_BACK_DOOR_LOGIN_IND);
-    }
-
-    /**
-     * Determines if the current server instance is a production environment
-     * @return True if the current server instance is a production environment, False otherwise
-     */
-    private boolean isProductionEnvironment() {
-        return getKualiConfigurationService().getPropertyValueAsString(KRADConstants.PROD_ENVIRONMENT_CODE_KEY)
-                .equalsIgnoreCase(getKualiConfigurationService().getPropertyValueAsString(KRADConstants.ENVIRONMENT_KEY));
     }
 
     private void addToMDC(HttpServletRequest request) {
@@ -211,7 +206,7 @@ public class UserLoginFilter implements Filter {
      * @param uSession the current UserSession
      * @return True if the user has permissions to user the backdoor function, False otherwise
      */
-    private boolean isBackdoorAuthorized(UserSession uSession) {
+    protected boolean isBackdoorAuthorized(UserSession uSession) {
         boolean isAuthorized = true;
 
         //we should check to see if a kim permission exists for the requested application first
