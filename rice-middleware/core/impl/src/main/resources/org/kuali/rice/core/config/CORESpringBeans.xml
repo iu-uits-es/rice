@@ -50,6 +50,8 @@
   <!-- Mailer -->
   <bean id="mailer" class="org.kuali.rice.core.mail.MailerImpl">
     <property name="mailSender" ref="mailSender"/>
+    <property name="keyStoreFile" value="${keystore.file}"/>
+    <property name="keyStorePassword" value="${keystore.password}"/>
   </bean>
 
   <bean id="dateTimeService" class="org.kuali.rice.core.impl.datetime.DateTimeServiceImpl"/>
