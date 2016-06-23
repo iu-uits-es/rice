@@ -23,9 +23,15 @@ package org.kuali.rice.core.api.mail;
 public class EmailFrom {
 
     private String fromAddress;
+    private String replyToAddress;
 
     public EmailFrom(String fromAddress) {
         this.fromAddress = fromAddress;
+    }
+
+    public EmailFrom(String fromAddress, String replyToAddress) {
+        this.fromAddress = fromAddress;
+        this.replyToAddress = replyToAddress;
     }
 
     public String getFromAddress() {
@@ -34,6 +40,14 @@ public class EmailFrom {
 
     public void setFromAddress(String fromAddress) {
         this.fromAddress = fromAddress;
+    }
+
+    public String getReplyToAddress() {
+        return replyToAddress;
+    }
+
+    public void setReplyToAddress(String replyToAddress) {
+        this.replyToAddress = replyToAddress;
     }
 
 }

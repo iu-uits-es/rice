@@ -104,7 +104,7 @@
     <antlr.version>2.7.7</antlr.version>
     <aopalliance.version>1.0</aopalliance.version>
     <asm.version>3.3.1</asm.version>
-    <bcprov.version>1.46</bcprov.version>
+    <bouncycastle.version>1.46</bouncycastle.version>
     <cas-client-core.version>3.2.1</cas-client-core.version>
     <cglib.version>2.2.2</cglib.version>
     <aspectj.version>1.6.8</aspectj.version>
@@ -2053,7 +2053,12 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk16</artifactId>
-        <version>${bcprov.version}</version>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcmail-jdk16</artifactId>
+        <version>${bouncycastle.version}</version>
       </dependency>
 
       <dependency>
