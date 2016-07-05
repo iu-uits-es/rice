@@ -98,10 +98,10 @@ public class RuleXmlExporter implements XmlExporter {
         }
         renderer.renderTextElement(ruleElement, DESCRIPTION, rule.getDescription());
         if(rule.getFromDateString() != null){
-            renderer.renderTextElement(ruleElement, FROM_DATE, rule.getFromDateString());
+            renderer.renderTextElement(ruleElement, FROM_DATE_VALUE, rule.getFromDateString());
         }
         if(rule.getToDateString() != null){
-            renderer.renderTextElement(ruleElement, TO_DATE, rule.getToDateString());
+            renderer.renderTextElement(ruleElement, TO_DATE_VALUE, rule.getToDateString());
         }
         if (rule.getRuleExpressionDef() != null) {
             Element expressionElement = renderer.renderTextElement(ruleElement, EXPRESSION, rule.getRuleExpressionDef().getExpression());
