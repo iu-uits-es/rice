@@ -52,6 +52,11 @@
     <property name="mailSender" ref="mailSender"/>
     <property name="keyStoreFile" value="${keystore.file}"/>
     <property name="keyStorePassword" value="${keystore.password}"/>
+    <property name="parameterService" ref="parameterService"/>
+  </bean>
+
+  <bean id="parameterService" class="org.kuali.rice.core.framework.resourceloader.GlobalResourceLoaderServiceFactoryBean">
+    <property name="serviceName" value="parameterRepositoryService"/>
   </bean>
 
   <bean id="dateTimeService" class="org.kuali.rice.core.impl.datetime.DateTimeServiceImpl"/>

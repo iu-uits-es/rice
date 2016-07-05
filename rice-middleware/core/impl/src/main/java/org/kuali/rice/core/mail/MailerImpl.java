@@ -36,6 +36,9 @@ import org.kuali.rice.core.api.mail.EmailTo;
 import org.kuali.rice.core.api.mail.EmailToList;
 import org.kuali.rice.core.api.mail.MailMessage;
 import org.kuali.rice.core.api.mail.Mailer;
+import org.kuali.rice.coreservice.framework.parameter.ParameterService;
+import org.kuali.rice.kew.api.KewApiConstants;
+import org.kuali.rice.krad.util.KRADConstants;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -84,6 +87,7 @@ public class MailerImpl implements Mailer, InitializingBean {
     protected final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MailerImpl.class);
 
     private JavaMailSenderImpl mailSender;
+    private ParameterService parameterService;
     private KeyStore keyStore;
     private String keyStoreFile;
     private String keyStorePassword;
@@ -113,6 +117,14 @@ public class MailerImpl implements Mailer, InitializingBean {
      */
     public void setKeyStorePassword(String keyStorePassword) {
         this.keyStorePassword = keyStorePassword;
+    }
+
+    public ParameterService getParameterService() {
+        return parameterService;
+    }
+
+    public void setParameterService(ParameterService parameterService) {
+        this.parameterService = parameterService;
     }
 
     /**
@@ -281,12 +293,19 @@ public class MailerImpl implements Mailer, InitializingBean {
             }
         }
 
-        Enumeration<String> aliases = keyStore.aliases();
-        while (aliases.hasMoreElements()) {
-            String alias = aliases.nextElement();
-            String keyPassword = ConfigContext.getCurrentContextConfig().getProperty(String.format("keystore.%s.password", StringUtils.substringBefore(alias, "@")));
-            if (alias.equals(from) && StringUtils.isNotBlank(keyPassword)) {
-                message = signMessage(message, alias, keyPassword);
+        if (parameterService.getParameterValueAsBoolean(
+                KewApiConstants.KEW_NAMESPACE,
+                KRADConstants.DetailTypes.MAILER_DETAIL_TYPE,
+                KewApiConstants.SIGN_EMAIL_INDICATOR
+        )) {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                String keyPassword = ConfigContext.getCurrentContextConfig().getProperty(String.format(
+                        "keystore.%s.password", StringUtils.substringBefore(alias, "@")));
+                if (alias.equals(from) && StringUtils.isNotBlank(keyPassword)) {
+                    message = signMessage(message, alias, keyPassword);
+                }
             }
         }
 
