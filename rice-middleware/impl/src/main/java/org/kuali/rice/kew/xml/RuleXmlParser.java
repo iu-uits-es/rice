@@ -221,8 +221,8 @@ public class RuleXmlParser {
         setDefaultRuleValues(rule);
         rule.setName(name);
 
-        String toDatestr = element.getChildText( TO_DATE, element.getNamespace());
-        String fromDatestr = element.getChildText( FROM_DATE, element.getNamespace());
+        String toDatestr = element.getChildText( TO_DATE_VALUE, element.getNamespace());
+        String fromDatestr = element.getChildText( FROM_DATE_VALUE, element.getNamespace());
         rule.setToDateValue(formatDate("toDate", toDatestr));
         rule.setFromDateValue(formatDate("fromDate", fromDatestr));
 
