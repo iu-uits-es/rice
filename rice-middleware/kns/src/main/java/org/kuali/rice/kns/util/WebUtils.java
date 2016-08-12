@@ -19,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -956,6 +958,18 @@ public class WebUtils {
     }
 
     public static String sanitizeBackLocation(String backLocation) {
+		if(StringUtils.isBlank(backLocation)) {
+			return backLocation;
+		}
+		// if it's a relative URL then we should be good regardless
+		try {
+			URI uri = new URI(backLocation);
+			if (!uri.isAbsolute()) {
+				return backLocation;
+			}
+		} catch (URISyntaxException e) {
+			// move on to the other checks if it doesn't parse up as a URI for some reason
+		}
         Pattern pattern = Pattern.compile(ConfigContext.getCurrentContextConfig().getProperty(KRADConstants.BACK_LOCATION_ALLOWED_REGEX));
         if(pattern.matcher(backLocation).matches()) {
             return backLocation;
