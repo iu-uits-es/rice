@@ -44,6 +44,7 @@ import org.kuali.rice.krad.uif.util.SessionTransient;
 import org.kuali.rice.krad.uif.view.DialogManager;
 import org.kuali.rice.krad.uif.view.View;
 import org.kuali.rice.krad.uif.view.ViewModel;
+import org.kuali.rice.krad.util.CsrfValidator;
 import org.kuali.rice.krad.util.KRADUtils;
 import org.kuali.rice.krad.web.bind.RequestAccessible;
 import org.springframework.web.multipart.MultipartFile;
@@ -198,6 +199,8 @@ public class UifFormBase implements ViewModel {
     protected Map<String, String> queryParameters;
     protected boolean applyDefaultValues;
 
+    protected String csrfToken;
+
     public UifFormBase() {
         renderedInLightBox = false;
         renderedInIframe = false;
@@ -222,7 +225,8 @@ public class UifFormBase implements ViewModel {
      */
     @Override
     public void preBind(HttpServletRequest request) {
-        // do nothing - here for framework
+        String csrfToken = CsrfValidator.getSessionToken(request);
+        setCsrfToken(csrfToken);
     }
 
     /**
@@ -695,7 +699,7 @@ public class UifFormBase implements ViewModel {
      * across multiple pages.
      * The value in the cache is preserved in the session across multiple requests. This allows for the
      * server side paging of results to retain the user choices as they move through the pages.
-     * 
+     *
      * @return set of identifiers
      */
     public Set<String> getSelectedLookupResultsCache() {
@@ -1359,5 +1363,13 @@ public class UifFormBase implements ViewModel {
                 .append(", methodToCall=").append(this.methodToCall).append(", formKey=").append(this.formKey)
                 .append(", requestedFormKey=").append(this.requestedFormKey).append("]");
         return builder.toString();
+    }
+
+    public String getCsrfToken() {
+        return csrfToken;
+    }
+
+    public void setCsrfToken(String csrfToken) {
+        this.csrfToken = csrfToken;
     }
 }
