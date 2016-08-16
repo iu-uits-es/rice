@@ -50,6 +50,7 @@
 </table>
 
 <html-el:form action="/ServiceRegistry.do">
+<kul:csrf />
 <html-el:hidden property="methodToCall" />
 
   <table width="100%" border=0 cellspacing=0 cellpadding=0>
@@ -140,7 +141,7 @@
    </tr>
 
    <tr><td colspan="3">&nbsp;</td></tr>
-   
+
     <tr>
     <td width="20" height="20">&nbsp;</td>
     <td>

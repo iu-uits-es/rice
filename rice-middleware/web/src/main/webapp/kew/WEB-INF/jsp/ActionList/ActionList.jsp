@@ -68,7 +68,7 @@
 </bean:define>
 <bean:define id="emptyOutboxMessage">
 	<bean-el:message key="actionList.Outbox.emptyList" />
-</bean:define>  
+</bean:define>
     <c:url var="actionListURI" value="ActionList.do">
     <c:param name="methodToCall" value="start"/>
     <c:param name="currentPage" value="${ActionListForm.currentPage}"/>
@@ -186,6 +186,7 @@
 	</c:if>
 	<html-el:form action="ActionList">
 		<html-el:hidden property="methodToCall" value="" />
+		<kul:csrf />
 		<table width="100%">
 			<tr>
 			<td width="1%"><img src="${ConfigProperties.kr.externalizable.images.url}pixel_clear.gif" alt="" width="20"
@@ -471,7 +472,7 @@
 				</tr>
 			</c:if>
 		</table>
-		
+
 		</td>
 			<td width="1%"><img src="${ConfigProperties.kr.externalizable.images.url}pixel_clear.gif" alt="" width="20"
 				height="20"></td>

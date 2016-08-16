@@ -50,6 +50,7 @@
 
 <html-el:form action="/ServiceBus.do">
 <html-el:hidden property="methodToCall" />
+<kul:csrf />
 
   <table width="100%" border=0 cellspacing=0 cellpadding=0>
   <tr>
@@ -139,7 +140,7 @@
    </tr>
 
    <tr><td colspan="3">&nbsp;</td></tr>
-   
+
     <tr>
     <td width="20" height="20">&nbsp;</td>
     <td>
