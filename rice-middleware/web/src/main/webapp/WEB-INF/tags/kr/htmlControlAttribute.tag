@@ -125,7 +125,7 @@ if (attributeEntry == null) {
      <c:otherwise>
         <c:choose>
 		<c:when test="${displayMask}" >
-			${displayMaskValue}
+      <c:out value="${displayMaskValue}"/>
 		</c:when>
          <c:otherwise>
          <logic:empty name="KualiForm" property="${property}">
@@ -148,7 +148,7 @@ if (attributeEntry == null) {
 			  <c:if test="${attributeEntry.control.select == true || attributeEntry.control.multiselect == true}">
 			     <c:set var="finderClass" value="${fn:replace(attributeEntry.control.valuesFinder,'.','|')}"/>
 				 <c:set var="businessObjectClass" value="${fn:replace(attributeEntry.control.businessObject,'.','|')}"/>
-				   	     
+
 				 <c:choose>
 
              <c:when test="${not empty finderClass}">
@@ -171,14 +171,14 @@ if (attributeEntry == null) {
                </c:choose>
              </c:otherwise>
          </c:choose>
-         <jsp:useBean id="keyLabelMapEntries" type="java.util.Set"/> 
+         <jsp:useBean id="keyLabelMapEntries" type="java.util.Set"/>
 	       <jsp:useBean id="methodAndParms" type="java.lang.String"/>
-           	  
+
 			     <%
 			        java.lang.String selectedOptionDescription = "";
-			   	  
+
 			   	    javax.servlet.jsp.PageContext pageCtx = (javax.servlet.jsp.PageContext) jspContext;
-			   	
+
 			   	    org.apache.struts.taglib.TagUtils TagUtils = org.apache.struts.taglib.TagUtils.getInstance();
 			   	    java.util.List propertyValue = new java.util.ArrayList();
 			   	    Object value = TagUtils.lookup(pageCtx, "org.apache.struts.taglib.html.BEAN", property, null);
@@ -211,17 +211,17 @@ if (attributeEntry == null) {
 				   	    }
 				   	  }
 				   	  pageCtx.setAttribute("readOnlyAlternateDisplay", selectedOptionDescription);
-			   	    } 
+			   	    }
 			   	 %>
  			 </c:if>
 			 <c:if test="${empty readOnlyAlternateDisplay}">
 		       <bean:write name="KualiForm" property="${property}"/>
              </c:if>
-             ${readOnlyAlternateDisplay}
+        <c:out value="${readOnlyAlternateDisplay}"/>
 		    </c:when>
 			<c:otherwise>
               <html:hidden write="${empty readOnlyAlternateDisplay ? 'true' : 'false'}" property="${property}" style="${textStyle}" />
-              ${readOnlyAlternateDisplay}
+              <c:out value="${readOnlyAlternateDisplay}"/>
             </c:otherwise>
 		  </c:choose>
          </c:if>
@@ -318,8 +318,8 @@ if (attributeEntry == null) {
 
             </html:select>
             <c:if test="${disableField == false}">
-              <input type="hidden" name="multiSelectToReset" value="${property}"/> 
-            </c:if> 
+              <input type="hidden" name="multiSelectToReset" value="${property}"/>
+            </c:if>
 	</c:when>
     <%-- radio --%>
     <c:when test="${attributeEntry.control.radio == true}">

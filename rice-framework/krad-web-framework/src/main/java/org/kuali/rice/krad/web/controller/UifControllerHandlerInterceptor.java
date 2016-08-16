@@ -25,6 +25,7 @@ import org.kuali.rice.krad.uif.UifConstants;
 import org.kuali.rice.krad.uif.UifParameters;
 import org.kuali.rice.krad.uif.lifecycle.ViewPostMetadata;
 import org.kuali.rice.krad.uif.util.ProcessLogger;
+import org.kuali.rice.krad.util.CsrfValidator;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.KRADUtils;
 import org.kuali.rice.krad.web.bind.RequestAccessible;
@@ -62,6 +63,10 @@ public class UifControllerHandlerInterceptor implements HandlerInterceptor {
         checkHandlerMethodAccess(request, handler);
 
         final UserSession session = KRADUtils.getUserSessionFromRequest(request);
+
+        if (!CsrfValidator.validateCsrf(request, response)) {
+            return false;
+        }
 
         GlobalVariables.setUserSession(session);
         GlobalVariables.clear();

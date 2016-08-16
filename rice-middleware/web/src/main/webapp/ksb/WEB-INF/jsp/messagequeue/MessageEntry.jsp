@@ -34,6 +34,7 @@
   <body>
 
     <html-el:form action="/MessageQueue.do">
+		<kul:csrf />
     <html-el:hidden name="MessageQueueForm" property="methodToCall" />
     <html-el:hidden name="MessageQueueForm" property="showEdit" />
     <html-el:hidden name="MessageQueueForm" property="messageId" />
@@ -349,7 +350,7 @@
 		                      <a href="javascript: setMethod('queueNewMessage');document.forms[0].submit();">Queue new message</a><br>
 				                </c:otherwise>
 		                  </c:choose>
-		                  <%-- 
+		                  <%--
 	 	                  <a href="javascript: submitQueueId('clear', '<c:out value="${MessageQueueForm.messageQueueFromForm.routeQueueId}" />')">Clear Message</a>
 	 	                  --%>
 				            </td>

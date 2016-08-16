@@ -106,7 +106,7 @@
 	<div class="topblurb">
 		<div align="center">
 			<table cellpadding="10" cellspacing="0" border="0" class="container2">
-			  <c:if test="${exceptionHideIncidentReport eq false}">	
+			  <c:if test="${exceptionHideIncidentReport eq false}">
 				 <tr>
 					<td colspan="2" class="infoline">
 						<div align="left">
@@ -124,7 +124,7 @@
 					</td>
 					<td align="left" valign="top">
 						<div align="left">
-							<font color="green">${documentId}</font>
+							<font color="green"><c:out value="${documentId}"/></font>
 						</div>
 					</td>
 				</tr>
@@ -151,7 +151,7 @@
 						</div>
 					</td>
 				</tr>
-			  <c:if test="${exceptionHideIncidentReport eq false}">		
+			  <c:if test="${exceptionHideIncidentReport eq false}">
 				<tr>
 					<td valign="top" align="left">
 						<div align="left">
@@ -169,7 +169,7 @@
 					</td>
 					<td align="left">
 						<div>
-							<c:if test="${exceptionHideIncidentReport eq false}">	
+							<c:if test="${exceptionHideIncidentReport eq false}">
 								<input type="image" name="submit" class="tinybutton"
 								src="${ConfigProperties.kr.externalizable.images.url}buttonsmall_submit.gif"
 								class="globalbuttons" title="submit" alt="Submit Incident">

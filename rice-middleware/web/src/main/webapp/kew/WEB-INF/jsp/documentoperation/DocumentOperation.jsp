@@ -20,7 +20,7 @@
 <kul:page headerTitle="Workflow Statistics" lookup="false"
   headerMenuBar="" transactionalDocument="false" showDocumentInfo="false"
   htmlFormAction="DocumentOperation" docTitle="Document Operation">
-  
+
 <html-el:html>
 <head>
 <link href="css/screen.css" rel="stylesheet" type="text/css">
@@ -46,12 +46,13 @@
 
 <div class="msg-excol">
   <div class="left-errmsg">
-    <kul:errors errorTitle="Errors found in Search Criteria:" /> 
+    <kul:errors errorTitle="Errors found in Search Criteria:" />
     <kul:messages />
   </div>
 </div>
 
 <html-el:form action="/DocumentOperation.do">
+  <kul:csrf />
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
