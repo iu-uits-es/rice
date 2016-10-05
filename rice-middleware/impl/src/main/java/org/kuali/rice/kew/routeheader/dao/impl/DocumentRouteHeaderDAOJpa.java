@@ -17,6 +17,8 @@ package org.kuali.rice.kew.routeheader.dao.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.core.api.config.property.ConfigContext;
+import org.kuali.rice.core.api.criteria.PredicateFactory;
+import org.kuali.rice.core.api.criteria.QueryByCriteria;
 import org.kuali.rice.kew.docsearch.SearchableAttributeValue;
 import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
 import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValueContent;
@@ -73,10 +75,12 @@ public class DocumentRouteHeaderDAOJpa implements DocumentRouteHeaderDAO {
         if (documentIds.isEmpty()) {
             return new ArrayList<DocumentRouteHeaderValue>();
         }
-        TypedQuery<DocumentRouteHeaderValue> query = getEntityManager().
-                createNamedQuery(GET_DOCUMENT_HEADERS_NAME, DocumentRouteHeaderValue.class);
-        query.setParameter("documentIds",documentIds);
-        return query.getResultList();
+        return getDataObjectService().findMatching(
+                DocumentRouteHeaderValue.class,
+                QueryByCriteria.Builder.fromPredicates(
+                        PredicateFactory.in("documentId", documentIds)
+                )
+        ).getResults();
     }
 
     @Override
