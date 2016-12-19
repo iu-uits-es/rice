@@ -1,5 +1,5 @@
-/**
- * Copyright 2005-2014 The Kuali Foundation
+/*
+ * Copyright 2006-2016 The Kuali Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,27 @@
  */
 package org.kuali.rice.kew.engine.node;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.kuali.rice.coreservice.framework.CoreFrameworkServiceLocator;
+import org.kuali.rice.coreservice.framework.parameter.ParameterService;
+import org.kuali.rice.kew.actionrequest.ActionRequestValue;
+import org.kuali.rice.kew.api.KewApiConstants;
+import org.kuali.rice.kew.api.exception.WorkflowException;
+import org.kuali.rice.kew.engine.RouteContext;
+import org.kuali.rice.kew.engine.RouteHelper;
+import org.kuali.rice.kew.exception.RouteManagerException;
+import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
+import org.kuali.rice.kew.routemodule.RouteModule;
+import org.kuali.rice.kew.service.KEWServiceLocator;
+import org.kuali.rice.kew.util.ClassDumper;
+import org.kuali.rice.krad.util.KRADConstants;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.kuali.rice.coreservice.framework.parameter.ParameterService;
-import org.kuali.rice.coreservice.framework.CoreFrameworkServiceLocator;
-import org.kuali.rice.kew.actionrequest.ActionRequestValue;
-import org.kuali.rice.kew.engine.RouteContext;
-import org.kuali.rice.kew.engine.RouteHelper;
-import org.kuali.rice.kew.exception.RouteManagerException;
-import org.kuali.rice.kew.api.exception.WorkflowException;
-import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
-import org.kuali.rice.kew.routemodule.RouteModule;
-import org.kuali.rice.kew.service.KEWServiceLocator;
-import org.kuali.rice.kew.util.ClassDumper;
-import org.kuali.rice.kew.api.KewApiConstants;
-import org.kuali.rice.krad.util.KRADConstants;
 
 /**
  * A node which generates {@link ActionRequestValue} objects from a
@@ -196,7 +196,6 @@ public class RequestsNode extends RequestActivationNode {
                 }
                 if (!duplicateFound) {
                     uniqueRequests.add(actionRequest);
-                    duplicateFound = false;
                 }
             }
             for ( ActionRequestValue actionRequest : uniqueRequests ) {
@@ -216,8 +215,9 @@ public class RequestsNode extends RequestActivationNode {
 		}
 		return newRequests;
 	}
+
     private boolean isDuplicateActionRequestDetected(ActionRequestValue actionRequest, ActionRequestValue actionRequestToCompare) {
-        if ( (ObjectUtils.equals(actionRequest.getActionRequested(), actionRequestToCompare.getActionRequested())) &&
+        return (ObjectUtils.equals(actionRequest.getActionRequested(), actionRequestToCompare.getActionRequested())) &&
                 (ObjectUtils.equals(actionRequest.getPrincipalId(), actionRequestToCompare.getPrincipalId())) &&
                 (ObjectUtils.equals(actionRequest.getStatus(), actionRequestToCompare.getStatus())) &&
                 (ObjectUtils.equals(actionRequest.getResponsibilityId(), actionRequestToCompare.getResponsibilityId())) &&
@@ -240,14 +240,40 @@ public class RequestsNode extends RequestActivationNode {
                 (ObjectUtils.equals(actionRequest.getParentActionRequestId(), actionRequestToCompare.getParentActionRequestId())) &&
                 (ObjectUtils.equals(actionRequest.getDocVersion(), actionRequestToCompare.getDocVersion())) &&
                 (ObjectUtils.equals(actionRequest.getActionTakenId(), actionRequestToCompare.getActionTakenId())) &&
-                (ObjectUtils.equals(actionRequest.getDocumentId(), actionRequestToCompare.getDocumentId())) ) {
-            return true;
-        } else {
-            return false;
-        }
+                (ObjectUtils.equals(actionRequest.getDocumentId(), actionRequestToCompare.getDocumentId())) &&
+                (areChildrenDuplicated(actionRequest.getChildrenRequests(), actionRequestToCompare.getChildrenRequests()));
     }
 
-    /**
+	private boolean areChildrenDuplicated(List<ActionRequestValue> childrenRequests, List<ActionRequestValue> childrenRequestsToCompare) {
+		if (childrenRequests.size() == 0 && childrenRequestsToCompare.size() == 0) {
+            // If neither request has any children, the requests are otherwise the same
+			return true;
+		} else if (childrenRequests.size() != childrenRequestsToCompare.size()) {
+            // If either one has children and doesn't have the same number of children, the requests are not duplicated
+            return false;
+		} else {
+            for (ActionRequestValue childRequest : childrenRequests) {
+                boolean hasDuplicate = false;
+                for (ActionRequestValue childRequestToCompare : childrenRequestsToCompare) {
+                    // If any child of one request is a duplicate of a child of the other request, that child is duplicated.
+                    if (isDuplicateActionRequestDetected(childRequest, childRequestToCompare)) {
+                        hasDuplicate = true;
+                        break;
+                    }
+                }
+
+                // If any one child does not have a counterpart in the other request's children, the requests are not duplicated
+                if (!hasDuplicate) {
+                    return false;
+                }
+            }
+
+			// If we made it through all the children and each child has a counterpart in the other request's children, they requests can be considered
+            return true;
+        }
+	}
+
+	/**
 	 * Returns the RouteModule which should handle generating requests for this
 	 * RequestsNode.
 	 */
