@@ -175,10 +175,8 @@ public class RequestsNode extends RequestActivationNode {
 
 	public List<ActionRequestValue> getNewActionRequests(RouteContext context) throws Exception {
 		RouteNodeInstance nodeInstance = context.getNodeInstance();
-		String routeMethodName = nodeInstance.getRouteNode().getRouteMethodName();
 		if ( LOG.isDebugEnabled() ) {
-			LOG.debug( "Looking for action requests in " + routeMethodName + " : "
-					+ nodeInstance.getRouteNode().getRouteNodeName() );
+			LOG.debug(String.format("Looking for action requests in %s : %s", nodeInstance.getRouteNode().getRouteMethodName(), nodeInstance.getRouteNode().getRouteNodeName()));
 		}
 		List<ActionRequestValue> newRequests = new ArrayList<ActionRequestValue>();
 		try {
