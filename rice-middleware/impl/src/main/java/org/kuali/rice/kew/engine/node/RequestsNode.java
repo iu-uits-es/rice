@@ -242,34 +242,48 @@ public class RequestsNode extends RequestActivationNode {
                 (areChildrenDuplicated(actionRequest.getChildrenRequests(), actionRequestToCompare.getChildrenRequests()));
     }
 
-	private boolean areChildrenDuplicated(List<ActionRequestValue> childrenRequests, List<ActionRequestValue> childrenRequestsToCompare) {
-		if (childrenRequests.size() == 0 && childrenRequestsToCompare.size() == 0) {
-            // If neither request has any children, the requests are otherwise the same
+    /**
+     * Checks whether a two lists of {@link ActionRequestValue ActionRequestValue}s are functionally duplicated,
+     *  that is that each entry in one list has a duplicate counterpart in the other list
+     * @param requestList1 A list of {@link ActionRequestValue ActionRequestValue}s to evaluate
+     * @param requestList2 A list of {@link ActionRequestValue ActionRequestValue}s to evaluate
+     * @return true if each member of one list has an identical counterpart in the other list, false otherwise
+     */
+	private boolean areChildrenDuplicated(List<ActionRequestValue> requestList1, List<ActionRequestValue> requestList2) {
+		if (requestList1.size() == 0 && requestList2.size() == 0) {
+            // If neither request has any children, the requests are duplicated
 			return true;
-		} else if (childrenRequests.size() != childrenRequestsToCompare.size()) {
-            // If either one has children and doesn't have the same number of children, the requests are not duplicated
+		} else if (requestList1.size() != requestList2.size()) {
+            // If either one has children and doesn't have the same number of children, the request lists are not duplicated
             return false;
 		} else {
-            for (ActionRequestValue childRequest : childrenRequests) {
-                boolean hasDuplicate = false;
-                for (ActionRequestValue childRequestToCompare : childrenRequestsToCompare) {
-                    // If any child of one request is a duplicate of a child of the other request, that child is duplicated.
-                    if (isDuplicateActionRequestDetected(childRequest, childRequestToCompare)) {
-                        hasDuplicate = true;
-                        break;
-                    }
-                }
-
-                // If any one child does not have a counterpart in the other request's children, the requests are not duplicated
-                if (!hasDuplicate) {
+            for (ActionRequestValue childRequest : requestList1) {
+                if (!hasDuplicateInList(childRequest, requestList2)) {
                     return false;
                 }
             }
 
-			// If we made it through all the children and each child has a counterpart in the other request's children, they requests can be considered
+			// If we made it through all the children and each child had a counterpart in the other request's children, the request lists are duplicated
             return true;
         }
 	}
+
+    /**
+     * Checks whether an individual {@link ActionRequestValue ActionRequestValue} has an identical counterpart in a list of ActionRequestValues
+     * @param request The individual request to check
+     * @param requestList A list of requests in which there may or may not be a duplicate of the request to check
+     * @return true if any member of the request list can be considered a duplicate of the request, false otherwise
+     */
+    private boolean hasDuplicateInList(ActionRequestValue request, List<ActionRequestValue> requestList) {
+        for (ActionRequestValue requestToCompare : requestList) {
+            if (isDuplicateActionRequestDetected(request, requestToCompare)) {
+                return true;
+            }
+        }
+
+        // At this point, we've gone through the entire list without finding a duplicate
+        return false;
+    }
 
 	/**
 	 * Returns the RouteModule which should handle generating requests for this
