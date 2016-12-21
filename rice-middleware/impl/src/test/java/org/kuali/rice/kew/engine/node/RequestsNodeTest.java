@@ -147,6 +147,7 @@ public class RequestsNodeTest {
     public void testActionRequestsWithDifferingChildrenAreDuplicates() throws Exception {
         List<ActionRequestValue> actionRequestValues = new ArrayList<ActionRequestValue>();
         List<ActionRequestValue> firstChildren = new ArrayList<ActionRequestValue>();
+        // Have the first child of this list be the default child
         firstChildren.add(getActionRequest());
         ActionRequestValue differingFirstChild = getActionRequest();
         differingFirstChild.setPrincipalId("firstPrincipal");
@@ -154,11 +155,15 @@ public class RequestsNodeTest {
         ActionRequestValue firstActionRequest = getActionRequest();
         firstActionRequest.setChildrenRequests(firstChildren);
         actionRequestValues.add(firstActionRequest);
+
+        // The second action request is a duplicate of the first aside from the children we're about to add to it
         ActionRequestValue secondActionRequest = getActionRequest();
         List<ActionRequestValue> secondChildren = new ArrayList<ActionRequestValue>();
+        // Have the first child of this list also be the default child so it is a duplicate of the first child of the other request
+        secondChildren.add(getActionRequest());
+        // The second child of the second request should differ from both the first and second child of the other list
         ActionRequestValue differingSecondChild = getActionRequest();
         differingSecondChild.setPrincipalId("secondPrincipal");
-        secondChildren.add(getActionRequest());
         secondChildren.add(differingSecondChild);
         secondActionRequest.setChildrenRequests(secondChildren);
         actionRequestValues.add(secondActionRequest);
