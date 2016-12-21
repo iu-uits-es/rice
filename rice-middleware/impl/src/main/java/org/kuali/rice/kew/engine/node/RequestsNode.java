@@ -1,5 +1,5 @@
-/**
- * Copyright 2005-2014 The Kuali Foundation
+/*
+ * Copyright 2006-2016 The Kuali Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,27 @@
  */
 package org.kuali.rice.kew.engine.node;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.kuali.rice.coreservice.framework.CoreFrameworkServiceLocator;
+import org.kuali.rice.coreservice.framework.parameter.ParameterService;
+import org.kuali.rice.kew.actionrequest.ActionRequestValue;
+import org.kuali.rice.kew.api.KewApiConstants;
+import org.kuali.rice.kew.api.exception.WorkflowException;
+import org.kuali.rice.kew.engine.RouteContext;
+import org.kuali.rice.kew.engine.RouteHelper;
+import org.kuali.rice.kew.exception.RouteManagerException;
+import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
+import org.kuali.rice.kew.routemodule.RouteModule;
+import org.kuali.rice.kew.service.KEWServiceLocator;
+import org.kuali.rice.kew.util.ClassDumper;
+import org.kuali.rice.krad.util.KRADConstants;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.kuali.rice.coreservice.framework.parameter.ParameterService;
-import org.kuali.rice.coreservice.framework.CoreFrameworkServiceLocator;
-import org.kuali.rice.kew.actionrequest.ActionRequestValue;
-import org.kuali.rice.kew.engine.RouteContext;
-import org.kuali.rice.kew.engine.RouteHelper;
-import org.kuali.rice.kew.exception.RouteManagerException;
-import org.kuali.rice.kew.api.exception.WorkflowException;
-import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
-import org.kuali.rice.kew.routemodule.RouteModule;
-import org.kuali.rice.kew.service.KEWServiceLocator;
-import org.kuali.rice.kew.util.ClassDumper;
-import org.kuali.rice.kew.api.KewApiConstants;
-import org.kuali.rice.krad.util.KRADConstants;
 
 /**
  * A node which generates {@link ActionRequestValue} objects from a
@@ -175,10 +175,8 @@ public class RequestsNode extends RequestActivationNode {
 
 	public List<ActionRequestValue> getNewActionRequests(RouteContext context) throws Exception {
 		RouteNodeInstance nodeInstance = context.getNodeInstance();
-		String routeMethodName = nodeInstance.getRouteNode().getRouteMethodName();
 		if ( LOG.isDebugEnabled() ) {
-			LOG.debug( "Looking for action requests in " + routeMethodName + " : "
-					+ nodeInstance.getRouteNode().getRouteNodeName() );
+			LOG.debug(String.format("Looking for action requests in %s : %s", nodeInstance.getRouteNode().getRouteMethodName(), nodeInstance.getRouteNode().getRouteNodeName()));
 		}
 		List<ActionRequestValue> newRequests = new ArrayList<ActionRequestValue>();
 		try {
@@ -196,7 +194,6 @@ public class RequestsNode extends RequestActivationNode {
                 }
                 if (!duplicateFound) {
                     uniqueRequests.add(actionRequest);
-                    duplicateFound = false;
                 }
             }
             for ( ActionRequestValue actionRequest : uniqueRequests ) {
@@ -216,8 +213,9 @@ public class RequestsNode extends RequestActivationNode {
 		}
 		return newRequests;
 	}
+
     private boolean isDuplicateActionRequestDetected(ActionRequestValue actionRequest, ActionRequestValue actionRequestToCompare) {
-        if ( (ObjectUtils.equals(actionRequest.getActionRequested(), actionRequestToCompare.getActionRequested())) &&
+        return (ObjectUtils.equals(actionRequest.getActionRequested(), actionRequestToCompare.getActionRequested())) &&
                 (ObjectUtils.equals(actionRequest.getPrincipalId(), actionRequestToCompare.getPrincipalId())) &&
                 (ObjectUtils.equals(actionRequest.getStatus(), actionRequestToCompare.getStatus())) &&
                 (ObjectUtils.equals(actionRequest.getResponsibilityId(), actionRequestToCompare.getResponsibilityId())) &&
@@ -240,14 +238,54 @@ public class RequestsNode extends RequestActivationNode {
                 (ObjectUtils.equals(actionRequest.getParentActionRequestId(), actionRequestToCompare.getParentActionRequestId())) &&
                 (ObjectUtils.equals(actionRequest.getDocVersion(), actionRequestToCompare.getDocVersion())) &&
                 (ObjectUtils.equals(actionRequest.getActionTakenId(), actionRequestToCompare.getActionTakenId())) &&
-                (ObjectUtils.equals(actionRequest.getDocumentId(), actionRequestToCompare.getDocumentId())) ) {
-            return true;
-        } else {
-            return false;
-        }
+                (ObjectUtils.equals(actionRequest.getDocumentId(), actionRequestToCompare.getDocumentId())) &&
+                (areChildrenDuplicated(actionRequest.getChildrenRequests(), actionRequestToCompare.getChildrenRequests()));
     }
 
     /**
+     * Checks whether a two lists of {@link ActionRequestValue ActionRequestValue}s are functionally duplicated,
+     *  that is that each entry in one list has a duplicate counterpart in the other list
+     * @param requestList1 A list of {@link ActionRequestValue ActionRequestValue}s to evaluate
+     * @param requestList2 A list of {@link ActionRequestValue ActionRequestValue}s to evaluate
+     * @return true if each member of one list has an identical counterpart in the other list, false otherwise
+     */
+	private boolean areChildrenDuplicated(List<ActionRequestValue> requestList1, List<ActionRequestValue> requestList2) {
+		if (requestList1.size() == 0 && requestList2.size() == 0) {
+            // If neither request has any children, the requests are duplicated
+			return true;
+		} else if (requestList1.size() != requestList2.size()) {
+            // If either one has children and doesn't have the same number of children, the request lists are not duplicated
+            return false;
+		} else {
+            for (ActionRequestValue childRequest : requestList1) {
+                if (!hasDuplicateInList(childRequest, requestList2)) {
+                    return false;
+                }
+            }
+
+			// If we made it through all the children and each child had a counterpart in the other request's children, the request lists are duplicated
+            return true;
+        }
+	}
+
+    /**
+     * Checks whether an individual {@link ActionRequestValue ActionRequestValue} has an identical counterpart in a list of ActionRequestValues
+     * @param request The individual request to check
+     * @param requestList A list of requests in which there may or may not be a duplicate of the request to check
+     * @return true if any member of the request list can be considered a duplicate of the request, false otherwise
+     */
+    private boolean hasDuplicateInList(ActionRequestValue request, List<ActionRequestValue> requestList) {
+        for (ActionRequestValue requestToCompare : requestList) {
+            if (isDuplicateActionRequestDetected(request, requestToCompare)) {
+                return true;
+            }
+        }
+
+        // At this point, we've gone through the entire list without finding a duplicate
+        return false;
+    }
+
+	/**
 	 * Returns the RouteModule which should handle generating requests for this
 	 * RequestsNode.
 	 */
