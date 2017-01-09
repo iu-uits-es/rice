@@ -106,7 +106,7 @@
   <!--
       <bean id="enNotificationService" class="org.kuali.rice.kew.notification.service.impl.KCBNotificationService"  lazy-init="true"/>
   -->
-  <bean id="ROOT_RESOURCE_LOADER_NAME" class="org.kuali.rice.core.impl.resourceloader.SpringBeanFactoryResourceLoader"/>
+  <bean id="rootResourceLoader" class="org.kuali.rice.core.impl.resourceloader.SpringBeanFactoryResourceLoader"/>
 
   <import resource="classpath:org/kuali/rice/config/RiceSpringBeans.xml"/>
   <import resource="classpath:org/kuali/rice/core/RiceJTASpringBeans.xml"/>

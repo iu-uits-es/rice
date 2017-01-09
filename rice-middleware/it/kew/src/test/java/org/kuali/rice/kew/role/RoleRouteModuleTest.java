@@ -15,7 +15,6 @@
  */
 package org.kuali.rice.kew.role;
 
-import org.apache.cxf.common.i18n.Exception;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -664,7 +663,7 @@ public class RoleRouteModuleTest extends KEWTestCase {
         Role role = roleService.getRoleByNamespaceCodeAndName(NAMESPACE, ROLE_NAME);
         assertNotNull(role);
         Principal user1Principal = KimApiServiceLocator.getIdentityService().getPrincipalByPrincipalName("user1");
-        List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList(role.getId()), null);
+        List<RoleMembership> members = roleService.getRoleMembers(Collections.singletonList(role.getId()), Collections.<String, String>emptyMap());
         // find user1principal
         RoleMembership m = null;
         for (RoleMembership rm: members) {
@@ -905,7 +904,6 @@ public class RoleRouteModuleTest extends KEWTestCase {
         String rootRequestAnnotation = String.format("%s %s ", NAMESPACE, "RoleRouteModuleTestDerivedRole");
         for (ActionRequest actionRequest : actionRequests) {
             // root requests should have the same annotation
-            System.out.println(actionRequest.getAnnotation());
             assertEquals(rootRequestAnnotation, actionRequest.getAnnotation());
 
             // each of these should be "first approve"
