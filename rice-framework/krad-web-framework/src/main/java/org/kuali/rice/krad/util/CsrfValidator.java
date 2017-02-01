@@ -34,6 +34,7 @@ public class CsrfValidator {
     private static final Logger LOG = Logger.getLogger(CsrfValidator.class);
 
     public static final String CSRF_PARAMETER = "csrfToken";
+    public static final String CSRF_HEADER = "X-CSRF-TOKEN";
     public static final String CSRF_SESSION_TOKEN = "csrfSessionToken";
 
     /**
@@ -85,7 +86,11 @@ public class CsrfValidator {
      * @return the CSRF token parameter on the request, or null if the request has none
      */
     public static String getRequestToken(HttpServletRequest request) {
-        return request.getParameter(CSRF_PARAMETER);
+        if(StringUtils.isNotBlank(request.getParameter(CSRF_PARAMETER))) {
+            return request.getParameter(CSRF_PARAMETER);
+        } else {
+            return request.getHeader(CSRF_HEADER);
+        }
     }
 
     /**
