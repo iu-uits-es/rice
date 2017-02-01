@@ -84,6 +84,22 @@ public class CsrfValidatorTest {
         assertEquals(sessionToken, CsrfValidator.getSessionToken(request));
     }
 
+    @Test
+    public void testValidateCsrf_Valid_FromHeader() {
+        // first we run a GET to establish the CSRF token
+        request.setMethod("GET");
+        assertTrue(CsrfValidator.validateCsrf(request, response));
+
+        // next let's do a POST and make sure we send the same token, and it should be valid
+        String sessionToken = CsrfValidator.getSessionToken(request);
+        request.setMethod("POST");
+        request.addHeader(CsrfValidator.CSRF_HEADER, sessionToken);
+        assertTrue(CsrfValidator.validateCsrf(request, response));
+
+        // and just verify we still have the same session token after the POST
+        assertEquals(sessionToken, CsrfValidator.getSessionToken(request));
+    }
+
     /**
      * Tests the situation where a POST is made against a session without a csrf token.
      */
