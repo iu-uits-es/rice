@@ -158,6 +158,8 @@ public class UserLoginFilter implements Filter {
             sessionCookie.setSecure(true);
 
             // Make cookie HttpOnly if supported by container
+            // We're compiling against version 2.5 of the servlet API, but our container may provide access to a higher
+            // version that supports programmatically setting the HttpOnly flag on cookies.
             Method setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
             if (setHttpOnlyMethod != null) {
                 ReflectionUtils.invokeMethod(setHttpOnlyMethod, sessionCookie, Boolean.TRUE);
