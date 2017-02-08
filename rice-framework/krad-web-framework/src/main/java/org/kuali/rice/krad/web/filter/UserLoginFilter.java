@@ -20,7 +20,6 @@ import org.apache.log4j.MDC;
 import org.kuali.rice.core.api.CoreApiServiceLocator;
 import org.kuali.rice.core.api.config.property.ConfigContext;
 import org.kuali.rice.core.api.config.property.ConfigurationService;
-import org.kuali.rice.core.api.exception.RiceRuntimeException;
 import org.kuali.rice.core.api.resourceloader.GlobalResourceLoader;
 import org.kuali.rice.coreservice.framework.CoreFrameworkServiceLocator;
 import org.kuali.rice.coreservice.framework.parameter.ParameterService;
@@ -36,6 +35,7 @@ import org.kuali.rice.krad.UserSession;
 import org.kuali.rice.krad.exception.AuthenticationException;
 import org.kuali.rice.krad.util.KRADConstants;
 import org.kuali.rice.krad.util.KRADUtils;
+import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -147,11 +148,24 @@ public class UserLoginFilter implements Filter {
      * Creates a session id cookie if one does not exists.  Write the cookie out to the response with that session id.
      * Also, sets the cookie on the established user session.
      */
-    private void establishSessionCookie(HttpServletRequest request, HttpServletResponse response) {
+    protected void establishSessionCookie(HttpServletRequest request, HttpServletResponse response) {
         String kualiSessionId = this.getKualiSessionId(request.getCookies());
         if (kualiSessionId == null) {
             kualiSessionId = UUID.randomUUID().toString();
-            response.addCookie(new Cookie(KRADConstants.KUALI_SESSION_ID, kualiSessionId));
+            Cookie sessionCookie = new Cookie(KRADConstants.KUALI_SESSION_ID, kualiSessionId);
+
+            // Make cookie secure
+            sessionCookie.setSecure(true);
+
+            // Make cookie HttpOnly if supported by container
+            // We're compiling against version 2.5 of the servlet API, but our container may provide access to a higher
+            // version that supports programmatically setting the HttpOnly flag on cookies.
+            Method setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
+            if (setHttpOnlyMethod != null) {
+                ReflectionUtils.invokeMethod(setHttpOnlyMethod, sessionCookie, Boolean.TRUE);
+            }
+
+            response.addCookie(sessionCookie);
         }
         KRADUtils.getUserSessionFromRequest(request).setKualiSessionId(kualiSessionId);
     }
