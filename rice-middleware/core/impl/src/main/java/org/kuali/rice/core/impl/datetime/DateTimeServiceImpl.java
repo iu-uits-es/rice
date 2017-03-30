@@ -233,26 +233,19 @@ public class DateTimeServiceImpl implements DateTimeService, InitializingBean {
 		Calendar endDateCalendar = Calendar.getInstance();
 		endDateCalendar.setTime(endDate);
 
-		int startDateOffset = -(startDateCalendar.get(Calendar.ZONE_OFFSET) + startDateCalendar
-				.get(Calendar.DST_OFFSET))
-				/ (60 * 1000);
+		int startCalendarOffset = startDateCalendar.get(Calendar.ZONE_OFFSET) + startDateCalendar.get(Calendar.DST_OFFSET);
+		int endCalendarOffset = endDateCalendar.get(Calendar.ZONE_OFFSET) + endDateCalendar.get(Calendar.DST_OFFSET);
 
-		int endDateOffset = -(endDateCalendar.get(Calendar.ZONE_OFFSET) + endDateCalendar
-				.get(Calendar.DST_OFFSET))
-				/ (60 * 1000);
-
-		if (startDateOffset > endDateOffset) {
-			startDateCalendar.add(Calendar.MINUTE, endDateOffset
-					- startDateOffset);
-		}
-
-		if (inclusive) {
-			startDateCalendar.add(Calendar.DATE, -1);
-		}
+		startDateCalendar.add(Calendar.MILLISECOND, startCalendarOffset);
+		endDateCalendar.add(Calendar.MILLISECOND, endCalendarOffset);
 
 		int dateDiff = Integer.parseInt(DurationFormatUtils.formatDuration(
 				endDateCalendar.getTimeInMillis()
 						- startDateCalendar.getTimeInMillis(), "d", true));
+
+		if (inclusive) {
+			dateDiff += dateDiff >= 0 ? 1 : -1;
+		}
 
 		return dateDiff;
 	}

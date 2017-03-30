@@ -340,4 +340,28 @@ public class DateTimeServiceTest extends KRADTestCase {
 
         assertEquals("-5", Integer.toString(CoreApiServiceLocator.getDateTimeService().dateDiff(date1, date2, false)));
     }
+
+    @Test public void testDateDiffDaylightSavingsTimeInclusive() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+
+        Date date1 = sdf.parse("03/13/2017");
+        Date date2 = sdf.parse("03/13/2017");
+
+        assertEquals(1, CoreApiServiceLocator.getDateTimeService().dateDiff(date1, date2, true));
+
+        date1 = sdf.parse("03/13/2017");
+        date2 = sdf.parse("03/14/2017");
+
+        assertEquals(2, CoreApiServiceLocator.getDateTimeService().dateDiff(date1, date2, true));
+
+        date1 = sdf.parse("03/12/2017");
+        date2 = sdf.parse("03/13/2017");
+
+        assertEquals(2, CoreApiServiceLocator.getDateTimeService().dateDiff(date1, date2, true));
+
+        date1 = sdf.parse("03/13/2017");
+        date2 = sdf.parse("03/12/2017");
+
+        assertEquals(-2, CoreApiServiceLocator.getDateTimeService().dateDiff(date1, date2, true));
+    }
 }
