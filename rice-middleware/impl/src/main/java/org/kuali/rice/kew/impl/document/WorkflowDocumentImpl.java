@@ -15,15 +15,6 @@
  */
 package org.kuali.rice.kew.impl.document;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.kuali.rice.core.api.uif.RemotableAttributeErrorContract;
@@ -43,15 +34,26 @@ import org.kuali.rice.kew.api.action.RequestedActions;
 import org.kuali.rice.kew.api.action.ReturnPoint;
 import org.kuali.rice.kew.api.action.ValidActions;
 import org.kuali.rice.kew.api.action.WorkflowDocumentActionsService;
+import org.kuali.rice.kew.api.doctype.DocumentType;
+import org.kuali.rice.kew.api.doctype.DocumentTypeService;
 import org.kuali.rice.kew.api.document.Document;
 import org.kuali.rice.kew.api.document.DocumentContent;
 import org.kuali.rice.kew.api.document.DocumentContentUpdate;
 import org.kuali.rice.kew.api.document.DocumentDetail;
 import org.kuali.rice.kew.api.document.DocumentStatus;
 import org.kuali.rice.kew.api.document.DocumentUpdate;
+import org.kuali.rice.kew.api.document.WorkflowDocumentService;
 import org.kuali.rice.kew.api.document.attribute.WorkflowAttributeDefinition;
 import org.kuali.rice.kew.api.document.node.RouteNodeInstance;
-import org.kuali.rice.kew.api.document.WorkflowDocumentService;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The implementation of {@link org.kuali.rice.kew.api.WorkflowDocument}.  Implements {@link WorkflowDocumentPrototype} to expose
@@ -91,6 +93,7 @@ public class WorkflowDocumentImpl implements Serializable, WorkflowDocumentProto
      */
     private boolean documentDeleted = false;
 
+    private transient DocumentTypeService documentTypeService;
     private transient WorkflowDocumentActionsService workflowDocumentActionsService;
     private transient WorkflowDocumentService workflowDocumentService;
 
@@ -112,7 +115,20 @@ public class WorkflowDocumentImpl implements Serializable, WorkflowDocumentProto
         if (workflowDocumentActionsService == null) {
             workflowDocumentActionsService = KewApiServiceLocator.getWorkflowDocumentActionsService();
         }
+        // Try to use an application-published endpoint instead if this doc type has an application ID
+        String applicationId = getApplicationId();
+        if (StringUtils.isNotBlank(applicationId)) {
+            workflowDocumentActionsService = KewApiServiceLocator.getWorkflowDocumentActionsService(applicationId);
+        }
         return workflowDocumentActionsService;
+    }
+
+    protected String getApplicationId() {
+        if (getDocument() != null && StringUtils.isNotBlank(getDocument().getDocumentTypeId())) {
+            DocumentType documentType = getDocumentTypeService().getDocumentTypeById(getDocument().getDocumentTypeId());
+            return documentType.getApplicationId();
+        }
+        return null;
     }
 
     public void setWorkflowDocumentActionsService(WorkflowDocumentActionsService workflowDocumentActionsService) {
@@ -128,6 +144,17 @@ public class WorkflowDocumentImpl implements Serializable, WorkflowDocumentProto
 
     public void setWorkflowDocumentService(WorkflowDocumentService workflowDocumentService) {
         this.workflowDocumentService = workflowDocumentService;
+    }
+
+    public DocumentTypeService getDocumentTypeService() {
+        if (documentTypeService == null) {
+            documentTypeService = KewApiServiceLocator.getDocumentTypeService();
+        }
+        return documentTypeService;
+    }
+
+    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
     }
 
     protected ModifiableDocument getModifiableDocument() {
