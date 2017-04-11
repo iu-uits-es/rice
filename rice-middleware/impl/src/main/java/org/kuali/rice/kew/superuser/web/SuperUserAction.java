@@ -26,6 +26,8 @@ import org.kuali.rice.kew.api.KewApiServiceLocator;
 import org.kuali.rice.kew.api.WorkflowDocumentFactory;
 import org.kuali.rice.kew.api.action.ActionRequestType;
 import org.kuali.rice.kew.api.action.AdHocRevoke;
+import org.kuali.rice.kew.api.action.AdHocToGroup;
+import org.kuali.rice.kew.api.action.AdHocToPrincipal;
 import org.kuali.rice.kew.api.action.DocumentActionParameters;
 import org.kuali.rice.kew.api.action.ReturnPoint;
 import org.kuali.rice.kew.api.action.WorkflowDocumentActionsService;
@@ -341,20 +343,36 @@ public class SuperUserAction extends KewKualiAction {
         }
 
         try {
-            String routeNodeName = getAdHocRouteNodeName(superUserForm.getWorkflowDocument().getDocumentId());
-            //if (KewApiConstants.PERSON.equals(recipient.getType())) {
+            String documentId = superUserForm.getWorkflowDocument().getDocumentId();
+            String routeNodeName = getAdHocRouteNodeName(documentId);
+            DocumentActionParameters parameters = DocumentActionParameters.create(documentId, getUserSession(request)
+                    .getPrincipalId(), superUserForm.getAnnotation());
+
             if (KewApiConstants.PERSON.equals(routeType)) {
                 String recipientPrincipalId = KEWServiceLocator.getIdentityHelperService().getIdForPrincipalName(
                         recipient.getId());
-                superUserForm.getWorkflowDocument().adHocToPrincipal(
-                        ActionRequestType.fromCode(recipient.getActionRequested()), routeNodeName,
-                        superUserForm.getAnnotation(), recipientPrincipalId, "", true);
+
+                AdHocToPrincipal.Builder builder = AdHocToPrincipal.Builder.create(
+                        ActionRequestType.fromCode(recipient.getActionRequested()),
+                        routeNodeName,
+                        recipientPrincipalId);
+                builder.setResponsibilityDescription("");
+                builder.setForceAction(true);
+                builder.setRequestLabel(null);
+
+                getWorkflowDocumentActionsService(documentId).adHocToPrincipal(parameters, builder.build());
             } else {
                 String recipientGroupId = KEWServiceLocator.getIdentityHelperService().getIdForGroupName(
                         recipient.getNamespaceCode(), recipient.getId());
-                superUserForm.getWorkflowDocument().adHocToGroup(
-                        ActionRequestType.fromCode(recipient.getActionRequested()), routeNodeName,
-                        superUserForm.getAnnotation(), recipientGroupId, "", true);
+
+                AdHocToGroup.Builder builder = AdHocToGroup.Builder.create(ActionRequestType.fromCode(recipient.getActionRequested()),
+                        routeNodeName,
+                        recipientGroupId);
+                builder.setResponsibilityDescription("");
+                builder.setForceAction(true);
+                builder.setRequestLabel(null);
+
+                getWorkflowDocumentActionsService(documentId).adHocToGroup(parameters, builder.build());
             }
         } catch (Exception e) {
             LOG.error("Error generating app specific route request", e);
@@ -453,8 +471,10 @@ public class SuperUserAction extends KewKualiAction {
         // Remove the specified recipient from the routing, based on the recipient's ID and the ID of the action request that handled the recipient.
         AppSpecificRouteRecipient removedRec = (AppSpecificRouteRecipient) superUserForm.getAppSpecificRouteList().get(
                 removeIndex);
+        String documentId = superUserForm.getWorkflowDocument().getDocumentId();
+        DocumentActionParameters parameters = DocumentActionParameters.create(documentId, getUserSession(request).getPrincipalId(), "");
         if (removedRec.getActionRequestId() != null) {
-            superUserForm.getWorkflowDocument().revokeAdHocRequestById(removedRec.getActionRequestId().toString(), "");
+            getWorkflowDocumentActionsService(documentId).revokeAdHocRequestById(parameters, removedRec.getActionRequestId());
         } else {
             AdHocRevoke adHocRevoke = null;
             // Set the ID according to whether the recipient is a person or a group.
@@ -465,7 +485,7 @@ public class SuperUserAction extends KewKualiAction {
                 adHocRevoke = AdHocRevoke.createRevokeFromGroup(KEWServiceLocator.getIdentityHelperService()
                         .getIdForGroupName(removedRec.getNamespaceCode(), removedRec.getId()));
             }
-            superUserForm.getWorkflowDocument().revokeAdHocRequests(adHocRevoke, "");
+            getWorkflowDocumentActionsService(documentId).revokeAdHocRequests(parameters, adHocRevoke);
         }
         superUserForm.getAppSpecificRouteList().remove(removeIndex);
 
