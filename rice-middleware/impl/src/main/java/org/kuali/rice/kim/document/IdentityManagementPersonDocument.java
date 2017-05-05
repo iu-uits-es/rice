@@ -15,24 +15,6 @@
  */
 package org.kuali.rice.kim.document;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.kew.framework.postprocessor.DocumentRouteStatusChange;
@@ -54,6 +36,7 @@ import org.kuali.rice.kim.bo.ui.PersonDocumentName;
 import org.kuali.rice.kim.bo.ui.PersonDocumentPhone;
 import org.kuali.rice.kim.bo.ui.PersonDocumentPrivacy;
 import org.kuali.rice.kim.bo.ui.PersonDocumentRole;
+import org.kuali.rice.kim.bo.ui.RoleDocumentDelegation;
 import org.kuali.rice.kim.bo.ui.RoleDocumentDelegationMember;
 import org.kuali.rice.kim.bo.ui.RoleDocumentDelegationMemberQualifier;
 import org.kuali.rice.kim.impl.services.KimImplServiceLocator;
@@ -67,6 +50,23 @@ import org.kuali.rice.krad.data.jpa.converters.HashConverter;
 import org.kuali.rice.krad.data.platform.MaxValueIncrementerFactory;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is a description of what this class does - shyu don't forget to fill
@@ -375,12 +375,19 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
         }
         if (getDelegationMembers() != null) {
             for (RoleDocumentDelegationMember delegationMember : getDelegationMembers()) {
-                delegationMember.setDocumentNumber(getDocumentNumber());
-                for (RoleDocumentDelegationMemberQualifier qualifier : delegationMember.getQualifiers()) {
-                    qualifier.setDocumentNumber(getDocumentNumber());
-                    qualifier.setKimTypId(delegationMember.getRoleBo().getKimTypeId());
-                }
                 addDelegationMemberToDelegation(delegationMember);
+            }
+        }
+        if (getDelegations() != null) {
+            for (RoleDocumentDelegation delegation : getDelegations()) {
+                delegation.setDocumentNumber(getDocumentNumber());
+                for (RoleDocumentDelegationMember delegationMember : delegation.getMembers()) {
+                    delegationMember.setDocumentNumber(getDocumentNumber());
+                    for (RoleDocumentDelegationMemberQualifier qualifier : delegationMember.getQualifiers()) {
+                        qualifier.setDocumentNumber(getDocumentNumber());
+                        qualifier.setKimTypId(delegationMember.getRoleBo().getKimTypeId());
+                    }
+                }
             }
         }
         if (getAddrs() != null) {
