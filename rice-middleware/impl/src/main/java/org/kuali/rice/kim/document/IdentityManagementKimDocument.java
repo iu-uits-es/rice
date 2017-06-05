@@ -47,106 +47,106 @@ import java.util.List;
  */
 @MappedSuperclass
 @AttributeOverrides({
-		@AttributeOverride(name="documentNumber",column=@Column(name="FDOC_NBR"))
+        @AttributeOverride(name="documentNumber",column=@Column(name="FDOC_NBR"))
 })
 public class IdentityManagementKimDocument extends TransactionalDocumentBase {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	protected static final Logger LOG = Logger.getLogger(IdentityManagementKimDocument.class);
+    protected static final Logger LOG = Logger.getLogger(IdentityManagementKimDocument.class);
 
-	@OneToMany(targetEntity=RoleDocumentDelegation.class, fetch=FetchType.EAGER, cascade={CascadeType.ALL})
-	@JoinColumn(name="FDOC_NBR",insertable=false,updatable=false)
-	protected List<RoleDocumentDelegation> delegations = new AutoPopulatingList<RoleDocumentDelegation>(RoleDocumentDelegation.class);
-	@Transient
-	protected List<RoleDocumentDelegationMember> delegationMembers = new AutoPopulatingList<RoleDocumentDelegationMember>(RoleDocumentDelegationMember.class);
-	@Transient
+    @OneToMany(targetEntity=RoleDocumentDelegation.class, fetch=FetchType.EAGER, cascade={CascadeType.ALL})
+    @JoinColumn(name="FDOC_NBR",insertable=false,updatable=false)
+    protected List<RoleDocumentDelegation> delegations = new AutoPopulatingList<RoleDocumentDelegation>(RoleDocumentDelegation.class);
+    @Transient
+    protected List<RoleDocumentDelegationMember> delegationMembers = new AutoPopulatingList<RoleDocumentDelegationMember>(RoleDocumentDelegationMember.class);
+    @Transient
 
-	protected void addDelegationMemberToDelegation(RoleDocumentDelegationMember delegationMember){
-		// the statement below will lazily load the RoleBo onto our delegation member so that we have access to i
-		delegationMember.loadTransientRoleFields();
-		// now that we've done that we can fetch the RoleBo
-		RoleBo role = delegationMember.getRoleBo();
-		RoleDocumentDelegation delegation;
-		if (DelegationType.PRIMARY.getCode().equals(delegationMember.getDelegationTypeCode())) {
-			delegation = getPrimaryDelegation(role);
-			// if the delegation type was changed on the document, we need to make sure we remove the member from the secondary delegation
-			getSecondaryDelegation(role).getMembers().remove(delegationMember);
-		} else {
-			delegation = getSecondaryDelegation(role);
-			// if the delegation type was changed on the document, we need to make sure we remove the member from the primary delegation
-			getPrimaryDelegation(role).getMembers().remove(delegationMember);
-		}
-		delegationMember.setDelegationId(delegation.getDelegationId());
-    	delegation.getMembers().add(delegationMember);
-		delegation.setRoleId(delegationMember.getRoleBo().getId());
-		delegation.setKimTypeId(delegationMember.getRoleBo().getKimTypeId());
+    protected void addDelegationMemberToDelegation(RoleDocumentDelegationMember delegationMember){
+        // the statement below will lazily load the RoleBo onto our delegation member so that we have access to i
+        delegationMember.loadTransientRoleFields();
+        // now that we've done that we can fetch the RoleBo
+        RoleBo role = delegationMember.getRoleBo();
+        RoleDocumentDelegation delegation;
+        if (DelegationType.PRIMARY.getCode().equals(delegationMember.getDelegationTypeCode())) {
+            delegation = getPrimaryDelegation(role);
+            // if the delegation type was changed on the document, we need to make sure we remove the member from the secondary delegation
+            getSecondaryDelegation(role).getMembers().remove(delegationMember);
+        } else {
+            delegation = getSecondaryDelegation(role);
+            // if the delegation type was changed on the document, we need to make sure we remove the member from the primary delegation
+            getPrimaryDelegation(role).getMembers().remove(delegationMember);
+        }
+        delegationMember.setDelegationId(delegation.getDelegationId());
+        delegation.getMembers().add(delegationMember);
+        delegation.setRoleId(delegationMember.getRoleBo().getId());
+        delegation.setKimTypeId(delegationMember.getRoleBo().getKimTypeId());
 
-	}
+    }
 
-	protected RoleDocumentDelegation getPrimaryDelegation(RoleBo role) {
-		RoleDocumentDelegation primaryDelegation = null;
-		for(RoleDocumentDelegation delegation: getDelegations()){
-			if(role.getId().equals(delegation.getRoleId()) && delegation.isDelegationPrimary()) {
-				primaryDelegation = delegation;
-				break;
-			}
-		}
-		if(primaryDelegation == null) {
-			primaryDelegation = new RoleDocumentDelegation();
-			primaryDelegation.setRoleId(role.getId());
-			primaryDelegation.setKimTypeId(role.getKimTypeId());
-			primaryDelegation.setDelegationId(getDelegationId());
-			primaryDelegation.setDelegationTypeCode(DelegationType.PRIMARY.getCode());
-			primaryDelegation.setDocumentNumber(getDocumentNumber());
-			getDelegations().add(primaryDelegation);
-		}
-		return primaryDelegation;
-	}
+    protected RoleDocumentDelegation getPrimaryDelegation(RoleBo role) {
+        RoleDocumentDelegation primaryDelegation = null;
+        for(RoleDocumentDelegation delegation: getDelegations()){
+            if(role.getId().equals(delegation.getRoleId()) && delegation.isDelegationPrimary()) {
+                primaryDelegation = delegation;
+                break;
+            }
+        }
+        if(primaryDelegation == null) {
+            primaryDelegation = new RoleDocumentDelegation();
+            primaryDelegation.setRoleId(role.getId());
+            primaryDelegation.setKimTypeId(role.getKimTypeId());
+            primaryDelegation.setDelegationId(getDelegationId());
+            primaryDelegation.setDelegationTypeCode(DelegationType.PRIMARY.getCode());
+            primaryDelegation.setDocumentNumber(getDocumentNumber());
+            getDelegations().add(primaryDelegation);
+        }
+        return primaryDelegation;
+    }
 
-	protected String getDelegationId(){
-		DataFieldMaxValueIncrementer incrementer = MaxValueIncrementerFactory.getIncrementer(KimImplServiceLocator.getDataSource(), KimConstants.SequenceNames.KRIM_DLGN_ID_S);
-		return incrementer.nextStringValue();
-	}
+    protected String getDelegationId(){
+        DataFieldMaxValueIncrementer incrementer = MaxValueIncrementerFactory.getIncrementer(KimImplServiceLocator.getDataSource(), KimConstants.SequenceNames.KRIM_DLGN_ID_S);
+        return incrementer.nextStringValue();
+    }
 
-	protected RoleDocumentDelegation getSecondaryDelegation(RoleBo role) {
-		RoleDocumentDelegation secondaryDelegation = null;
-		for (RoleDocumentDelegation delegation: getDelegations()) {
-			if (role.getId().equals(delegation.getRoleId()) && delegation.isDelegationSecondary()) {
-				secondaryDelegation = delegation;
-				break;
-			}
-		}
-		if(secondaryDelegation == null) {
-			secondaryDelegation = new RoleDocumentDelegation();
-			secondaryDelegation.setRoleId(role.getId());
-			secondaryDelegation.setKimTypeId(role.getKimTypeId());
-			secondaryDelegation.setDelegationId(getDelegationId());
-			secondaryDelegation.setDelegationTypeCode(DelegationType.SECONDARY.getCode());
-			secondaryDelegation.setDocumentNumber(getDocumentNumber());
-			getDelegations().add(secondaryDelegation);
-		}
-		return secondaryDelegation;
-	}
+    protected RoleDocumentDelegation getSecondaryDelegation(RoleBo role) {
+        RoleDocumentDelegation secondaryDelegation = null;
+        for (RoleDocumentDelegation delegation: getDelegations()) {
+            if (role.getId().equals(delegation.getRoleId()) && delegation.isDelegationSecondary()) {
+                secondaryDelegation = delegation;
+                break;
+            }
+        }
+        if(secondaryDelegation == null) {
+            secondaryDelegation = new RoleDocumentDelegation();
+            secondaryDelegation.setRoleId(role.getId());
+            secondaryDelegation.setKimTypeId(role.getKimTypeId());
+            secondaryDelegation.setDelegationId(getDelegationId());
+            secondaryDelegation.setDelegationTypeCode(DelegationType.SECONDARY.getCode());
+            secondaryDelegation.setDocumentNumber(getDocumentNumber());
+            getDelegations().add(secondaryDelegation);
+        }
+        return secondaryDelegation;
+    }
 
-	public List<RoleDocumentDelegation> getDelegations() {
-		return this.delegations;
-	}
+    public List<RoleDocumentDelegation> getDelegations() {
+        return this.delegations;
+    }
 
-	public void setDelegations(List<RoleDocumentDelegation> delegations) {
-		this.delegations = delegations;
-	}
+    public void setDelegations(List<RoleDocumentDelegation> delegations) {
+        this.delegations = delegations;
+    }
 
-	public List<RoleDocumentDelegationMember> getDelegationMembers() {
-		return this.delegationMembers;
-	}
+    public List<RoleDocumentDelegationMember> getDelegationMembers() {
+        return this.delegationMembers;
+    }
 
-	public void setDelegationMembers(
-			List<RoleDocumentDelegationMember> delegationMembers) {
-		this.delegationMembers = delegationMembers;
-	}
+    public void setDelegationMembers(
+            List<RoleDocumentDelegationMember> delegationMembers) {
+        this.delegationMembers = delegationMembers;
+    }
 
-	public String getKimAttributeDefnId(KimAttributeField definition){
-		return definition.getId();
-	}
+    public String getKimAttributeDefnId(KimAttributeField definition){
+        return definition.getId();
+    }
 
 }
