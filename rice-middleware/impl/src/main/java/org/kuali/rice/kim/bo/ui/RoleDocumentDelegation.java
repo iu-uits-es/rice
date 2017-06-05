@@ -15,7 +15,9 @@
  */
 package org.kuali.rice.kim.bo.ui;
 
-import java.util.List;
+import org.kuali.rice.core.api.delegation.DelegationType;
+import org.kuali.rice.krad.data.jpa.PortableSequenceGenerator;
+import org.springframework.util.AutoPopulatingList;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,10 +29,7 @@ import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.kuali.rice.core.api.delegation.DelegationType;
-import org.kuali.rice.krad.data.jpa.PortableSequenceGenerator;
-import org.springframework.util.AutoPopulatingList;
+import java.util.List;
 
 /**
  * This is a description of what this class does - kellerj don't forget to fill this in.
