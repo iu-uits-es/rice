@@ -17,6 +17,7 @@ package org.kuali.rice.kim.document;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.kuali.rice.core.api.membership.MemberType;
 import org.kuali.rice.kew.framework.postprocessor.DocumentRouteStatusChange;
 import org.kuali.rice.kim.api.KimConstants;
 import org.kuali.rice.kim.api.identity.employment.EntityEmployment;
@@ -39,6 +40,8 @@ import org.kuali.rice.kim.bo.ui.PersonDocumentRole;
 import org.kuali.rice.kim.bo.ui.RoleDocumentDelegation;
 import org.kuali.rice.kim.bo.ui.RoleDocumentDelegationMember;
 import org.kuali.rice.kim.bo.ui.RoleDocumentDelegationMemberQualifier;
+import org.kuali.rice.kim.impl.role.RoleBo;
+import org.kuali.rice.kim.impl.role.RoleMemberBo;
 import org.kuali.rice.kim.impl.services.KimImplServiceLocator;
 import org.kuali.rice.kim.impl.type.KimTypeAttributesHelper;
 import org.kuali.rice.kim.service.KIMServiceLocatorInternal;
@@ -48,6 +51,7 @@ import org.kuali.rice.kns.service.KNSServiceLocator;
 import org.kuali.rice.krad.data.jpa.converters.BooleanYNConverter;
 import org.kuali.rice.krad.data.jpa.converters.HashConverter;
 import org.kuali.rice.krad.data.platform.MaxValueIncrementerFactory;
+import org.kuali.rice.krad.rules.rule.event.KualiDocumentEvent;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 
@@ -390,6 +394,19 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
                 }
             }
         }
+        // important to do this after getDelegationMembers since the addDelegationMemberToDelegation method will create
+        // primary and/or secondary delegations for us in a "just-in-time" fashion
+        if (getDelegations() != null) {
+            List<RoleDocumentDelegation> emptyDelegations = new ArrayList<RoleDocumentDelegation>();
+            for (RoleDocumentDelegation delegation : getDelegations()) {
+                delegation.setDocumentNumber(getDocumentNumber());
+                if (delegation.getMembers().isEmpty()) {
+                    emptyDelegations.add(delegation);
+                }
+            }
+            // remove any empty delegations because we just don't need them
+            getDelegations().removeAll(emptyDelegations);
+        }
         if (getAddrs() != null) {
             for (PersonDocumentAddress address : getAddrs()) {
                 address.setDocumentNumber(getDocumentNumber());
@@ -454,6 +471,43 @@ public class IdentityManagementPersonDocument extends IdentityManagementKimDocum
             }
         }
     }
+
+    @Override
+    public void postProcessSave(KualiDocumentEvent event) {
+        super.postProcessSave(event);
+        // after the save has completed, we want to restore any potentially @Transient state that JPA might have
+        // discarded, specifically the delegation members have a lot of this
+        resyncTransientState();
+    }
+
+    public void resyncTransientState() {
+        getDelegationMembers().clear();
+        for (RoleDocumentDelegation delegation : getDelegations()) {
+            for (RoleDocumentDelegationMember delegationMember : delegation.getMembers()) {
+
+                // RoleDocumentDelegationMember has a number of transient fields that are derived from the role member,
+                // we must populate them in order for the person document to work properly when loading an existing
+                // person document
+
+                RoleMemberBo roleMember = getUiDocumentService().getRoleMember(delegationMember.getRoleMemberId());
+                delegationMember.setRoleMemberMemberId(roleMember.getMemberId());
+                delegationMember.setRoleMemberMemberTypeCode(roleMember.getType().getCode());
+                delegationMember.setRoleMemberName(getUiDocumentService().getMemberName(MemberType.fromCode(delegationMember.getRoleMemberMemberTypeCode()), delegationMember.getRoleMemberMemberId()));
+                delegationMember.setRoleMemberNamespaceCode(getUiDocumentService().getMemberNamespaceCode(MemberType.fromCode(delegationMember.getRoleMemberMemberTypeCode()), delegationMember.getRoleMemberMemberId()));
+                delegationMember.setDelegationTypeCode(delegation.getDelegationTypeCode());
+                Role role = KimApiServiceLocator.getRoleService().getRole(roleMember.getRoleId());
+                delegationMember.setRoleBo(RoleBo.from(role));
+
+                // don't want to be able to "delete" existing delegation members from the person document, so we
+                // indicate that we are editing the delegation member, which we are
+                delegationMember.setEdit(true);
+
+                getDelegationMembers().add(delegationMember);
+            }
+        }
+    }
+
+
 
     protected void setEmployeeRecordIds() {
         List<EntityEmployment> empInfos = getUiDocumentService().getEntityEmploymentInformationInfo(getEntityId());
