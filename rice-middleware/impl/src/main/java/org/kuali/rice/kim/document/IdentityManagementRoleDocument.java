@@ -15,19 +15,6 @@
  */
 package org.kuali.rice.kim.document;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.kew.framework.postprocessor.DocumentRouteStatusChange;
 import org.kuali.rice.kim.api.KimConstants;
@@ -52,6 +39,18 @@ import org.kuali.rice.krad.data.jpa.converters.BooleanYNConverter;
 import org.kuali.rice.krad.data.platform.MaxValueIncrementerFactory;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.util.AutoPopulatingList;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * This is a description of what this class does - bhargavp don't forget to fill this in.
@@ -542,6 +541,12 @@ public class IdentityManagementRoleDocument extends IdentityManagementTypeAttrib
                 }
 
                 responsibility.setRoleId(roleId);
+                /**
+                 * Ensure that the responsibility has a document id
+                 */
+                if (responsibility.getRoleRspActions() != null && responsibility.getRoleRspActions().size() > 0) {
+                    responsibility.getRoleRspActions().get(0).setDocumentNumber(getDocumentNumber());
+                }
                 if (!getResponsibilityInternalService().areActionsAtAssignmentLevelById(responsibility.getResponsibilityId())) {
                     if (StringUtils.isBlank(responsibility.getRoleRspActions().get(0).getRoleResponsibilityActionId())) {
                         DataFieldMaxValueIncrementer incrementer = MaxValueIncrementerFactory.getIncrementer(KimImplServiceLocator.getDataSource(), KimConstants.SequenceNames.KRIM_ROLE_RSP_ACTN_ID_S);
@@ -557,7 +562,6 @@ public class IdentityManagementRoleDocument extends IdentityManagementTypeAttrib
                     }
 
                     responsibility.getRoleRspActions().get(0).setRoleMemberId("*");
-                    responsibility.getRoleRspActions().get(0).setDocumentNumber(getDocumentNumber());
                 }
             }
         }
