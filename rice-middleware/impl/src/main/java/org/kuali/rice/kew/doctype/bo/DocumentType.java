@@ -395,6 +395,15 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     }
 
     /**
+     * Returns the INITIATOR_CANCEL_PENDING policy on the document if defined, or
+     * the default value for this policy which is false.
+     * @return the INITIATOR_CANCEL_PENDING document type policy
+     */
+    public DocumentTypePolicy getInitiatorCancelPendingPolicy() {
+        return getPolicyByName(INITIATOR_CANCEL_PENDING.getCode(), Boolean.FALSE);
+    }
+
+    /**
      * This method returns a boolean denoting whether the KEW Route Status is to be displayed.
      * The KEW Route Status is updated by the workflow engine regardless of whether it is to be displayed or not.
      *

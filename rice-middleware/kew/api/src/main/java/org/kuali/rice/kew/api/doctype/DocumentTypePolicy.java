@@ -156,7 +156,13 @@ public enum DocumentTypePolicy implements Coded {
      */
     @XmlEnumValue(Codes.SUPPRESS_IMMEDIATE_EMAILS_ON_SU_ACTION) SUPPRESS_IMMEDIATE_EMAILS_ON_SU_ACTION(Codes.SUPPRESS_IMMEDIATE_EMAILS_ON_SU_ACTION),
 
-    @XmlEnumValue(Codes.SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE) SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE(Codes.SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE);
+    @XmlEnumValue(Codes.SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE) SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE(Codes.SUPPRESS_ACKNOWLEDGEMENTS_ON_DISAPPROVE),
+
+    /**
+     * Specifies whether initiators should be able to cancel docs in a PENDING {@link org.kuali.rice.kew.api.document.DocumentStatusCategory DocumentStatusCategory}
+     * @since 2.4.2
+     */
+    @XmlEnumValue(Codes.INITIATOR_CANCEL_PENDING) INITIATOR_CANCEL_PENDING(Codes.INITIATOR_CANCEL_PENDING);
 
     private final String code;
 
@@ -190,6 +196,7 @@ public enum DocumentTypePolicy implements Coded {
         private static final String INITIATOR_MUST_ROUTE = "INITIATOR_MUST_ROUTE";
         private static final String INITIATOR_MUST_SAVE = "INITIATOR_MUST_SAVE";
         private static final String INITIATOR_MUST_CANCEL = "INITIATOR_MUST_CANCEL";
+        private static final String INITIATOR_CANCEL_PENDING = "INITIATOR_CANCEL_PENDING";
         private static final String INITIATOR_MUST_BLANKET_APPROVE = "INITIATOR_MUST_BLANKET_APPROVE";
         private static final String LOOK_FUTURE = "LOOK_FUTURE";
         private static final String SEND_NOTIFICATION_ON_SU_APPROVE = "SEND_NOTIFICATION_ON_SU_APPROVE";
