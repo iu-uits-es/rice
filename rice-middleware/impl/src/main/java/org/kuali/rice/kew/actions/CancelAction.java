@@ -15,17 +15,18 @@
  */
 package org.kuali.rice.kew.actions;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 import org.kuali.rice.kew.actionrequest.ActionRequestValue;
 import org.kuali.rice.kew.actiontaken.ActionTakenValue;
+import org.kuali.rice.kew.api.KewApiConstants;
 import org.kuali.rice.kew.api.action.ActionType;
+import org.kuali.rice.kew.api.document.DocumentStatusCategory;
 import org.kuali.rice.kew.api.exception.InvalidActionTakenException;
 import org.kuali.rice.kew.api.exception.WorkflowException;
 import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
 import org.kuali.rice.kew.service.KEWServiceLocator;
-import org.kuali.rice.kew.api.KewApiConstants;
 import org.kuali.rice.kim.api.identity.principal.PrincipalContract;
-
 
 import java.util.Iterator;
 import java.util.List;
@@ -85,6 +86,13 @@ public class CancelAction extends ActionTakenEvent {
 
         // can always cancel saved or initiated document
         if (routeHeader.isStateInitiated() || routeHeader.isStateSaved()) {
+            return true;
+        }
+
+        // initiator can always cancel a pending document if INITIATOR_CANCEL_PENDING doc type policy is true
+        if (getRouteHeader().getDocumentType().getInitiatorCancelPendingPolicy().getPolicyValue().booleanValue()
+                && StringUtils.equals(getPrincipal().getPrincipalId(), getRouteHeader().getInitiatorPrincipalId())
+                && DocumentStatusCategory.PENDING.equals(getRouteHeader().getStatus().getCategory())) {
             return true;
         }
 

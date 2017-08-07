@@ -494,7 +494,9 @@
       <enumeration value="DEFAULT_APPROVE"/>
       <enumeration value="default_approve"/>
       <enumeration value="ALLOW_UNREQUESTED_ACTION"/>
-      <enumeration value="allow_unrequested_action" /> 
+      <enumeration value="allow_unrequested_action" />
+      <enumeration value="INITIATOR_CANCEL_PENDING"/>
+      <enumeration value="initiator_cancel_pending"/>
       <enumeration value="INITIATOR_MUST_ROUTE"/>
       <enumeration value="initiator_must_route"/>
       <enumeration value="INITIATOR_MUST_SAVE"/>
