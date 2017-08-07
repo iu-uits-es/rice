@@ -39,17 +39,21 @@ public class CancelActionTest {
 
     private static final String PRINCIPAL_ID = "01234567";
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS) private DocumentRouteHeaderValue routeHeaderValue;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private DocumentRouteHeaderValue routeHeaderValue;
 
-    @Mock private  PrincipalContract principalContract;
+    @Mock
+    private  PrincipalContract principalContract;
 
-    @Mock private ActionRequestValue actionRequestValue;
+    @Mock
+    private ActionRequestValue actionRequestValue;
 
     private CancelAction cancelAction;
 
     private List<ActionRequestValue> actionRequestValues;
 
-    @Before public void setUp() {
+    @Before
+    public void setUp() {
         cancelAction = new CancelAction(ActionType.CANCEL, routeHeaderValue, principalContract, "");
         when(routeHeaderValue.isStateInitiated()).thenReturn(false);
         when(routeHeaderValue.isStateSaved()).thenReturn(false);
@@ -60,38 +64,44 @@ public class CancelActionTest {
         actionRequestValues = Arrays.asList(actionRequestValue);
     }
 
-    @Test public void testInitiatorCanCancelSavedDocumentWithInitiatorCancelPendingPolicy() {
+    @Test
+    public void testInitiatorCanCancelSavedDocumentWithInitiatorCancelPendingPolicy() {
         when(routeHeaderValue.getStatus()).thenReturn(DocumentStatus.ENROUTE);
         assertTrue(cancelAction.isActionCompatibleRequest(actionRequestValues));
         verify(actionRequestValue, never()).getActionRequested();
     }
 
-    @Test public void testInitiatorCanCancelEnrouteDocumentWithInitiatorCancelPendingPolicy() {
+    @Test
+    public void testInitiatorCanCancelEnrouteDocumentWithInitiatorCancelPendingPolicy() {
         when(routeHeaderValue.getStatus()).thenReturn(DocumentStatus.EXCEPTION);
         assertTrue(cancelAction.isActionCompatibleRequest(actionRequestValues));
         verify(actionRequestValue, never()).getActionRequested();
     }
 
-    @Test public void testInitiatorCancelPendingPolicyDoesNotApplyIfNotInDoctype() {
+    @Test
+    public void testInitiatorCancelPendingPolicyDoesNotApplyIfNotInDoctype() {
         when(routeHeaderValue.getDocumentType().getInitiatorCancelPendingPolicy().getPolicyValue().booleanValue()).thenReturn(false);
         cancelAction.isActionCompatibleRequest(actionRequestValues);
         // If we get down to iterating the action values, the initiatorCancelPendingPolicy did not apply
         verify(actionRequestValue, times(1)).getActionRequested();
     }
 
-    @Test public void testInitiatorCancelPendingPolicyDoesNotApplyIfValueIsFalse() {
+    @Test
+    public void testInitiatorCancelPendingPolicyDoesNotApplyIfValueIsFalse() {
         when(routeHeaderValue.getDocumentType().getInitiatorCancelPendingPolicy().getPolicyValue().booleanValue()).thenReturn(false);
         cancelAction.isActionCompatibleRequest(actionRequestValues);
         verify(actionRequestValue, times(1)).getActionRequested();
     }
 
-    @Test public void testInitiatorCancelPendingPolicyDoesNotApplyIfUserIsNotInitiator() {
+    @Test
+    public void testInitiatorCancelPendingPolicyDoesNotApplyIfUserIsNotInitiator() {
         when(principalContract.getPrincipalId()).thenReturn("76543210");
         cancelAction.isActionCompatibleRequest(actionRequestValues);
         verify(actionRequestValue, times(1)).getActionRequested();
     }
 
-    @Test public void testInitiatorCancelPendingPolicyDoesNotApplyIfStatusIsNotPending() {
+    @Test
+    public void testInitiatorCancelPendingPolicyDoesNotApplyIfStatusIsNotPending() {
         when(routeHeaderValue.getStatus()).thenReturn(DocumentStatus.FINAL);
         cancelAction.isActionCompatibleRequest(actionRequestValues);
         verify(actionRequestValue, times(1)).getActionRequested();
