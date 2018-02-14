@@ -351,15 +351,15 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     public DocumentTypePolicy getSuPostprocessorOverridePolicy() {
         return getPolicyByName(ALLOW_SU_POSTPROCESSOR_OVERRIDE.getCode(), Boolean.TRUE);
     }
-        
+
     public DocumentTypePolicy getFailOnInactiveGroup() {
         return getPolicyByName(FAIL_ON_INACTIVE_GROUP.getCode(), Boolean.TRUE);
     }
-    
+
     public DocumentTypePolicy getEnrouteErrorSuppression() {
     	return getPolicyByName(ENROUTE_ERROR_SUPPRESSION.getCode(), Boolean.FALSE);
     }
-    
+
     public DocumentTypePolicy getRegenerateActionRequestsOnChange() {
     	return getPolicyByName(REGENERATE_ACTION_REQUESTS_ON_CHANGE.getCode(), Boolean.TRUE);
     }
@@ -642,7 +642,7 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     public void setDocumentTypePolicies(Collection<DocumentTypePolicy> policies) {
         this.documentTypePolicies = policies;
     }
-    
+
     @Override
     public Map<org.kuali.rice.kew.api.doctype.DocumentTypePolicy, String> getPolicies() {
         Map<org.kuali.rice.kew.api.doctype.DocumentTypePolicy, String> policies = new HashMap<org.kuali.rice.kew.api.doctype.DocumentTypePolicy, String>();
@@ -733,7 +733,7 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     public java.lang.Boolean getCurrentInd() {
         return currentInd;
     }
-    
+
     @Override
     public boolean isCurrent() {
         if (currentInd == null) {
@@ -760,7 +760,7 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     /*public String getDocHandlerUrl() {
         return getUnresolvedDocHandlerUrl();
     }*/
-    
+
     /**
      * This method gets the document handler url from this object or from a parent document type and resolves any
      * potential variables that may be in use
@@ -1038,7 +1038,7 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     public void setDocumentTypeId(String docTypeGrpId) {
         this.documentTypeId = docTypeGrpId;
     }
-    
+
     @Override
     public String getId() {
         return getDocumentTypeId();
@@ -1715,7 +1715,7 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
     public void setActive(boolean active) {
         this.active = Boolean.valueOf(active);
     }
-    
+
     @Override
     public Integer getDocumentTypeVersion() {
         return version;
@@ -1801,7 +1801,8 @@ public class DocumentType extends PersistableBusinessObjectBase implements Mutab
             for (DocumentTypeAttributeContract attr : dt.getDocumentTypeAttributes()) {
                 attributes.add(DocumentTypeAttributeBo.from(DocumentTypeAttribute.Builder.create(attr).build()));
             }
-            
+            ebo.setDocumentTypeAttributes(attributes);
+
         }
         ebo.setDocumentTypePolicies(policies);
         ebo.setAuthorizer(dt.getAuthorizer());
