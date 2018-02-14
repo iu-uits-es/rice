@@ -73,13 +73,13 @@ public class RuleAttribute extends PersistableBusinessObjectBase implements Exte
 
     @Column(name="APPL_ID")
 	private String applicationId;
-    
+
     @OneToMany(fetch=FetchType.EAGER,cascade={CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
            targetEntity=RuleTemplateAttributeBo.class, mappedBy="ruleAttribute")
 	private List ruleTemplateAttributes;
     @Transient
     private List validValues;
-    
+
     // required to be lookupable
     @Transient
     private String returnUrl;
@@ -145,11 +145,11 @@ public class RuleAttribute extends PersistableBusinessObjectBase implements Exte
     public void setResourceDescriptor(String resourceDescriptor) {
       this.resourceDescriptor = resourceDescriptor;
     }
-    
+
     public String getRuleAttributeActionsUrl() {
         return "<a href=\"RuleAttributeReport.do?id="+ id +"\" >report</a>";
     }
-    
+
     public String getReturnUrl() {
         return returnUrl;
     }
@@ -208,6 +208,7 @@ public class RuleAttribute extends PersistableBusinessObjectBase implements Exte
         bo.setDescription(im.getDescription());
         bo.setResourceDescriptor(im.getResourceDescriptor());
         bo.setId(im.getId());
+        bo.setName(im.getName());
         bo.setLabel(im.getLabel());
         bo.setType(im.getType());
         bo.setVersionNumber(im.getVersionNumber());
