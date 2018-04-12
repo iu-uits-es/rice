@@ -18,6 +18,7 @@ package org.kuali.rice.kew.notes.service;
 import java.io.File;
 
 import org.kuali.rice.kew.notes.Attachment;
+import org.springframework.core.io.Resource;
 
 /**
  * A service providing access for attachments.
@@ -30,6 +31,7 @@ public interface AttachmentService {
 
 	public void persistAttachedFileAndSetAttachmentBusinessObjectValue(Attachment attachment) throws Exception;
 	public File findAttachedFile(Attachment attachment) throws Exception;
+	public Resource findAttachedResource(Attachment attachment);
 	public void deleteAttachedFile(Attachment attachment) throws Exception;
 	
 }

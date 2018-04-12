@@ -15,14 +15,15 @@
  */
 package org.kuali.rice.kew.notes.service.impl;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.logging.Logger;
-
 import org.kuali.rice.kew.notes.Attachment;
 import org.kuali.rice.kew.notes.service.AttachmentService;
 import org.kuali.rice.kew.service.KEWServiceLocator;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 
 
 /**
@@ -72,7 +73,11 @@ public class AttachmentServiceImpl implements AttachmentService {
 	public File findAttachedFile(Attachment attachment) throws Exception {
 		return new File(attachment.getFileLoc());
 	}
-	
+
+	public Resource findAttachedResource(Attachment attachment) {
+		return new FileSystemResource(new File(attachment.getFileLoc()));
+	}
+
 	public void deleteAttachedFile(Attachment attachment) throws Exception {
 		File file = new File(attachment.getFileLoc());
 		if (! file.delete()) {

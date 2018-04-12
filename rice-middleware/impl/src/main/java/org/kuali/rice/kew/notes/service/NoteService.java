@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.kuali.rice.kew.notes.Attachment;
 import org.kuali.rice.kew.notes.Note;
+import org.springframework.core.io.Resource;
 
 /**
  * A service which handles data access for notes and attachments.
@@ -37,6 +38,7 @@ public interface NoteService {
     public void deleteNote(Note note);
     public void deleteAttachment(Attachment attachment);
     public File findAttachmentFile(Attachment attachment);
+    public Resource findAttachmentResource(Attachment attachment);
     public Attachment findAttachment(String attachmentId);
     
 }
