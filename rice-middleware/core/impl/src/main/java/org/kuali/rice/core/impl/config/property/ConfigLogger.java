@@ -35,23 +35,24 @@ public class ConfigLogger {
 	/**
 	 * List of keys to suppress the values for and the associated values to print instead.
 	 */
-	private static final String[][] SECRET_KEYS = 
-	{ 
-		{"password", "Top Secret Password"}, 
-		{"encryption.key", "Top Secret Encryption Key"}
+	private static final String[][] SECRET_KEYS =
+	{
+		{"password", "Top Secret Password"},
+		{"encryption.key", "Top Secret Encryption Key"},
+		{"secret", "Top Secret Value"}
 	};
-	
+
 	/**
 	 * These are a list of keys that we know we can display regardless of whether they
 	 * are considered "secret"
 	 */
-	private static final String[] PUBLIC_KEYS = 
-	{ 
+	private static final String[] PUBLIC_KEYS =
+	{
 		"cas.validate.password"
-		
+
 	};
-	 
-	
+
+
 	public static void logConfig(Config config) {
 		Map<String, String> safeConfig = getDisplaySafeConfig(config.getProperties());
 		String props = "";
@@ -63,7 +64,7 @@ public class ConfigLogger {
 		}
 		LOG.debug("Properties used " + props);
 	}
-	
+
 	/**
 	 * Returns a value for a parameter that is safe for displaying on screen or in a log file.
 	 * @param name the name of the parameter
@@ -72,14 +73,14 @@ public class ConfigLogger {
 	 */
 	public static String getDisplaySafeValue(String name, String value) {
 	    String safeValue = value;
-	    
+
 	    List<String> l = Arrays.asList(PUBLIC_KEYS);
-	    
+
         for (String[] secretKey : SECRET_KEYS) {
             if (name.contains(secretKey[0]) && !l.contains(name)) {
                 safeValue = secretKey[1];
                 break;
-            }   
+            }
         }
         return safeValue;
 	}
