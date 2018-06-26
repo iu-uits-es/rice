@@ -1550,6 +1550,12 @@
       </dependency>
 
       <dependency>
+        <groupId>edu.iu.uits</groupId>
+        <artifactId>javamail-smime-transport</artifactId>
+        <version>${javamail-smime-transport.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjrt</artifactId>
         <version>${aspectj.version}</version>
