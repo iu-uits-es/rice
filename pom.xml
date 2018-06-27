@@ -1553,6 +1553,12 @@
         <groupId>edu.iu.uits</groupId>
         <artifactId>javamail-smime-transport</artifactId>
         <version>${javamail-smime-transport.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
