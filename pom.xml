@@ -239,7 +239,7 @@
     <web.launch.context.path>/kr-dev</web.launch.context.path>
 
     <!-- IU Rice Middleware package -->
-    <javamail-smime-transport.version>1.0.9</javamail-smime-transport.version>
+    <javamail-smime-transport.version>1.0.12</javamail-smime-transport.version>
 
     <!-- Connect documentation generation to site generation -->
     <rice.docbook.phase>pre-site</rice.docbook.phase>
