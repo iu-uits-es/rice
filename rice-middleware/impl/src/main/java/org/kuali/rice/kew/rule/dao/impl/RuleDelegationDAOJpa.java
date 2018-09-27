@@ -15,6 +15,7 @@
  */
 package org.kuali.rice.kew.rule.dao.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.core.api.exception.RiceRuntimeException;
@@ -34,6 +35,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ import static org.kuali.rice.core.api.criteria.PredicateFactory.equal;
 
 public class RuleDelegationDAOJpa implements RuleDelegationDAO {
 
-	private EntityManager entityManager;
+    private EntityManager entityManager;
     private DataObjectService dataObjectService;
 
     public List<RuleDelegationBo> findByDelegateRuleId(String ruleId) {
@@ -67,7 +69,7 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
     }
 
     public void save(RuleDelegationBo ruleDelegation) {
-    	getDataObjectService().save(ruleDelegation);
+        getDataObjectService().save(ruleDelegation);
     }
 
     public List<RuleDelegationBo> findAllCurrentRuleDelegations(){
@@ -92,9 +94,9 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         }
 
         org.kuali.rice.core.api.criteria.QueryByCriteria.Builder builder =
-                    org.kuali.rice.core.api.criteria.QueryByCriteria.Builder.create();
+                org.kuali.rice.core.api.criteria.QueryByCriteria.Builder.create();
         builder.setPredicates(equal("delegationRule.currentInd",true),
-                    equal("responsibilityId",responsibilityId));
+                equal("responsibilityId",responsibilityId));
         return getDataObjectService().findMatching(RuleDelegationBo.class,builder.build()).getResults();
     }
     private Subquery<RuleResponsibilityBo> getResponsibilitySubQuery(String ruleResponsibilityName, CriteriaQuery<RuleBaseValues> query){
@@ -121,22 +123,22 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         Subquery<RuleResponsibilityBo> ruleResponsibilityBoSubquery = query.subquery(RuleResponsibilityBo.class);
         Root fromResp = ruleResponsibilityBoSubquery.from(RuleResponsibilityBo.class);
 
-        List<javax.persistence.criteria.Predicate> respPredicates = new
-                ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> respPredicates = new
+                ArrayList<Predicate>();
 
-        List<javax.persistence.criteria.Predicate> ruleRespNamePredicates = new
-                ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> ruleRespNamePredicates = new
+                ArrayList<Predicate>();
 
-        List<javax.persistence.criteria.Predicate> userNamePreds =
-                new ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> userNamePreds =
+                new ArrayList<Predicate>();
 
-        List<javax.persistence.criteria.Predicate> workgroupPreds =
-                new ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> workgroupPreds =
+                new ArrayList<Predicate>();
 
 
         if ( (actionRequestCodes != null) && (!actionRequestCodes.isEmpty()) ) {
             Expression<String> exp = fromResp.get("actionRequestedCd");
-            javax.persistence.criteria.Predicate actionRequestPredicate = exp.in(actionRequestCodes);
+            Predicate actionRequestPredicate = exp.in(actionRequestCodes);
 
             respPredicates.add(actionRequestPredicate);
         }
@@ -148,19 +150,17 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
                 userNamePreds.add(criteriaBuilder.like(fromResp.get("ruleResponsibilityName"),principalId));
                 userNamePreds.add(criteriaBuilder.equal(fromResp.get("ruleResponsibilityType"), KewApiConstants.RULE_RESPONSIBILITY_WORKFLOW_ID));
 
-                javax.persistence.criteria.Predicate[] preds = userNamePreds.toArray(new javax.persistence.criteria.Predicate[userNamePreds.size()]);
+                Predicate[] preds = userNamePreds.toArray(new Predicate[userNamePreds.size()]);
                 ruleRespNamePredicates.add(criteriaBuilder.and(preds));
 
             }
             if ( (searchUserInWorkgroups != null && searchUserInWorkgroups) && (workgroupIds != null) && (!workgroupIds.isEmpty()) ) {
                 // at least one workgroup id exists and user wishes to search on workgroups
-
-                Expression<String> exp = fromResp.get("ruleResponsibilityName");
-                javax.persistence.criteria.Predicate groupIdPredicate = exp.in(workgroupIds);
+                Predicate groupIdPredicate = getChunkedIn(workgroupIds, criteriaBuilder, fromResp, "ruleResponsibilityName");
                 workgroupPreds.add(groupIdPredicate);
                 workgroupPreds.add(criteriaBuilder.equal(fromResp.get("ruleResponsibilityType"),
                         KewApiConstants.RULE_RESPONSIBILITY_GROUP_ID));
-                javax.persistence.criteria.Predicate[] preds = workgroupPreds.toArray(new javax.persistence.criteria.Predicate[workgroupPreds.size()]);
+                Predicate[] preds = workgroupPreds.toArray(new Predicate[workgroupPreds.size()]);
                 ruleRespNamePredicates.add(criteriaBuilder.and(preds));
             }
         } else if ( (workgroupIds != null) && (workgroupIds.size() == 1) ) {
@@ -169,29 +169,29 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
                     workgroupIds.iterator().next()));
             workgroupPreds.add(criteriaBuilder.equal(fromResp.get("ruleResponsibilityType"),
                     KewApiConstants.RULE_RESPONSIBILITY_GROUP_ID));
-            javax.persistence.criteria.Predicate[] preds = workgroupPreds.toArray(new javax.persistence.criteria.Predicate[workgroupPreds.size()]);
+            Predicate[] preds = workgroupPreds.toArray(new Predicate[workgroupPreds.size()]);
             ruleRespNamePredicates.add(criteriaBuilder.and(preds));
 
         } else if ( (workgroupIds != null) && (workgroupIds.size() > 1) ) {
             // no user and more than one workgroup id
 
             Expression<String> exp = fromResp.get("ruleResponsibilityName");
-            javax.persistence.criteria.Predicate groupIdPredicate = exp.in(workgroupIds);
+            Predicate groupIdPredicate = exp.in(workgroupIds);
             workgroupPreds.add(criteriaBuilder.equal(fromResp.get("ruleResponsibilityType"),
                     KewApiConstants.RULE_RESPONSIBILITY_GROUP_ID));
-            javax.persistence.criteria.Predicate[] preds = workgroupPreds.toArray(new javax.persistence.criteria.Predicate[workgroupPreds.size()]);
+            Predicate[] preds = workgroupPreds.toArray(new Predicate[workgroupPreds.size()]);
             ruleRespNamePredicates.add(criteriaBuilder.and(preds));
         }
 
         if (!ruleRespNamePredicates.isEmpty()) {
-            javax.persistence.criteria.Predicate[] preds = ruleRespNamePredicates.toArray(new javax.persistence.criteria.Predicate[ruleRespNamePredicates.size()]);
+            Predicate[] preds = ruleRespNamePredicates.toArray(new Predicate[ruleRespNamePredicates.size()]);
             respPredicates.add(criteriaBuilder.or(preds));
         }
 
         if (!respPredicates.isEmpty()) {
 
-            javax.persistence.criteria.Predicate[] preds = respPredicates.toArray(
-                    new javax.persistence.criteria.Predicate[respPredicates.size()]);
+            Predicate[] preds = respPredicates.toArray(
+                    new Predicate[respPredicates.size()]);
             ruleResponsibilityBoSubquery.where(preds);
             ruleResponsibilityBoSubquery.select(fromResp.get("ruleBaseValuesId"));
 
@@ -200,14 +200,25 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         return null;
     }
 
+    private Predicate getChunkedIn(Collection<String> arguments, CriteriaBuilder criteriaBuilder, Root from, String property) {
+        final int chunkSize = 500;
+        List<List<String>> chunks = Lists.partition(new ArrayList<String>(arguments), chunkSize);
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        for (List<String> chunk : chunks) {
+            Expression<String> exp = from.get(property);
+            predicates.add(exp.in(chunk));
+        }
+        return criteriaBuilder.or((Predicate[]) predicates.toArray(new Predicate[predicates.size()]));
+    }
+
     private Subquery<RuleBaseValues> getRuleBaseValuesSubQuery(String docTypeName, String ruleTemplateId, String ruleDescription, Collection<String> workgroupIds,
             String principalId, Boolean activeInd,
-            Map<String, String> extensionValues, Collection actionRequestCodes,CriteriaQuery<RuleDelegationBo> query){
+            Map<String, String> extensionValues, Collection actionRequestCodes, CriteriaQuery<RuleDelegationBo> query){
         CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<RuleBaseValues> criteriaQuery = criteriaBuilder.createQuery(RuleBaseValues.class);
         Subquery<RuleBaseValues> ruleBaseValuesSubquery = query.subquery(RuleBaseValues.class);
         Root root = ruleBaseValuesSubquery.from(RuleBaseValues.class);
-        List<javax.persistence.criteria.Predicate> predicates = getSearchCriteria(root,criteriaQuery,docTypeName, ruleTemplateId, ruleDescription, activeInd, extensionValues);
+        List<Predicate> predicates = getSearchCriteria(root,criteriaQuery,docTypeName, ruleTemplateId, ruleDescription, activeInd, extensionValues);
         Subquery<RuleResponsibilityBo> subquery = getResponsibilitySubQuery(criteriaQuery,workgroupIds, principalId, actionRequestCodes, (principalId != null), ((workgroupIds != null) && !workgroupIds.isEmpty()));
         predicates.add(criteriaBuilder.in(root.get("id")).value(subquery));
         ruleBaseValuesSubquery.where(criteriaBuilder.equal(root.get("delegateRule"),Boolean.TRUE));
@@ -223,7 +234,7 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         CriteriaQuery<RuleBaseValues> criteriaQuery = criteriaBuilder.createQuery(RuleBaseValues.class);
         Subquery<RuleBaseValues> ruleBaseValuesSubquery = query.subquery(RuleBaseValues.class);
         Root fromResp = ruleBaseValuesSubquery.from(RuleBaseValues.class);
-        List<javax.persistence.criteria.Predicate> predicates = getSearchCriteria(fromResp,criteriaQuery,docTypeName, ruleTemplateId, ruleDescription, activeInd, extensionValues);
+        List<Predicate> predicates = getSearchCriteria(fromResp,criteriaQuery,docTypeName, ruleTemplateId, ruleDescription, activeInd, extensionValues);
 
         if (ruleId != null) {
             predicates.add(criteriaBuilder.equal(fromResp.get("id"),ruleId));
@@ -261,7 +272,7 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         }
 
         predicates.add(criteriaBuilder.equal(fromResp.get("delegateRule"),Boolean.TRUE));
-        javax.persistence.criteria.Predicate[] preds = predicates.toArray(new javax.persistence.criteria.Predicate[predicates.size()]);
+        Predicate[] preds = predicates.toArray(new Predicate[predicates.size()]);
         ruleBaseValuesSubquery.where(preds);
         ruleBaseValuesSubquery.select(fromResp.get("id"));
 
@@ -281,10 +292,10 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
     }
 
 
-    private List<javax.persistence.criteria.Predicate> getSearchCriteria(Root<RuleBaseValues> root,CriteriaQuery<RuleBaseValues> query,
+    private List<Predicate> getSearchCriteria(Root<RuleBaseValues> root,CriteriaQuery<RuleBaseValues> query,
             String docTypeName, String ruleTemplateId,
             String ruleDescription, Boolean activeInd, Map<String,String> extensionValues) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> predicates = new ArrayList<Predicate>();
         CriteriaBuilder criteribaBuilder = getEntityManager().getCriteriaBuilder();
 
         predicates.add(criteribaBuilder.equal(root.get("currentInd"),Boolean.TRUE));
@@ -307,7 +318,7 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
                 if (!org.apache.commons.lang.StringUtils.isEmpty(entry.getValue())) {
                     Subquery ruleExtSubQuery = query.subquery(RuleExtensionBo.class);
                     Root<RuleExtensionBo> ruleExtRoot = ruleExtSubQuery.from(RuleExtensionBo.class);
-                    javax.persistence.criteria.Predicate predAnd = criteribaBuilder.and(
+                    Predicate predAnd = criteribaBuilder.and(
                             criteribaBuilder.equal(ruleExtRoot.get("extensionValues").get("key"),entry.getKey()),
                             criteribaBuilder.like(ruleExtRoot.get("extensionValues").<String>get("value"),
                                     ("%" + (String) entry.getValue() + "%").toUpperCase()));
@@ -335,7 +346,7 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<RuleDelegationBo> criteriaQuery = criteriaBuilder.createQuery(RuleDelegationBo.class);
         Root<RuleDelegationBo> root = criteriaQuery.from(RuleDelegationBo.class);
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> predicates = new ArrayList<Predicate>();
         if (StringUtils.isNotBlank(delegationType) && !delegationType.equals(KewApiConstants.DELEGATION_BOTH)) {
             predicates.add(criteriaBuilder.equal(root.get("delegationTypeCode"), delegationType));
         }
@@ -351,8 +362,8 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
             predicates.add(criteriaBuilder.in(root.get("delegateRuleId")).value(ruleBaseValuesSubQuery));
         }
         criteriaQuery.distinct(true);
-        javax.persistence.criteria.Predicate[] preds = predicates.toArray(
-                new javax.persistence.criteria.Predicate[predicates.size()]);
+        Predicate[] preds = predicates.toArray(
+                new Predicate[predicates.size()]);
         criteriaQuery.where(preds);
         TypedQuery<RuleDelegationBo> typedQuery = getEntityManager().createQuery(criteriaQuery);
         typedQuery.setMaxResults(KewApiConstants.DELEGATE_RULE_LOOKUP_MAX_ROWS_RETURNED);
@@ -373,7 +384,7 @@ public class RuleDelegationDAOJpa implements RuleDelegationDAO {
         CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<RuleDelegationBo> criteriaQuery = criteriaBuilder.createQuery(RuleDelegationBo.class);
         Root<RuleDelegationBo> root = criteriaQuery.from(RuleDelegationBo.class);
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<javax.persistence.criteria.Predicate>();
+        List<Predicate> predicates = new ArrayList<Predicate>();
         if (StringUtils.isNotBlank(delegationType) && !delegationType.equals(KewApiConstants.DELEGATION_BOTH)) {
             predicates.add(criteriaBuilder.equal(root.get("delegationTypeCode"), delegationType));
         }
