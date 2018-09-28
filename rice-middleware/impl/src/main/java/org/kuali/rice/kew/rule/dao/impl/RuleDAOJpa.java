@@ -15,6 +15,7 @@
  */
 package org.kuali.rice.kew.rule.dao.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.core.api.criteria.OrderByField;
 import org.kuali.rice.core.api.criteria.OrderDirection;
@@ -356,6 +357,17 @@ public class RuleDAOJpa implements RuleDAO {
                                         searchUser, searchUserInWorkgroups);
     }
 
+    private javax.persistence.criteria.Predicate getChunkedIn(Collection<String> arguments, CriteriaBuilder criteriaBuilder, Root from, String property) {
+        final int chunkSize = 500;
+        List<List<String>> chunks = Lists.partition(new ArrayList<String>(arguments), chunkSize);
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<javax.persistence.criteria.Predicate>();
+        for (List<String> chunk : chunks) {
+            Expression<String> exp = from.get(property);
+            predicates.add(exp.in(chunk));
+        }
+        return criteriaBuilder.or((javax.persistence.criteria.Predicate[]) predicates.toArray(new javax.persistence.criteria.Predicate[predicates.size()]));
+    }
+
     private Subquery<RuleResponsibilityBo> addResponsibilityCriteria(CriteriaQuery<RuleBaseValues> query, Collection<String> workgroupIds, String workflowId, Collection actionRequestCodes, Boolean searchUser, Boolean searchUserInWorkgroups) {
 
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -396,8 +408,7 @@ public class RuleDAOJpa implements RuleDAO {
             if ( (searchUserInWorkgroups != null && searchUserInWorkgroups) && (workgroupIds != null) && (!workgroupIds.isEmpty()) ) {
                 // at least one workgroup id exists and user wishes to search on workgroups
 
-                Expression<String> exp = fromResp.get("ruleResponsibilityName");
-                javax.persistence.criteria.Predicate groupIdPredicate = exp.in(workgroupIds);
+                javax.persistence.criteria.Predicate groupIdPredicate = getChunkedIn(workgroupIds, cb, fromResp, "ruleResponsibilityName");
                 workgroupPreds.add(groupIdPredicate);
                 workgroupPreds.add(cb.equal(fromResp.get("ruleResponsibilityType"),
                         KewApiConstants.RULE_RESPONSIBILITY_GROUP_ID));
@@ -416,8 +427,7 @@ public class RuleDAOJpa implements RuleDAO {
         } else if ( (workgroupIds != null) && (workgroupIds.size() > 1) ) {
             // no user and more than one workgroup id
 
-            Expression<String> exp = fromResp.get("ruleResponsibilityName");
-            javax.persistence.criteria.Predicate groupIdPredicate = exp.in(workgroupIds);
+            javax.persistence.criteria.Predicate groupIdPredicate = getChunkedIn(workgroupIds, cb, fromResp, );
             workgroupPreds.add(cb.equal(fromResp.get("ruleResponsibilityType"),
                                         KewApiConstants.RULE_RESPONSIBILITY_GROUP_ID));
             javax.persistence.criteria.Predicate[] preds = workgroupPreds.toArray(new javax.persistence.criteria.Predicate[workgroupPreds.size()]);
