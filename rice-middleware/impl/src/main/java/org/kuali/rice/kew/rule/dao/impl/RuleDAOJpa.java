@@ -427,7 +427,7 @@ public class RuleDAOJpa implements RuleDAO {
         } else if ( (workgroupIds != null) && (workgroupIds.size() > 1) ) {
             // no user and more than one workgroup id
 
-            javax.persistence.criteria.Predicate groupIdPredicate = getChunkedIn(workgroupIds, cb, fromResp, );
+            javax.persistence.criteria.Predicate groupIdPredicate = getChunkedIn(workgroupIds, cb, fromResp, "ruleResponsibilityName");
             workgroupPreds.add(cb.equal(fromResp.get("ruleResponsibilityType"),
                                         KewApiConstants.RULE_RESPONSIBILITY_GROUP_ID));
             javax.persistence.criteria.Predicate[] preds = workgroupPreds.toArray(new javax.persistence.criteria.Predicate[workgroupPreds.size()]);
