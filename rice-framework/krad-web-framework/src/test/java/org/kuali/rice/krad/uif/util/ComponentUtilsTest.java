@@ -262,7 +262,7 @@ public class ComponentUtilsTest {
         CollectionGroup collectionGroupOriginal = initializeCollectionGroup();
         CollectionGroup collectionGroupCopy = CopyUtils.copy(collectionGroupOriginal);
 
-//        assertTrue(ComponentCopyPropertiesMatch(collectionGroupOriginal, collectionGroupCopy));
+        assertTrue(ComponentCopyPropertiesMatch(collectionGroupOriginal, collectionGroupCopy));
 
 //        for (int i = 0; i < collectionGroupOriginal.getAddLineItems().size(); i++) {
 //            assertTrue(ComponentCopyPropertiesMatch(
