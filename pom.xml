@@ -110,6 +110,7 @@
     <aspectj.version>1.6.8</aspectj.version>
     <bitronix.version>2.1.2</bitronix.version>
     <commons-beanutils.version>1.8.3-kuali-4</commons-beanutils.version>
+    <commons-chain.version>1.2</commons-chain.version>
     <commons-codec.version>1.6</commons-codec.version>
     <commons-collections.version>3.2.1</commons-collections.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
@@ -1547,6 +1548,12 @@
         <!-- using nodep to resolve a problem with the asm dependency -->
         <artifactId>cglib-nodep</artifactId>
         <version>${cglib.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-chain</groupId>
+        <artifactId>commons-chain</artifactId>
+        <version>${commons-chain.version}</version>
       </dependency>
 
       <dependency>
