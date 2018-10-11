@@ -94,17 +94,17 @@ public final class CopyUtils {
             return null;
         }
 
-//        String cid = null;
-//        if (ViewLifecycle.isTrace()) {
-//            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-//            int i = 3;
-//            while (ComponentUtils.class.getName().equals(trace[i].getClassName()))
-//                i++;
-//            StackTraceElement caller = trace[i];
-//            cid = obj.getClass().getSimpleName() + ":" + caller.getClassName()
-//                    + ":" + caller.getMethodName() + ":" + caller.getLineNumber();
-//            ProcessLogger.ntrace("deep-copy:", ":" + cid, 1000L, 500L);
-//        }
+        String cid = null;
+        if (ViewLifecycle.isTrace()) {
+            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+            int i = 3;
+            while (ComponentUtils.class.getName().equals(trace[i].getClassName()))
+                i++;
+            StackTraceElement caller = trace[i];
+            cid = obj.getClass().getSimpleName() + ":" + caller.getClassName()
+                    + ":" + caller.getMethodName() + ":" + caller.getLineNumber();
+            ProcessLogger.ntrace("deep-copy:", ":" + cid, 1000L, 500L);
+        }
 
         return (T) getDeepCopy(obj);
     }
