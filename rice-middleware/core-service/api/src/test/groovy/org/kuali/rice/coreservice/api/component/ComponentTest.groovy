@@ -49,7 +49,7 @@ class ComponentTest {
         </component>
     """
 
-    
+
 
     @Test(expected=IllegalArgumentException.class)
     void test_Builder_fail_all_null() {
@@ -124,15 +124,17 @@ class ComponentTest {
         return createWithComponentSetId(COMPONENT_SET_ID)
     }
 
-    private createWithComponentSetId(String _componentSetId) {
-		return Component.Builder.create(new ComponentContract() {
-				String code = ComponentTest.CODE
-				String name = ComponentTest.NAME
-				String namespaceCode = ComponentTest.NAMESPACE_CODE
-                String componentSetId = _componentSetId
-                boolean active = ComponentTest.ACTIVE
-                Long versionNumber = ComponentTest.VERSION_NUMBER
-				String objectId = ComponentTest.OBJECT_ID
-			}).build()
+    private createWithComponentSetId(String componentSetId) {
+        ComponentContract contract = new ComponentContract() {
+            String code = ComponentTest.CODE
+            String name = ComponentTest.NAME
+            String namespaceCode = ComponentTest.NAMESPACE_CODE
+            String componentSetId = componentSetId
+            boolean active = ComponentTest.ACTIVE
+            Long versionNumber = ComponentTest.VERSION_NUMBER
+            String objectId = ComponentTest.OBJECT_ID
+        }
+        contract.componentSetId = componentSetId
+		return Component.Builder.create(contract).build()
 	}
 }

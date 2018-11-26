@@ -16,9 +16,7 @@
 package org.kuali.rice.core.api.mo
 
 import javax.xml.bind.JAXBContext
-import org.apache.commons.lang.SerializationUtils
 import org.junit.Test
-import org.kuali.rice.core.api.util.io.SerializationUtils
 import org.apache.commons.lang.SerializationUtils
 
 /**

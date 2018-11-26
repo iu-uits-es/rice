@@ -73,24 +73,26 @@ public class QueryByCriteriaJaxbTest {
         predicateSamplesMap.put(NotInPredicate.class, PredicateFactory.notIn("foo", "val"));
         predicateSamplesMap.put(NotInIgnoreCasePredicate.class, PredicateFactory.notInIgnoreCase("foo", "val"));
         predicateSamplesMap.put(NotLikePredicate.class, PredicateFactory.notLike("foo", "val"));
+        predicateSamplesMap.put(NotLikeIgnoreCasePredicate.class, PredicateFactory.notLikeIgnoreCase("foo", "val"));
     }
 
     @Test
     public void testAllPredicates() throws Exception {
 
         ArrayList<Class<?>> discoveredPredicateClasses = discoverSimplePredicateClasses();
-        
+
         // test each predicate on their own
         for (Class<?> discoveredPredicateClass : discoveredPredicateClasses) {
             // create a query containing a sample of this predicate type
             Predicate sample = predicateSamplesMap.get(discoveredPredicateClass);
+
             LOG.debug("Predicate:");
             LOG.debug( sample.toString() );
 
             QueryByCriteria queryByCriteria = wrapInQueryByCriteria(sample);
             LOG.debug("QueryByCriteria:");
             LOG.debug( queryByCriteria.toString() );
-            
+
             String xml = marshallToString(queryByCriteria);
             String lowerCaseXml = xml.toLowerCase();
             LOG.debug("XML:");

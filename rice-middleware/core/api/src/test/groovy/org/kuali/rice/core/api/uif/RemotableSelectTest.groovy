@@ -92,7 +92,7 @@ class RemotableSelectTest {
 
     @Test(expected=IllegalArgumentException.class)
     void testNullKeyLabels() {
-        RemotableSelect.Builder o = RemotableSelect.Builder.create(null)
+        RemotableSelect.Builder o = RemotableSelect.Builder.create((Map<String, String>)null)
     }
 
     @Test
