@@ -20,33 +20,31 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
+import org.kuali.rice.core.api.criteria.GenericQueryResults
 import org.kuali.rice.core.api.exception.RiceIllegalArgumentException
 import org.kuali.rice.core.api.exception.RiceIllegalStateException
-import org.kuali.rice.krad.service.BusinessObjectService
+import org.kuali.rice.krad.data.DataObjectService
 import org.kuali.rice.location.api.country.Country
 import org.kuali.rice.location.api.country.CountryService
 import org.kuali.rice.location.api.state.StateService
-import org.kuali.rice.krad.data.DataObjectService
-import org.kuali.rice.location.impl.county.CountyBo
-import org.kuali.rice.core.api.criteria.GenericQueryResults
 
 class StateServiceImplTest {
 
     private final shouldFail = new GroovyTestCase().&shouldFail
 
-    static sampleStates = new HashMap<List<String, String>, StateBo>()
+    static sampleStates = new HashMap<List<String>, StateBo>()
     static sampleStatesPerCountry = new HashMap<String, List<StateBo>>()
-    
+
     private MockFor mockCountryService;
     private MockFor dataObjectServiceMockFor
     private DataObjectService dataObjectService
-    
+
     static Country uSCountry
-    
+
     StateServiceImpl stateServiceImpl;
     StateService stateService
     CountryService countryService
-    
+
 
     @BeforeClass
     static void createSampleStateBOs() {
@@ -61,7 +59,7 @@ class StateServiceImplTest {
         }
         sampleStatesPerCountry["US"] = [michiganBo, illinoisBo]
         sampleStatesPerCountry["CA"] = [britishColumbiaBo]
-        
+
         uSCountry = Country.Builder.create("US", "USA", "United States", false, true).build()
     }
 
@@ -69,18 +67,18 @@ class StateServiceImplTest {
     void setupDataObjectServiceMockContext(){
         dataObjectServiceMockFor = new MockFor(DataObjectService)
     }
-    
+
     @Before
     void setupMockContext() {
         mockCountryService = new MockFor(CountryService.class);
     }
-    
+
     @Before
     void setupServiceUnderTest() {
         stateServiceImpl = new StateServiceImpl()
         stateService = stateServiceImpl
     }
-    
+
     void injectCountryServiceIntoStateService() {
         countryService = mockCountryService.proxyDelegateInstance();
         stateServiceImpl.setCountryService(countryService);
@@ -165,7 +163,7 @@ class StateServiceImplTest {
         }
         dataObjectServiceMockFor.verify(dataObjectService)
     }
-    
+
     @Test
     void test_find_all_states_in_country_does_not_exist() {
         dataObjectServiceMockFor.demand.findMatching(1..1){
@@ -182,7 +180,7 @@ class StateServiceImplTest {
 
         dataObjectServiceMockFor.verify(dataObjectService)
     }
-    
+
     @Test
     void test_find_all_states_in_country_by_alt_code_exists() {
         Collection<StateBo> stateBo = sampleStatesPerCountry["US"]
@@ -208,26 +206,26 @@ class StateServiceImplTest {
         dataObjectServiceMockFor.verify(dataObjectService)
         mockCountryService.verify(countryService)
     }
-	
+
 	@Test
 	void test_find_all_states_in_country_by_alt_code_does_not_exist() {
         injectDataObjectService()
-        
-        mockCountryService.demand.getCountryByAlternateCode(1) {null}     
+
+        mockCountryService.demand.getCountryByAlternateCode(1) {null}
         injectCountryServiceIntoStateService();
-        
+
         shouldFail(RiceIllegalStateException) {
             def values = stateService.findAllStatesInCountryByAltCode("FOO")
         }
 
         dataObjectServiceMockFor.verify(dataObjectService)
         mockCountryService.verify(countryService)    }
-  
+
 	@Test
 	public void test_find_all_states_in_country_by_alt_code_pass_null() {
         injectDataObjectService()
         injectCountryServiceIntoStateService();
-        
+
         shouldFail(RiceIllegalArgumentException) {
             def values = stateService.findAllStatesInCountryByAltCode(null)
         }

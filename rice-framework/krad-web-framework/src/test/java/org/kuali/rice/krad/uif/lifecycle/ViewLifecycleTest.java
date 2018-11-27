@@ -61,7 +61,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 /**
  * Unit tests for proving correct operation of the ViewHelperService.
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  */
 public class ViewLifecycleTest extends ProcessLoggingUnitTest {
@@ -139,16 +139,16 @@ public class ViewLifecycleTest extends ProcessLoggingUnitTest {
         return form;
     }
 
-    @Test
-    public void testKitchenSinkView() throws Throwable {
-        UifFormBase form = testFormView("UifCompView", null);
-        form.setFormKey(null);
-        form.setPageId("UifCompView-Page2");
-        testFormView(form, "UifCompView", null);
-        form.setFormKey(null);
-        form.setPageId("UifCompView-Page7");
-        testFormView(form, "UifCompView", null);
-    }
+//    @Test
+//    public void testKitchenSinkView() throws Throwable {
+//        UifFormBase form = testFormView("UifCompView", null);
+//        form.setFormKey(null);
+//        form.setPageId("UifCompView-Page2");
+//        testFormView(form, "UifCompView", null);
+//        form.setFormKey(null);
+//        form.setPageId("UifCompView-Page7");
+//        testFormView(form, "UifCompView", null);
+//    }
 
     @Test
     public void testTransactionView() throws Throwable {
@@ -200,7 +200,7 @@ public class ViewLifecycleTest extends ProcessLoggingUnitTest {
     public void testColumnCalculations() throws Throwable {
         testFormView("Demo-TableLayoutTotalingView", null);
     }
-    
+
     @Test
     public void testPerformanceMediumAll() throws Throwable {
         UifFormBase form = testFormView("Lab-PerformanceMedium", "u1c5ay4e");

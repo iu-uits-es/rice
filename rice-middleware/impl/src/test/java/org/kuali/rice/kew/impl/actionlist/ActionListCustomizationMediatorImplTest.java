@@ -28,6 +28,7 @@ import org.kuali.rice.kew.doctype.bo.DocumentType;
 import org.kuali.rice.kew.doctype.service.DocumentTypeService;
 import org.kuali.rice.kew.framework.actionlist.ActionListCustomizationHandlerService;
 import org.kuali.rice.kew.rule.bo.RuleAttribute;
+import org.mockito.ArgumentMatchers;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,10 +81,10 @@ public class ActionListCustomizationMediatorImplTest {
          */
 
         ActionListCustomizationHandlerService fooActionListCustomizationHandlerService = mock(ActionListCustomizationHandlerService.class);
-        when(fooActionListCustomizationHandlerService.customizeActionList(anyString(), anyList())).thenReturn(Collections.singletonList(fooResult));
+        when(fooActionListCustomizationHandlerService.customizeActionList(anyString(), ArgumentMatchers.<ActionItem>anyList())).thenReturn(Collections.singletonList(fooResult));
 
         ActionListCustomizationHandlerService defaultActionListCustomizationHandlerService = mock(ActionListCustomizationHandlerService.class);
-        when(defaultActionListCustomizationHandlerService.customizeActionList(anyString(), anyList())).thenReturn(Collections.singletonList(defaultResult));
+        when(defaultActionListCustomizationHandlerService.customizeActionList(anyString(), ArgumentMatchers.<ActionItem>anyList())).thenReturn(Collections.singletonList(defaultResult));
 
         // Mock up this internal class in the ActionListCustomizationMediatorImpl so that we don't try to use the
         // GRL and end up with a configuration nightmare

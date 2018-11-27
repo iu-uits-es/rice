@@ -105,7 +105,7 @@ public class TestDataObject implements Serializable {
 	@Column(name="BOOL_PROP")
 	// @Convert("YN_BooleanConverter")
 	Boolean booleanProperty;
-	
+
 	@Transient
 	String nonPersistedProperty;
 
@@ -157,18 +157,13 @@ public class TestDataObject implements Serializable {
 	@ManyToOne(
 			fetch = FetchType.EAGER,
 			cascade = CascadeType.REFRESH)
-	@JoinColumns({ @JoinColumn(
-			name = "STR_PROP",
-			referencedColumnName = "STR_PROP",
-			insertable = false,
-			updatable = false), @JoinColumn(
-			name = "DATE_PROP",
-			referencedColumnName = "DATE_PROP",
-			insertable = false,
-			updatable = false) })
-	@InheritProperties({ @InheritProperty(
-			name = "someOtherStringProperty",
-			label = @Label("Overridden Inherited Property Label")) })
+	@JoinColumns({
+			@JoinColumn(name = "STR_PROP", referencedColumnName = "STR_PROP", insertable = false, updatable = false),
+			@JoinColumn(name = "DATE_PROP", referencedColumnName = "DATE_PROP", insertable = false, updatable = false)
+	})
+	@InheritProperties({
+			@InheritProperty(name = "someOtherStringProperty", label = @Label("Overridden Inherited Property Label"))
+	})
 	AnotherReferencedDataObject anotherReferencedObject;
 
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

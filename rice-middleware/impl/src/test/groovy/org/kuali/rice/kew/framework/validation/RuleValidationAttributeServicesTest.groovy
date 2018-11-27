@@ -58,9 +58,8 @@ public class RuleValidationAttributeServicesTest {
     }
 
     private static void mockTheConfig() {
-        def mock_config = new MockFor(Config)
-        mock_config.demand.getProperty(CoreConstants.Config.APPLICATION_ID) { app_id -> MOCK_APP_ID }
-        ConfigContext.init(mock_config.proxyDelegateInstance())
+        def mock_config = [getProperty:{ MOCK_APP_ID }] as Config
+        ConfigContext.init(mock_config);
     }
 
     private static void mockTheResourceLoader() {

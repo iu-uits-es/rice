@@ -15,29 +15,19 @@
  */
 package org.kuali.rice.krad.data.jpa;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kuali.rice.core.api.data.DataType;
 import org.kuali.rice.krad.data.jpa.eclipselink.EclipseLinkJpaMetadataProviderImpl;
-import org.kuali.rice.krad.data.jpa.testbo.CollectionDataObject;
-import org.kuali.rice.krad.data.jpa.testbo.TestDataObject;
-import org.kuali.rice.krad.data.jpa.testbo.TestDataObjectExtension;
-import org.kuali.rice.krad.data.jpa.testbo.TestDataObjectTwoPkFields;
-import org.kuali.rice.krad.data.jpa.testbo.TestNonPersistableObject;
-import org.kuali.rice.krad.data.metadata.DataObjectAttribute;
-import org.kuali.rice.krad.data.metadata.DataObjectAttributeRelationship;
-import org.kuali.rice.krad.data.metadata.DataObjectCollection;
-import org.kuali.rice.krad.data.metadata.DataObjectMetadata;
-import org.kuali.rice.krad.data.metadata.DataObjectRelationship;
-import org.kuali.rice.krad.data.metadata.MetadataChild;
+import org.kuali.rice.krad.data.jpa.testbo.*;
+import org.kuali.rice.krad.data.metadata.*;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -153,12 +143,12 @@ public class JpaMetadataProviderTest {
 		assertNotNull("Collections object should not be null", collections);
 		assertEquals("Collections size incorrect", 4, collections.size());
 
-		DataObjectCollection collection = collections.get(0);
+		DataObjectCollection collection = metadata.getCollection("collectionProperty");
 		assertEquals("property name incorrect", "collectionProperty", collection.getName());
 		assertEquals("collection backing object incorrect", "KRTST_TEST_COLL_T", collection.getBackingObjectName());
 		assertEquals("collection label incorrect", "Collection Property", collection.getLabel());
 		assertEquals("collection item label incorrect", "Collection Data Object", collection.getElementLabel());
-		
+
 		collection = metadata.getCollection("collectionPropertyTwo");
 		assertNotNull("Collection object for collectionPropertyTwo should not be null", collection);
 		assertEquals("property name incorrect", "collectionPropertyTwo", collection.getName());
@@ -270,14 +260,26 @@ public class JpaMetadataProviderTest {
 
 		assertNotNull("attribute relationships must not be null", relationship.getAttributeRelationships());
 		assertEquals("attribute relationships size incorrect", 2, relationship.getAttributeRelationships().size());
-		DataObjectAttributeRelationship linkingAttribute = relationship.getAttributeRelationships().get(0);
-		assertEquals("first parent attribute name mismatch", "stringProperty",
-                linkingAttribute.getParentAttributeName());
-		assertEquals("first child attribute name mismatch", "stringProperty", linkingAttribute.getChildAttributeName());
 
-		linkingAttribute = relationship.getAttributeRelationships().get(1);
-		assertEquals("second parent attribute name mismatch", "dateProperty", linkingAttribute.getParentAttributeName());
-		assertEquals("second child attribute name mismatch", "dateProperty", linkingAttribute.getChildAttributeName());
+		// order is not guaranteed
+		DataObjectAttributeRelationship linkingAttribute = relationship.getAttributeRelationships().get(0);
+		if (StringUtils.equals(linkingAttribute.getParentAttributeName(), "stringProperty")) {
+			assertEquals("first parent attribute name mismatch", "stringProperty",
+					linkingAttribute.getParentAttributeName());
+			assertEquals("first child attribute name mismatch", "stringProperty", linkingAttribute.getChildAttributeName());
+
+			linkingAttribute = relationship.getAttributeRelationships().get(1);
+			assertEquals("second parent attribute name mismatch", "dateProperty", linkingAttribute.getParentAttributeName());
+			assertEquals("second child attribute name mismatch", "dateProperty", linkingAttribute.getChildAttributeName());
+		} else {
+			assertEquals("second parent attribute name mismatch", "dateProperty", linkingAttribute.getParentAttributeName());
+			assertEquals("second child attribute name mismatch", "dateProperty", linkingAttribute.getChildAttributeName());
+
+			linkingAttribute = relationship.getAttributeRelationships().get(1);
+			assertEquals("first parent attribute name mismatch", "stringProperty",
+					linkingAttribute.getParentAttributeName());
+			assertEquals("first child attribute name mismatch", "stringProperty", linkingAttribute.getChildAttributeName());
+		}
 	}
 
 	@Test
@@ -322,14 +324,26 @@ public class JpaMetadataProviderTest {
 
 		assertNotNull("attribute relationships must not be null", relationship.getAttributeRelationships());
 		assertEquals("attribute relationships size incorrect", 2, relationship.getAttributeRelationships().size());
-		DataObjectAttributeRelationship linkingAttribute = relationship.getAttributeRelationships().get(0);
-		assertEquals("first parent attribute name mismatch", "stringProperty",
-                linkingAttribute.getParentAttributeName());
-		assertEquals("first child attribute name mismatch", "stringProperty", linkingAttribute.getChildAttributeName());
 
-		linkingAttribute = relationship.getAttributeRelationships().get(1);
-		assertEquals("second parent attribute name mismatch", "dateProperty", linkingAttribute.getParentAttributeName());
-		assertEquals("second child attribute name mismatch", "dateProperty", linkingAttribute.getChildAttributeName());
+		// order is not guaranteed
+		DataObjectAttributeRelationship linkingAttribute = relationship.getAttributeRelationships().get(0);
+		if (StringUtils.equals(linkingAttribute.getParentAttributeName(), "stringProperty")) {
+			assertEquals("first parent attribute name mismatch", "stringProperty",
+					linkingAttribute.getParentAttributeName());
+			assertEquals("first child attribute name mismatch", "stringProperty", linkingAttribute.getChildAttributeName());
+
+			linkingAttribute = relationship.getAttributeRelationships().get(1);
+			assertEquals("second parent attribute name mismatch", "dateProperty", linkingAttribute.getParentAttributeName());
+			assertEquals("second child attribute name mismatch", "dateProperty", linkingAttribute.getChildAttributeName());
+		} else {
+			assertEquals("second parent attribute name mismatch", "dateProperty", linkingAttribute.getParentAttributeName());
+			assertEquals("second child attribute name mismatch", "dateProperty", linkingAttribute.getChildAttributeName());
+
+			linkingAttribute = relationship.getAttributeRelationships().get(1);
+			assertEquals("first parent attribute name mismatch", "stringProperty",
+					linkingAttribute.getParentAttributeName());
+			assertEquals("first child attribute name mismatch", "stringProperty", linkingAttribute.getChildAttributeName());
+		}
 	}
 
     @Test
@@ -421,7 +435,7 @@ public class JpaMetadataProviderTest {
 		assertEquals("PK field 2 wrong", "primaryKeyPropertyTwo", metadata.getPrimaryKeyAttributeNames().get(1));
 		assertEquals("Primary Display Field Wrong", "primaryKeyPropertyTwo", metadata.getPrimaryDisplayAttributeName());
 	}
-	
+
 	@Test
 	public void testGetMetadataForClass_PKFields_TwoFieldNoIdClass() {
 		DataObjectMetadata metadata = metadataProvider.getMetadataForType(CollectionDataObject.class);

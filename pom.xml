@@ -103,7 +103,7 @@
     <ant.version>1.7.0</ant.version>
     <antlr.version>2.7.7</antlr.version>
     <aopalliance.version>1.0</aopalliance.version>
-    <asm.version>6.2.1</asm.version>
+    <asm.version>7.0</asm.version>
     <bouncycastle.version>1.46</bouncycastle.version>
     <cas-client-core.version>3.2.1</cas-client-core.version>
     <cglib.version>2.2.2</cglib.version>
@@ -134,7 +134,7 @@
       Switching to the 2.1-based verson of jaxb-impl version 2.1.13 causes the problem to go away.
     -->
     <cxf-java2ws-plugin.jaxb-impl.version>2.3.1</cxf-java2ws-plugin.jaxb-impl.version>
-    <db-ojb.version>1.0.4-patch8</db-ojb.version>
+    <db-ojb.version>1.0.4-patch9</db-ojb.version>
     <displaytag.version>1.2</displaytag.version>
     <dom4j.version>1.6.1</dom4j.version>
     <dwr.version>3.0.RC2</dwr.version>
@@ -148,9 +148,9 @@
     <closure.version>v20130603</closure.version>
     <wro4j.version>1.7.0</wro4j.version>
     <glassfish-javax-json.version>1.0.1</glassfish-javax-json.version>
-    <groovy.version>2.4.7</groovy.version>
+    <groovy.version>2.4.15</groovy.version>
     <guava.version>11.0</guava.version>
-    <eclipselink.version>2.5.1</eclipselink.version>
+    <eclipselink.version>2.7.4-SNAPSHOT</eclipselink.version>
     <jpa.version>2.1.0</jpa.version>
     <jackson.version>1.8.8</jackson.version>
     <javassist.version>3.18.2-GA</javassist.version>
@@ -181,8 +181,8 @@
     <kuali-mvn.version>1.0.2</kuali-mvn.version>
     <log4j.version>1.2.16</log4j.version>
     <mail.version>1.4.4</mail.version>
-    <mockito.version>1.10.8</mockito.version>
-    <powermock.version>1.6.1</powermock.version>
+    <mockito.version>2.23.0</mockito.version>
+    <powermock.version>2.0.0-RC.4</powermock.version>
     <persistence.version>1.0.1.Final</persistence.version>
     <!-- Quartz 1.8.5 appears to cause strange errors in spring on startup,
       Quartz 2.0.x is an impacting api and database-level change -->
@@ -936,7 +936,7 @@
             <dependency>
               <groupId>org.ow2.asm</groupId>
               <artifactId>asm</artifactId>
-              <version>6.2.1</version>
+              <version>${asm.version}</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1193,11 +1193,9 @@
                 </pluginExecution>
                 <pluginExecution>
                 	<pluginExecutionFilter>
-                		<groupId>au.com.alderaan</groupId>
-                		<artifactId>
-                			eclipselink-staticweave-maven-plugin
-                		</artifactId>
-                		<versionRange>[1.0.4,)</versionRange>
+                      <groupId>de.empulse.eclipselink</groupId>
+                      <artifactId>staticweave-maven-plugin</artifactId>
+                      <versionRange>[1.0.0,)</versionRange>
                 		<goals>
                 			<goal>weave</goal>
                 		</goals>
@@ -1211,9 +1209,9 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>au.com.alderaan</groupId>
-          <artifactId>eclipselink-staticweave-maven-plugin</artifactId>
-          <version>1.0.4</version>
+          <groupId>de.empulse.eclipselink</groupId>
+          <artifactId>staticweave-maven-plugin</artifactId>
+          <version>1.0.0</version>
           <executions>
             <execution>
               <goals>
@@ -1221,7 +1219,7 @@
               </goals>
               <phase>process-classes</phase>
               <configuration>
-                <logLevel>FINER</logLevel>
+                <logLevel>FINE</logLevel>
                 <persistenceXMLLocation>META-INF/persistence-weaving.xml</persistenceXMLLocation>
               </configuration>
             </execution>
@@ -1229,13 +1227,8 @@
           <dependencies>
             <dependency>
               <groupId>org.eclipse.persistence</groupId>
-              <artifactId>eclipselink</artifactId>
+              <artifactId>org.eclipse.persistence.jpa</artifactId>
               <version>${eclipselink.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.eclipse.persistence</groupId>
-              <artifactId>javax.persistence</artifactId>
-              <version>${jpa.version}</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1445,17 +1438,22 @@
   </modules>
 
   <repositories>
-    <repository>
-      <id>kuali.nexus</id>
-      <name>Nexus Repository Manager</name>
-      <url>http://nexus.kuali.org/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
+      <repository>
+          <id>kuali.nexus</id>
+          <name>Nexus Repository Manager</name>
+          <url>http://nexus.kuali.org/content/groups/public</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
+      <repository>
+          <id>oss.sonatype.org</id>
+          <name>OSS Sonatype Staging</name>
+          <url>https://oss.sonatype.org/content/groups/staging</url>
+      </repository>
   </repositories>
 
   <pluginRepositories>
@@ -1489,7 +1487,7 @@
 
       <!-- explicitly including asm to change version number from what maven would have resolved it to -->
       <dependency>
-        <groupId>asm</groupId>
+        <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
         <version>${asm.version}</version>
       </dependency>
@@ -1834,7 +1832,7 @@
       </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
+        <artifactId>powermock-api-mockito2</artifactId>
         <version>${powermock.version}</version>
         <scope>test</scope>
       </dependency>
