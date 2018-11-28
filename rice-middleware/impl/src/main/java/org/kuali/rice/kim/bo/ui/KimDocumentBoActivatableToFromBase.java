@@ -15,14 +15,17 @@
  */
 package org.kuali.rice.kim.bo.ui;
 
+import org.kuali.rice.krad.data.jpa.converters.BooleanYNConverter;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import java.sql.Timestamp;
 
 /**
- * This is a description of what this class does - shyu don't forget to fill this in. 
- * 
+ * This is a description of what this class does - shyu don't forget to fill this in.
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  *
  */
@@ -37,6 +40,7 @@ public class KimDocumentBoActivatableToFromBase  extends KimDocumentBoBase {
 
 	//@Type(type="yes_no")
 	@Column(name="ACTV_IND")
+	@Convert(converter = BooleanYNConverter.class)
     protected boolean active = true;
 
 	@Transient
@@ -75,7 +79,7 @@ public class KimDocumentBoActivatableToFromBase  extends KimDocumentBoBase {
 	}
 
 	public boolean isActive() {
-		long now = System.currentTimeMillis();		
+		long now = System.currentTimeMillis();
 		return (activeFromDate == null || now > activeFromDate.getTime()) && (activeToDate == null || now < activeToDate.getTime());
 	}
 

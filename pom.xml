@@ -107,7 +107,7 @@
     <bouncycastle.version>1.46</bouncycastle.version>
     <cas-client-core.version>3.2.1</cas-client-core.version>
     <cglib.version>2.2.2</cglib.version>
-    <aspectj.version>1.6.8</aspectj.version>
+    <aspectj.version>1.9.2</aspectj.version>
     <bitronix.version>2.1.2</bitronix.version>
     <commons-beanutils.version>1.8.3-kuali-4</commons-beanutils.version>
     <commons-chain.version>1.2</commons-chain.version>
