@@ -139,16 +139,16 @@ public class ViewLifecycleTest extends ProcessLoggingUnitTest {
         return form;
     }
 
-//    @Test
-//    public void testKitchenSinkView() throws Throwable {
-//        UifFormBase form = testFormView("UifCompView", null);
-//        form.setFormKey(null);
-//        form.setPageId("UifCompView-Page2");
-//        testFormView(form, "UifCompView", null);
-//        form.setFormKey(null);
-//        form.setPageId("UifCompView-Page7");
-//        testFormView(form, "UifCompView", null);
-//    }
+    @Test
+    public void testKitchenSinkView() throws Throwable {
+        UifFormBase form = testFormView("UifCompView", null);
+        form.setFormKey(null);
+        form.setPageId("UifCompView-Page2");
+        testFormView(form, "UifCompView", null);
+        form.setFormKey(null);
+        form.setPageId("UifCompView-Page7");
+        testFormView(form, "UifCompView", null);
+    }
 
     @Test
     public void testTransactionView() throws Throwable {
