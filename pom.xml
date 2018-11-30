@@ -124,16 +124,6 @@
     <commons-validator.version>1.3.1</commons-validator.version>
     <cxf.version>2.7.17</cxf.version>
     <jaxb-impl.version>2.3.1</jaxb-impl.version>
-    <!--
-      There appears to be a problem with the 2.2.5 version of jaxb-impl which cxf 2.7.0 depends on by default.
-      Get the following exception when attempting to run cxf-java2ws-plugin on services that use certain Enums:
-
-      java.lang.ClassCastException: com.sun.xml.bind.v2.model.impl.RuntimeEnumLeafInfoImpl cannot be cast to com.sun.xml.bind.v2.model.impl.ClassInfoImpl
-
-      One of the specific offenders here is WorkflowDocumentService and it's use of DocumentStatus enum.
-      Switching to the 2.1-based verson of jaxb-impl version 2.1.13 causes the problem to go away.
-    -->
-    <cxf-java2ws-plugin.jaxb-impl.version>2.3.1</cxf-java2ws-plugin.jaxb-impl.version>
     <db-ojb.version>1.0.4-patch9</db-ojb.version>
     <displaytag.version>1.2</displaytag.version>
     <dom4j.version>1.6.1</dom4j.version>
