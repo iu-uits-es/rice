@@ -85,14 +85,14 @@ public class RequestsNodeTest {
                 new Answer<ActionRequestValue>() {
                     @Override
                     public ActionRequestValue answer(InvocationOnMock invocation) throws Throwable {
-                        return invocation.getArgumentAt(0, ActionRequestValue.class);
+                        return invocation.getArgument(0);
                     }
                 });
         when(routeContext.isSimulation()).thenReturn(false);
         when(actionRequestService.saveActionRequest(any(ActionRequestValue.class))).thenAnswer(new Answer<ActionRequestValue>() {
             @Override
             public ActionRequestValue answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArgumentAt(0, ActionRequestValue.class);
+                return invocation.getArgument(0);
             }
         }
         );

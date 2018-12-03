@@ -37,12 +37,12 @@ public class GenericAttributeContentTest {
                                                   "    </boringAttribute>";
     private static final String ATTRIB2_CONTENT = "    <coolAttribute>" +
                                                   "      <field>" +
-                                                  "        <name>car</name>" +
-                                                  "        <value>KIT</value>" +
-                                                  "      </field>" +
-                                                  "      <field>" +
                                                   "        <name>driver</name>" +
                                                   "        <value>hasselhof</value>" +
+                                                  "      </field>" +
+                                                  "      <field>" +
+                                                  "        <name>car</name>" +
+                                                  "        <value>KIT</value>" +
                                                   "      </field>" +
                                                   "    </coolAttribute>";
     private static final String TEST_CONTENT = "<documentContent>" +
@@ -51,7 +51,7 @@ public class GenericAttributeContentTest {
                                                ATTRIB2_CONTENT +
                                                "  </attributeContent>" +
                                                "</documentContent>";
-                                            
+
     @Test public void testGenerateContent() throws Exception {
         DocumentContent dc = new StandardDocumentContent(TEST_CONTENT);
         GenericAttributeContent gac = new GenericAttributeContent("boringAttribute");

@@ -34,7 +34,7 @@ import org.kuali.rice.krad.service.KualiModuleService;
 import org.kuali.rice.krad.service.ModuleService;
 import org.kuali.rice.krad.service.impl.ModuleServiceBase;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
 
 import javax.xml.namespace.QName;
@@ -98,7 +98,6 @@ public class ModuleServiceBaseTest {
         config.setPackagePrefixes(Arrays.asList(new String[]{ TestEBOInterface.class.getPackage().getName(), getClass().getPackage().getName() }));
 
         PersistenceProvider pp = mock(PersistenceProvider.class);
-        when(pp.handles(DataObject.class)).thenReturn(true);
         config.setProviders(Arrays.asList(new Provider[] { pp }));
 
         module.setModuleConfiguration(config);

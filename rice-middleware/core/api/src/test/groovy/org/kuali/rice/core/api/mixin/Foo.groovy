@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType
     Foo.Elements.BAR,
 ])
 //@RemoteableModelObject
-class Foo extends Bleh {
+public class Foo extends Bleh {
 
     def String bar = "bar"
 
@@ -37,17 +37,17 @@ class Foo extends Bleh {
 	/**
 	 * Defines some internal constants used on this class.
 	 */
-	static class Constants {
-		final static String ROOT_ELEMENT_NAME = "fooKey";
-		final static String TYPE_NAME = "FooType";
+	public static class Constants {
+        public final static String ROOT_ELEMENT_NAME = "fooKey";
+        public final static String TYPE_NAME = "FooType";
 	}
 
 	/**
 	 * A private class which exposes constants which define the XML element names to use
 	 * when this object is marshalled to XML.
 	 */
-	static class Elements {
-		final static String BAR = "bar";
+    public static class Elements {
+        public final static String BAR = "bar";
 	}
 
     public static void main(String...s) {

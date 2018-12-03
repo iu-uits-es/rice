@@ -16,8 +16,6 @@
 package org.kuali.rice.coreservice.impl.style;
 
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kuali.rice.core.api.criteria.GenericQueryResults;
@@ -26,10 +24,10 @@ import org.kuali.rice.coreservice.api.style.Style;
 import org.kuali.rice.coreservice.api.style.StyleContract;
 import org.kuali.rice.coreservice.api.style.StyleRepositoryService;
 import org.kuali.rice.krad.data.DataObjectService;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +35,8 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.*;
 
 /**
@@ -70,7 +68,7 @@ public class StyleRepositoryServiceImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetStyle_emptyStyleName() throws Exception{
         getStyleRepositoryService().getStyle("");
-        verify(dataObjectService,times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService,times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<StyleBo>(StyleBo.class)), any(
                 QueryByCriteria.class));
     }
@@ -78,7 +76,7 @@ public class StyleRepositoryServiceImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetStyle_blankStyleName() throws Exception{
         getStyleRepositoryService().getStyle(" ");
-        verify(dataObjectService,times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService,times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<StyleBo>(StyleBo.class)), any(
                 QueryByCriteria.class));
     }
@@ -89,7 +87,7 @@ public class StyleRepositoryServiceImplTest {
         Style styleFetched = getStyleRepositoryService().getStyle(NAME);
         assertTrue("Style fetched correctly",styleFetched != null &&
                         StringUtils.equals(styleFetched.getName(),style.getName()));
-        verify(dataObjectService,times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService,times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<StyleBo>(StyleBo.class)), any(
                 QueryByCriteria.class));
     }
@@ -115,7 +113,7 @@ public class StyleRepositoryServiceImplTest {
         Style modifiedStyleFetched = getStyleRepositoryService().getStyle(NAME);
         assertTrue("Style modified fetched",modifiedStyleFetched != null && !modifiedStyleFetched.isActive());
 
-        verify(dataObjectService,times(2)).findMatching(Matchers.argThat(
+        verify(dataObjectService,times(2)).findMatching(argThat(
                 new ClassOrSubclassMatcher<StyleBo>(StyleBo.class)), any(
                 QueryByCriteria.class));
         verify(dataObjectService,times(2)).save(anyObject());
@@ -128,7 +126,7 @@ public class StyleRepositoryServiceImplTest {
         GenericQueryResults.Builder builder = GenericQueryResults.Builder.create();
 
         builder.setResults(styleBoList);
-        when(dataObjectService.findMatching(Matchers.argThat(new ClassOrSubclassMatcher<StyleBo>(StyleBo.class)), any(
+        when(dataObjectService.findMatching(argThat(new ClassOrSubclassMatcher<StyleBo>(StyleBo.class)), any(
                 QueryByCriteria.class))).thenReturn(builder.build());
     }
 
@@ -178,7 +176,7 @@ public class StyleRepositoryServiceImplTest {
 
 
 
-    class ClassOrSubclassMatcher<T> extends BaseMatcher<Class<T>> {
+    class ClassOrSubclassMatcher<T> implements ArgumentMatcher<Class<T>> {
 
         private final Class<T> targetClass;
 
@@ -186,18 +184,9 @@ public class StyleRepositoryServiceImplTest {
             this.targetClass = targetClass;
         }
 
-        @SuppressWarnings("unchecked")
-        public boolean matches(Object obj) {
-            if (obj != null) {
-                if (obj instanceof Class) {
-                    return targetClass.isAssignableFrom((Class<T>) obj);
-                }
-            }
-            return false;
-        }
-
-        public void describeTo(Description desc) {
-            desc.appendText("Matches a class or subclass");
+        @Override
+        public boolean matches(Class<T> argument) {
+            return argument != null && targetClass.isAssignableFrom(argument);
         }
     }
 

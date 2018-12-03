@@ -49,15 +49,12 @@ import org.kuali.rice.krad.data.metadata.DataObjectCollection;
 import org.kuali.rice.krad.data.metadata.DataObjectMetadata;
 import org.kuali.rice.krad.data.metadata.MetadataRepository;
 import org.kuali.rice.krad.messages.Message;
-import org.kuali.rice.krad.service.BusinessObjectService;
-import org.kuali.rice.krad.service.DataDictionaryService;
-import org.kuali.rice.krad.service.DataObjectMetaDataService;
-import org.kuali.rice.krad.service.PersistenceService;
-import org.kuali.rice.krad.service.PersistenceStructureService;
+import org.kuali.rice.krad.service.*;
 import org.kuali.rice.krad.util.KRADConstants;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.core.io.Resource;
 
@@ -67,13 +64,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -139,12 +135,12 @@ public class LegacyDataAdapterLegacyDetectionTest {
 
         // make sure these calls return something because they are inevitably followed by deferences
         when(dataObjectService.findMatching(any(Class.class), any(QueryByCriteria.class))).thenReturn(mock(QueryResults.class));
-        when(dataObjectService.wrap(any(Class.class))).thenReturn(wrap);
+        when(dataObjectService.wrap(any(Object.class))).thenReturn(wrap);
         when(dataObjectService.getMetadataRepository()).thenReturn(metadataRepository);
         when(metadataRepository.getMetadata(any(Class.class))).thenReturn(mock(DataObjectMetadata.class));
-        when(lookupCriteriaGenerator.generateCriteria(any(Class.class), anyMap(), anyBoolean())).thenReturn(
+        when(lookupCriteriaGenerator.generateCriteria(any(Class.class), ArgumentMatchers.<String, String>anyMap(), anyBoolean())).thenReturn(
                 QueryByCriteria.Builder.create());
-        when(lookupCriteriaGenerator.createObjectCriteriaFromMap(anyObject(), anyMap())).thenReturn(QueryByCriteria.Builder.create());
+        when(lookupCriteriaGenerator.createObjectCriteriaFromMap(anyObject(), ArgumentMatchers.<String, String>anyMap())).thenReturn(QueryByCriteria.Builder.create());
     }
 
     protected void enableLegacyFramework() {
@@ -203,7 +199,7 @@ public class LegacyDataAdapterLegacyDetectionTest {
         keys.put("a", "b");
         lda.findByPrimaryKey(String.class, keys);
         verify(dataObjectService).find(eq(String.class), any(CompoundKey.class));
-        verify(businessObjectService, never()).findByPrimaryKey(any(Class.class), anyMap());
+        verify(businessObjectService, never()).findByPrimaryKey(any(Class.class), ArgumentMatchers.<String, String>anyMap());
     }
 
     @Test
@@ -255,7 +251,7 @@ public class LegacyDataAdapterLegacyDetectionTest {
         Map<String, ?> keys = new HashMap<String, Object>();
         lda.deleteMatching(String.class, keys);
         verify(dataObjectService).deleteMatching(eq(String.class), any(QueryByCriteria.class));
-        verify(businessObjectService, never()).deleteMatching(any(Class.class), anyMap());
+        verify(businessObjectService, never()).deleteMatching(any(Class.class), ArgumentMatchers.<String, String>anyMap());
     }
 
     @Test
@@ -295,7 +291,7 @@ public class LegacyDataAdapterLegacyDetectionTest {
         Map<String, ?> fields = new HashMap<String, Object>();
         lda.findMatching(String.class, fields);
         verify(dataObjectService).findMatching(eq(String.class), any(QueryByCriteria.class));
-        verify(businessObjectService, never()).findMatching(any(Class.class), anyMap());
+        verify(businessObjectService, never()).findMatching(any(Class.class), ArgumentMatchers.<String, String>anyMap());
     }
 
     @Test
@@ -415,7 +411,7 @@ public class LegacyDataAdapterLegacyDetectionTest {
         lda.findCollectionBySearchHelper(Message.class, fields, true, false, 1);
         verify(lookupCriteriaGenerator).generateCriteria(Message.class, fields, false);
         verify(dataObjectService).findMatching(eq(Message.class), any(QueryByCriteria.class));
-        verify(lookupDao, never()).findCollectionBySearchHelper(any(Class.class), anyMap(), anyBoolean(), anyBoolean(), anyInt());
+        verify(lookupDao, never()).findCollectionBySearchHelper(any(Class.class), ArgumentMatchers.<String, String>anyMap(), anyBoolean(), anyBoolean(), anyInt());
     }
     @Test
     public void testLegacyFindCollectionBySearchHelper() {
@@ -431,7 +427,7 @@ public class LegacyDataAdapterLegacyDetectionTest {
         Map<String, String> fields = new HashMap<String, String>();
         lda.findObjectBySearch(Message.class, fields);
         verify(dataObjectService).findMatching(eq(Message.class), any(QueryByCriteria.class));
-        verify(lookupDao, never()).findObjectByMap(any(Class.class), anyMap());
+        verify(lookupDao, never()).findObjectByMap(any(Class.class), ArgumentMatchers.<String, String>anyMap());
     }
     @Test
     public void testLegacyFindObjectBySearch() {
@@ -454,7 +450,6 @@ public class LegacyDataAdapterLegacyDetectionTest {
     @Test
     public void testLegacyListPrimaryKeyFieldNames() {
         enableLegacyFramework();
-        when(metadataRepository.contains(Message.class)).thenReturn(true);
         when(lda.isPersistable(Message.class)).thenReturn(true);
 
         lda.listPrimaryKeyFieldNames(Message.class);
@@ -470,7 +465,6 @@ public class LegacyDataAdapterLegacyDetectionTest {
         // return a valid DataObjectCollection so we don't throw IllegalArgumentException
         DataObjectMetadata mockMetaData = mock(DataObjectMetadata.class);
         DataObjectCollection mockCollection = mock(DataObjectCollection.class);
-        when(mockCollection.getRelatedType()).thenReturn(any(Class.class));
         when(mockMetaData.getCollection("collectionName")).thenReturn(mockCollection);
         when(metadataRepository.getMetadata(Message.class)).thenReturn(mockMetaData);
 
@@ -484,7 +478,6 @@ public class LegacyDataAdapterLegacyDetectionTest {
     @Test
     public void testLegacyDetermineCollectionObjectType() {
         enableLegacyFramework();
-        when(metadataRepository.contains(Message.class)).thenReturn(true);
         when(lda.isPersistable(Message.class)).thenReturn(true);
 
         lda.determineCollectionObjectType(Message.class, "namespaceCode");

@@ -97,14 +97,6 @@
       <artifactId>${mysql.jdbc.artifactId}</artifactId>
       <version>${mysql.jdbc.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>com.sun</groupId>
-      <artifactId>tools</artifactId>
-      <scope>system</scope>
-      <version>1.6</version>
-      <systemPath>${tools.jar.path}</systemPath>
-    </dependency>
   </dependencies>
 
 </project>

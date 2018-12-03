@@ -16,9 +16,7 @@
 package org.kuali.rice.core.api.mo
 
 import javax.xml.bind.JAXBContext
-import org.apache.commons.lang.SerializationUtils
 import org.junit.Test
-import org.kuali.rice.core.api.util.io.SerializationUtils
 import org.apache.commons.lang.SerializationUtils
 
 /**
@@ -51,7 +49,7 @@ class AbstractDataTransferObjectTest {
 
     private SampleDataTransferObject createDto() {
         List<String> values = [ "value1", "value2" ]
-        Map<String> attributes = [ attribute1:"attribute1Value", attribute2:"attribute2Value" ]
+        Map<String, String> attributes = [ attribute1:"attribute1Value", attribute2:"attribute2Value" ]
         return new SampleDataTransferObject("myName", values, attributes)
     }
 

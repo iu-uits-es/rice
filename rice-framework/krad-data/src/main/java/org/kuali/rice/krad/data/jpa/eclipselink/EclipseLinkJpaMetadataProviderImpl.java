@@ -241,7 +241,7 @@ public class EclipseLinkJpaMetadataProviderImpl extends JpaMetadataProviderImpl 
      */
 	@Override
 	protected void populateImplementationSpecificRelationshipLevelMetadata(DataObjectRelationshipImpl relationship,
-			SingularAttribute<?, ?> rd) {
+																		   SingularAttribute<?, ?> rd) {
 		// We need to go into the repository and grab the table name.
 		Class<?> referencedClass = rd.getBindableJavaType();
 		EntityType<?> referencedEntityType = entityManager.getMetamodel().entity(referencedClass);
@@ -265,30 +265,35 @@ public class EclipseLinkJpaMetadataProviderImpl extends JpaMetadataProviderImpl 
 					&& relationshipMapping.isLazy());
 
 			List<DataObjectAttributeRelationship> attributeRelationships = new ArrayList<DataObjectAttributeRelationship>();
-			for (DatabaseField parentField : relationshipMapping.getForeignKeyFields()) {
-				String parentFieldName = getPropertyNameFromDatabaseColumnName(rd.getDeclaringType(),
-						parentField.getName());
-                if (parentFieldName != null) {
-				    DatabaseField childField = relationshipMapping.getSourceToTargetKeyFields().get(parentField);
-				    if (childField != null) {
-					    // the target field is always done by column name. So, we need to get into the target entity and
-					    // find the associated field :-(
-					    // If the lookup fails, we will at least have the column name
-					    String childFieldName = getPropertyNameFromDatabaseColumnName(referencedEntityType,
-                                childField.getName());
-                        if (childFieldName != null) {
-					        attributeRelationships
-                                    .add(new DataObjectAttributeRelationshipImpl(parentFieldName, childFieldName));
-                        }
-				    } else {
-					    LOG.warn("Unable to find child field reference.  There may be a JPA mapping problem on "
-						    	+ rd.getDeclaringType().getJavaType() + ": " + relationship);
-				    }
-                }
+			List<String> referencedEntityPkFields = getPrimaryKeyAttributeNames(referencedEntityType);
+
+			for (String referencedEntityPkField : referencedEntityPkFields) {
+				for (Map.Entry<DatabaseField, DatabaseField> entry :
+						relationshipMapping.getTargetToSourceKeyFields().entrySet()) {
+					DatabaseField childDatabaseField = entry.getKey();
+					String childFieldName = getPropertyNameFromDatabaseColumnName(referencedEntityType,
+							childDatabaseField.getName());
+
+					if (referencedEntityPkField.equalsIgnoreCase(childFieldName)) {
+						DatabaseField parentDatabaseField = entry.getValue();
+						String parentFieldName = getPropertyNameFromDatabaseColumnName(rd.getDeclaringType(),
+								parentDatabaseField.getName());
+
+						if (parentFieldName != null) {
+							attributeRelationships
+									.add(new DataObjectAttributeRelationshipImpl(parentFieldName, childFieldName));
+							break;
+						} else {
+							LOG.warn("Unable to find parent field reference.  There may be a JPA mapping problem on " +
+									referencedEntityType.getJavaType() + ": " + relationship);
+						}
+					}
+				}
 			}
+
 			relationship.setAttributeRelationships(attributeRelationships);
 
-            populateInverseRelationship(relationshipMapping, relationship);
+			populateInverseRelationship(relationshipMapping, relationship);
 
 		} else {
 			// get what we can based on JPA values (note that we just set some to have values here)

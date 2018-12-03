@@ -94,6 +94,12 @@
             <artifactId>rice-krad-theme-builder</artifactId>
             <version>${project.version}</version>
           </dependency>
+            <dependency>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-rt</artifactId>
+                <version>${jaxws.version}</version>
+                <type>pom</type>
+            </dependency>
         </dependencies>
       </plugin>
     </plugins>

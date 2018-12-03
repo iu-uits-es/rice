@@ -16,12 +16,8 @@
 package org.kuali.rice.kew.impl.repository;
 
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
 import org.kuali.rice.core.api.criteria.GenericQueryResults;
 import org.kuali.rice.core.api.criteria.QueryByCriteria;
@@ -31,24 +27,15 @@ import org.kuali.rice.kew.api.repository.type.KewTypeDefinition;
 import org.kuali.rice.kew.impl.type.KewTypeAttributeBo;
 import org.kuali.rice.kew.impl.type.KewTypeBo;
 import org.kuali.rice.krad.data.DataObjectService;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.*;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.kuali.rice.core.api.criteria.PredicateFactory.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class KewTypeBoServiceImplTest {
@@ -183,7 +170,7 @@ public class KewTypeBoServiceImplTest {
         assertTrue("KewTypeDefinition was returned.", null != kewTypeDefn && kewTypeDefn.getName().equals(name) &&
                 kewTypeDefn.getNamespace().equals(namespace));
 
-        verify(dataObjectService, times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService, times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)), any(QueryByCriteria.class));
     }
 
@@ -207,7 +194,7 @@ public class KewTypeBoServiceImplTest {
         assertEquals(KewTypeBo.to(sampleTypes.get("1")), resultList.get(0));
         assertEquals(KewTypeBo.to(sampleTypes.get("2")), resultList.get(1));
 
-        verify(dataObjectService, times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService, times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)), any(QueryByCriteria.class));
     }
 
@@ -222,7 +209,7 @@ public class KewTypeBoServiceImplTest {
         assertEquals(KewTypeBo.to(sampleTypes.get("2")), resultList.get(1));
         assertEquals(KewTypeBo.to(sampleTypes.get("3")), resultList.get(2));
 
-        verify(dataObjectService, times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService, times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)), any(QueryByCriteria.class));
     }
 
@@ -237,7 +224,7 @@ public class KewTypeBoServiceImplTest {
         setupDOSFetchKewTypeBoByFindMatching(Arrays.asList(TEST_KEW_TYPE_BO));
         KewTypeDefinition kewTypeDefn = getKewTypeBoService().createKewType(TEST_KEW_TYPE_DEF);
 
-        verify(dataObjectService, times(1)).findMatching(Matchers.argThat(
+        verify(dataObjectService, times(1)).findMatching(argThat(
                 new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)), any(QueryByCriteria.class));
     }
 
@@ -246,7 +233,7 @@ public class KewTypeBoServiceImplTest {
         setupDOSFetchKewTypeBoByFindMatching(new ArrayList<KewTypeBo>());
         KewTypeDefinition kewTypeDefn = getKewTypeBoService().createKewType(TEST_KEW_TYPE_DEF);
 
-        verify(dataObjectService, times(1)).findMatching(Matchers.argThat(new ClassOrSubclassMatcher<KewTypeBo>(
+        verify(dataObjectService, times(1)).findMatching(argThat(new ClassOrSubclassMatcher<KewTypeBo>(
                 KewTypeBo.class)), any(QueryByCriteria.class));
     }
 
@@ -261,7 +248,7 @@ public class KewTypeBoServiceImplTest {
 
         getKewTypeBoService().updateKewType(TEST_KEW_TYPE_DEF);
 
-        verify(dataObjectService, times(1)).find(Matchers.argThat(
+        verify(dataObjectService, times(1)).find(argThat(
                 new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)), anyObject());
     }
 
@@ -271,7 +258,7 @@ public class KewTypeBoServiceImplTest {
 
         getKewTypeBoService().updateKewType(TEST_KEW_TYPE_DEF);
 
-        verify(dataObjectService, times(1)).find(Matchers.argThat(new ClassOrSubclassMatcher<KewTypeBo>(
+        verify(dataObjectService, times(1)).find(argThat(new ClassOrSubclassMatcher<KewTypeBo>(
                 KewTypeBo.class)), any(String.class));
     }
 
@@ -286,7 +273,7 @@ public class KewTypeBoServiceImplTest {
 
         getKewTypeBoService().createKewTypeAttribute(newAttr);
 
-        verify(dataObjectService, times(1)).find(Matchers.argThat(
+        verify(dataObjectService, times(1)).find(argThat(
                 new ClassOrSubclassMatcher<KewTypeAttribute>(KewTypeAttribute.class)), anyObject());
     }
 
@@ -296,7 +283,7 @@ public class KewTypeBoServiceImplTest {
 
         getKewTypeBoService().createKewTypeAttribute(newAttr);
 
-        verify(dataObjectService, times(1)).find(Matchers.argThat(
+        verify(dataObjectService, times(1)).find(argThat(
                 new ClassOrSubclassMatcher<KewTypeAttributeBo>(KewTypeAttributeBo.class)), any(KewTypeAttribute.class));
         verify(dataObjectService, times(1)).save(any(KewTypeAttributeBo.class));
     }
@@ -312,7 +299,7 @@ public class KewTypeBoServiceImplTest {
 
         getKewTypeBoService().updateKewTypeAttribute(newAttr);
 
-        verify(dataObjectService, times(1)).find(Matchers.argThat(
+        verify(dataObjectService, times(1)).find(argThat(
                 new ClassOrSubclassMatcher<KewTypeAttributeBo>(KewTypeAttributeBo.class)), any(KewTypeAttribute.class));
     }
 
@@ -322,8 +309,8 @@ public class KewTypeBoServiceImplTest {
 
         getKewTypeBoService().updateKewTypeAttribute(newAttr);
 
-        verify(dataObjectService, times(1)).find(Matchers.argThat(
-                new ClassOrSubclassMatcher<KewTypeAttributeBo>(KewTypeAttributeBo.class)), any(KewTypeAttribute.class));
+        verify(dataObjectService, times(1)).find(argThat(
+                new ClassOrSubclassMatcher<KewTypeAttributeBo>(KewTypeAttributeBo.class)), eq(ATTR_ID_3));
         verify(dataObjectService, times(1)).save(any(KewTypeAttributeBo.class));
     }
 
@@ -335,7 +322,7 @@ public class KewTypeBoServiceImplTest {
 
         builder.setResults(resultList);
         ArgumentCaptor<QueryByCriteria> argument = ArgumentCaptor.forClass(QueryByCriteria.class);
-        when(dataObjectService.findMatching(Matchers.argThat(new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)),
+        when(dataObjectService.findMatching(argThat(new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)),
                 argument.capture())).thenReturn(builder.build());
 
         return argument;
@@ -344,7 +331,7 @@ public class KewTypeBoServiceImplTest {
     private ArgumentCaptor<QueryByCriteria> setupDOSFetchKewTypeBoByFind(KewTypeBo resultBo) {
 
         ArgumentCaptor<QueryByCriteria> argument = ArgumentCaptor.forClass(QueryByCriteria.class);
-        when(dataObjectService.find(Matchers.argThat(new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)),
+        when(dataObjectService.find(argThat(new ClassOrSubclassMatcher<KewTypeBo>(KewTypeBo.class)),
                 argument.capture())).thenReturn(resultBo);
 
         return argument;
@@ -353,7 +340,7 @@ public class KewTypeBoServiceImplTest {
     private ArgumentCaptor<QueryByCriteria> setupDOSFetchKewTypeAttrByFind(KewTypeAttributeBo resultAttr) {
 
         ArgumentCaptor<QueryByCriteria> argument = ArgumentCaptor.forClass(QueryByCriteria.class);
-        when(dataObjectService.find(Matchers.argThat(new ClassOrSubclassMatcher<KewTypeAttributeBo>(
+        when(dataObjectService.find(argThat(new ClassOrSubclassMatcher<KewTypeAttributeBo>(
                 KewTypeAttributeBo.class)), argument.capture())).thenReturn(resultAttr);
 
         return argument;
@@ -373,7 +360,7 @@ public class KewTypeBoServiceImplTest {
 
     }
 
-    class ClassOrSubclassMatcher<T> extends BaseMatcher<Class<T>> {
+    class ClassOrSubclassMatcher<T> implements ArgumentMatcher<Class<T>> {
 
         private final Class<T> targetClass;
 
@@ -381,18 +368,9 @@ public class KewTypeBoServiceImplTest {
             this.targetClass = targetClass;
         }
 
-        @SuppressWarnings("unchecked")
-        public boolean matches(Object obj) {
-            if (obj != null) {
-                if (obj instanceof Class) {
-                    return targetClass.isAssignableFrom((Class<T>) obj);
-                }
-            }
-            return false;
-        }
-
-        public void describeTo(Description desc) {
-            desc.appendText("Matches a class or subclass");
+        @Override
+        public boolean matches(Class<T> argument) {
+            return argument != null && targetClass.isAssignableFrom(argument);
         }
     }
 }

@@ -15,7 +15,6 @@
  */
 package org.kuali.rice.kim.lookup
 
-import javax.xml.namespace.QName
 import org.junit.Before
 import org.junit.Test
 import org.kuali.rice.core.api.CoreConstants
@@ -24,15 +23,17 @@ import org.kuali.rice.core.api.config.property.ConfigurationService
 import org.kuali.rice.core.api.resourceloader.GlobalResourceLoader
 import org.kuali.rice.core.api.resourceloader.ResourceLoader
 import org.kuali.rice.core.impl.config.property.JAXBConfigImpl
-import org.kuali.rice.kns.lookup.LookupableHelperService
-import static org.junit.Assert.assertEquals
-import org.kuali.rice.kim.service.KIMServiceLocatorInternal
-import org.kuali.rice.kim.service.UiDocumentService
-import org.kuali.rice.krad.util.GlobalVariables
-import org.kuali.rice.krad.UserSession
 import org.kuali.rice.kim.api.identity.PersonService
-import org.kuali.rice.kim.impl.identity.PersonImpl
 import org.kuali.rice.kim.api.permission.PermissionService
+import org.kuali.rice.kim.impl.identity.PersonImpl
+import org.kuali.rice.kim.service.KIMServiceLocatorInternal
+import org.kuali.rice.kns.lookup.LookupableHelperService
+import org.kuali.rice.krad.UserSession
+import org.kuali.rice.krad.util.GlobalVariables
+
+import javax.xml.namespace.QName
+
+import static org.junit.Assert.assertEquals
 
 /**
  * Tests the PersonLookupableImpl
@@ -71,7 +72,7 @@ class PersonLookupableImplTest {
                 getReturnLocation: { "RETURN_LOCATION" }
             ] as LookupableHelperService)
             // test that the result is the same as the return value from the protected helper
-            assertEquals(lookupable.getCreateNewUrl("KIM_BASE_PATH/identityManagementPersonDocument.do?returnLocation=RETURN_LOCATION&docTypeName=IdentityManagementPersonDocument&methodToCall=docHandler&command=initiate"), lookupable.getCreateNewUrl())
+            assertEquals(lookupable.getCreateNewUrl("KIM_BASE_PATH/identityManagementPersonDocument.do?docTypeName=IdentityManagementPersonDocument&returnLocation=RETURN_LOCATION&methodToCall=docHandler&command=initiate"), lookupable.getCreateNewUrl())
             //assertEquals("""<a title="Create a new record" href="KIM_BASE_PATH/identityManagementPersonDocument.do?returnLocation=RETURN_LOCATION&docTypeName=IdentityManagementPersonDocument&methodToCall=docHandler&command=initiate"><img src="images/tinybutton-createnew.gif" alt="create new" width="70" height="15"/></a>""", lookupable.getCreateNewUrl())
         }
     }

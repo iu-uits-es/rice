@@ -103,7 +103,9 @@ public class MaintenanceDocumentSerializationTest {
         maintainable.setDataObject(dataObject);
         MaintenanceDocumentBase kradMaintenanceDoc = new MaintenanceDocumentBase();
         // use our maintenance doc to serialize / deserialize the data object
+        kradMaintenanceDoc.setOldMaintainableObject(maintainable);
         kradMaintenanceDoc.setNewMaintainableObject(maintainable);
+        kradMaintenanceDoc.setDocumentNumber("testing");
         kradMaintenanceDoc.populateXmlDocumentContentsFromMaintainables();
         kradMaintenanceDoc.populateMaintainablesFromXmlDocumentContents();
         TestKradDataObj reconstitutedDataObject =

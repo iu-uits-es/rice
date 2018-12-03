@@ -61,7 +61,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 /**
  * Unit tests for proving correct operation of the ViewHelperService.
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  */
 public class ViewLifecycleTest extends ProcessLoggingUnitTest {
@@ -200,7 +200,7 @@ public class ViewLifecycleTest extends ProcessLoggingUnitTest {
     public void testColumnCalculations() throws Throwable {
         testFormView("Demo-TableLayoutTotalingView", null);
     }
-    
+
     @Test
     public void testPerformanceMediumAll() throws Throwable {
         UifFormBase form = testFormView("Lab-PerformanceMedium", "u1c5ay4e");
