@@ -18,17 +18,15 @@ package org.kuali.rice.ksb.security.soap;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.log4j.Logger;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.Merlin;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.kuali.rice.core.api.config.ConfigurationException;
-import org.kuali.rice.core.api.config.property.Config;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.Merlin;
+import org.apache.wss4j.common.crypto.PasswordEncryptor;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.kuali.rice.core.api.config.property.ConfigContext;
 import org.kuali.rice.core.api.exception.RiceRuntimeException;
 import org.kuali.rice.core.api.util.ClassLoaderUtils;
 import org.kuali.rice.ksb.config.wss4j.CryptoPasswordCallbackHandler;
-import org.springframework.core.io.DefaultResourceLoader;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -47,7 +45,7 @@ public class CXFWSS4JInInterceptor extends WSS4JInInterceptor{
 	private static final Logger LOG = Logger.getLogger(CXFWSS4JInInterceptor.class);
 
 	private final boolean busSecurity;
-	
+
 	public CXFWSS4JInInterceptor(boolean busSecurity) {
 		this.busSecurity = busSecurity;
         if (busSecurity) {
@@ -61,7 +59,8 @@ public class CXFWSS4JInInterceptor extends WSS4JInInterceptor{
 	@Override
 	public Crypto loadSignatureCrypto(RequestData reqData) {
 		try {
-			return new Merlin(getMerlinProperties(), ClassLoaderUtils.getDefaultClassLoader());
+			PasswordEncryptor passwordEncryptor = new PlainTextPasswordEncryptor();
+			return new Merlin(getMerlinProperties(), ClassLoaderUtils.getDefaultClassLoader(), passwordEncryptor);
 		} catch (Exception e) {
 			throw new RiceRuntimeException(e);
 		}
@@ -88,7 +87,7 @@ public class CXFWSS4JInInterceptor extends WSS4JInInterceptor{
 
 	/**
 	 * This overridden method will not apply security headers if bus security is disabled.
-	 * 
+	 *
 	 * @see org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor#handleMessage(org.apache.cxf.binding.soap.SoapMessage)
 	 */
 	@Override

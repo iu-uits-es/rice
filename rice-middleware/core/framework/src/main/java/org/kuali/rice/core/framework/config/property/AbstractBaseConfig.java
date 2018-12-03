@@ -30,7 +30,7 @@ import java.util.Properties;
 /**
  * This abstract class implements all the convenience config methods that
  * can be implemented independent of the config impl.
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  *
  */
@@ -218,7 +218,7 @@ public abstract class AbstractBaseConfig implements org.kuali.rice.core.api.conf
 
     public String getKeystoreFile() throws IOException {
         String keyStoreFile = getProperty(org.kuali.rice.core.api.config.property.Config.KEYSTORE_FILE);
-        return new ClasspathOrFileResourceLoader().getResource(keyStoreFile).getURL().getPath();
+        return new ClasspathOrFileResourceLoader().getResource(keyStoreFile).getURL().toString();
     }
 
     public String getKeystorePassword() {

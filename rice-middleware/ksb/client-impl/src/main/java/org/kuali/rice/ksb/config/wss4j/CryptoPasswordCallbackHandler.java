@@ -15,7 +15,7 @@
  */
 package org.kuali.rice.ksb.config.wss4j;
 
-import org.apache.ws.security.WSPasswordCallback;
+import org.apache.wss4j.common.ext.WSPasswordCallback;
 import org.kuali.rice.core.api.config.ConfigurationException;
 import org.kuali.rice.core.api.config.property.Config;
 import org.kuali.rice.core.api.config.property.ConfigContext;
@@ -29,7 +29,7 @@ import java.io.IOException;
 /**
  * Workflow CryptoPasswordCallbackHandler which retrieves the keystore password
  * from the workflow Config.
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  */
 public class CryptoPasswordCallbackHandler implements CallbackHandler {
