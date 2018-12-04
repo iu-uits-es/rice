@@ -1714,6 +1714,12 @@
         <version>${jstl.version}</version>
         <!-- should be provided scope on newer containers like tomcat 7 -->
         <scope>compile</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -2421,6 +2427,10 @@
           <exclusion>
             <groupId>org.ow2.spec.ee</groupId>
             <artifactId>ow2-jta-1.1-spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
