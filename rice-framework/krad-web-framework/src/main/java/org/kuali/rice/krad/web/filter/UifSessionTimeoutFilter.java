@@ -192,6 +192,7 @@ public class UifSessionTimeoutFilter implements Filter {
 
         if (ajaxRequest) {
             httpServletResponse.setContentType("text/html; charset=UTF-8");
+            httpServletResponse.setCharacterEncoding("UTF-8");
             httpServletResponse.setStatus(sessionTimeoutErrorCode);
 
             PrintWriter printWriter = httpServletResponse.getWriter();
