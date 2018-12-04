@@ -24,8 +24,8 @@ import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.log4j.Logger;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.kuali.rice.core.api.exception.RiceRuntimeException;
 import org.kuali.rice.ksb.api.bus.ServiceDefinition;
 import org.kuali.rice.ksb.api.bus.support.SoapServiceDefinition;
@@ -44,46 +44,46 @@ import java.util.Map;
 public class SOAPServiceExporter extends AbstractWebServiceExporter implements ServiceExporter {
 
 	static final Logger LOG = Logger.getLogger(SOAPServiceExporter.class);
-		
+
 	public SOAPServiceExporter(SoapServiceDefinition serviceDefinition, Bus cxfBus) {
 	    super(serviceDefinition, cxfBus);
 	}
 
 	/**
 	 * This publishes the cxf service onto the cxf bus.
-	 * 
+	 *
 	 * @param serviceImpl
 	 * @throws Exception
 	 */
 	@Override
     public void publishService(ServiceDefinition serviceDefinition, Object serviceImpl, String address) {
 		ServerFactoryBean svrFactory;
-		
+
 		SoapServiceDefinition soapServiceDefinition = (SoapServiceDefinition)serviceDefinition;
-		
+
 		//Use the correct bean factory depending on pojo service or jaxws service
 		if (soapServiceDefinition.isJaxWsService()){
 			LOG.info("Creating JaxWsService " + soapServiceDefinition.getServiceName());
 			svrFactory = new JaxWsServerFactoryBean();
 		} else {
 			svrFactory = new ServerFactoryBean();
-			
+
 			//JAXB Binding not supported for pojo service (CXF-897)
 			svrFactory.getServiceFactory().setDataBinding(new AegisDatabinding());
 		}
-	
+
 		svrFactory.setBus(getCXFBus());
 		svrFactory.setServiceName(soapServiceDefinition.getServiceName());
 		svrFactory.setAddress(address);
 		svrFactory.setPublishedEndpointUrl(soapServiceDefinition.getEndpointUrl().toExternalForm());
 		svrFactory.setServiceBean(serviceImpl);
-		
+
 		try {
 			svrFactory.setServiceClass(Class.forName(soapServiceDefinition.getServiceInterface()));
 		} catch (ClassNotFoundException e) {
 			throw new RiceRuntimeException("Failed to publish service " + soapServiceDefinition.getServiceName() + " because service interface could not be loaded: " + soapServiceDefinition.getServiceInterface(), e);
 		}
-		
+
 		//Set logging and security interceptors
 		if (soapServiceDefinition.isBasicAuthentication()) {
 			Map<String, Object> properties = new HashMap<String, Object>();
@@ -105,7 +105,7 @@ public class SOAPServiceExporter extends AbstractWebServiceExporter implements S
 		svrFactory.getInInterceptors().add(new ImmutableCollectionsInInterceptor());
 
 		svrFactory.getOutInterceptors().add(new LoggingOutInterceptor());
-		
+
 		svrFactory.create();
 	}
 

@@ -79,7 +79,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<artifactId>javax.servlet-api</artifactId>
 			<version>${servlet-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
@@ -113,12 +113,12 @@
 			<groupId>org.kuali.rice</groupId>
 			<artifactId>rice-kim-impl</artifactId>
 			<version>${RICE_VERSION}</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>org.kuali.rice</groupId>
 			<artifactId>rice-kew-impl</artifactId>
 			<version>${RICE_VERSION}</version>
-		</dependency>		 
+		</dependency>
 		<dependency>
 			<groupId>org.kuali.rice</groupId>
 			<artifactId>rice-kns</artifactId>

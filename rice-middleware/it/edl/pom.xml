@@ -79,7 +79,7 @@
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -166,11 +166,6 @@
     <dependency>
       <groupId>xalan</groupId>
       <artifactId>serializer</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

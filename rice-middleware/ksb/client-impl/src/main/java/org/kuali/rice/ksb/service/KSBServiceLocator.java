@@ -16,7 +16,6 @@
 package org.kuali.rice.ksb.service;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.kuali.rice.core.api.exception.RiceRemoteServiceConnectionException;
@@ -47,11 +46,11 @@ public class KSBServiceLocator {
     public static EntityManagerFactory getMessageEntityManagerFactory() {
         return (EntityManagerFactory) getService(KSBConstants.ServiceNames.MESSAGE_ENTITY_MANAGER_FACTORY);
     }
-    
+
     public static EntityManagerFactory getRegistryEntityManagerFactory() {
         return (EntityManagerFactory) getService(KSBConstants.ServiceNames.REGISTRY_ENTITY_MANAGER_FACTORY);
     }
-    
+
     public static TransactionTemplate getTransactionTemplate() {
         return (TransactionTemplate) getService(KSBConstants.ServiceNames.TRANSACTION_TEMPLATE);
     }
@@ -71,7 +70,7 @@ public class KSBServiceLocator {
     public static ExceptionRoutingService getExceptionRoutingService() {
         return (ExceptionRoutingService) getService(KSBConstants.ServiceNames.EXCEPTION_MESSAGING_SERVICE);
     }
-    
+
     public static ServiceExportManager getServiceExportManager() {
     	return (ServiceExportManager) getService(KSBConstants.ServiceNames.SERVICE_EXPORT_MANAGER);
     }
@@ -93,7 +92,7 @@ public class KSBServiceLocator {
     }
 
     public static Bus getCXFBus(){
-    	return (CXFBusImpl) getService(KSBConstants.ServiceNames.CXF_BUS);
+    	return (Bus) getService(KSBConstants.ServiceNames.CXF_BUS);
     }
 
     public static List<Interceptor<? extends Message>> getInInterceptors() {
@@ -105,7 +104,7 @@ public class KSBServiceLocator {
     		return null;
     	}
     }
-    
+
     public static List<Interceptor<? extends Message>> getOutInterceptors() {
     	try {
     		return (List<Interceptor<? extends Message>>) getService(KSBConstants.ServiceNames.BUS_OUT_INTERCEPTORS);
