@@ -34,6 +34,7 @@
   </properties>
 
   <dependencies>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>rice-impl</artifactId>
@@ -143,6 +144,11 @@
       <type>test-jar</type>
     </dependency>
 
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>displaytag</groupId>
       <artifactId>displaytag</artifactId>
