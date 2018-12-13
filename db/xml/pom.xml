@@ -184,6 +184,10 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.kuali.common</groupId>
       <artifactId>kuali-util</artifactId>
     </dependency>
