@@ -171,7 +171,7 @@
     <junit.version>4.11</junit.version>
     <kuali-mvn.version>1.0.2</kuali-mvn.version>
     <log4j.version>1.2.16</log4j.version>
-    <mail.version>1.4.4</mail.version>
+    <mail.version>1.6.1</mail.version>
     <mockito.version>2.23.0</mockito.version>
     <powermock.version>2.0.0-RC.4</powermock.version>
     <persistence.version>1.0.1.Final</persistence.version>
@@ -1682,8 +1682,8 @@
       </dependency>
 
       <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
         <version>${mail.version}</version>
         <exclusions>
           <exclusion>
