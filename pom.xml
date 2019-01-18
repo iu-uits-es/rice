@@ -140,7 +140,7 @@
     <glassfish-javax-json.version>1.0.1</glassfish-javax-json.version>
     <groovy.version>2.4.15</groovy.version>
     <guava.version>11.0</guava.version>
-    <eclipselink.version>2.7.4-SNAPSHOT</eclipselink.version>
+    <eclipselink.version>2.7.4</eclipselink.version>
     <jpa.version>2.1.0</jpa.version>
     <jackson.version>1.8.8</jackson.version>
     <javassist.version>3.18.2-GA</javassist.version>
