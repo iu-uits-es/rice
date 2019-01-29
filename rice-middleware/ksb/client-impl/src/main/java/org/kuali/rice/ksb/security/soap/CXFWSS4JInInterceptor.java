@@ -73,11 +73,11 @@ public class CXFWSS4JInInterceptor extends WSS4JInInterceptor{
 
 	protected Properties getMerlinProperties() throws IOException {
 		Properties props = new Properties();
-		props.put("org.apache.ws.security.crypto.merlin.keystore.type", "jks");
-		props.put("org.apache.ws.security.crypto.merlin.keystore.password", ConfigContext.getCurrentContextConfig().getKeystorePassword());
-		props.put("org.apache.ws.security.crypto.merlin.alias.password", ConfigContext.getCurrentContextConfig().getKeystorePassword());
-		props.put("org.apache.ws.security.crypto.merlin.keystore.alias", ConfigContext.getCurrentContextConfig().getKeystoreAlias());
-	    props.put("org.apache.ws.security.crypto.merlin.file", ConfigContext.getCurrentContextConfig().getKeystoreFile());
+		props.put("org.apache.wss4j.crypto.merlin.keystore.type", "jks");
+		props.put("org.apache.wss4j.crypto.merlin.keystore.password", ConfigContext.getCurrentContextConfig().getKeystorePassword());
+		props.put("org.apache.wss4j.crypto.merlin.alias.password", ConfigContext.getCurrentContextConfig().getKeystorePassword());
+		props.put("org.apache.wss4j.crypto.merlin.keystore.alias", ConfigContext.getCurrentContextConfig().getKeystoreAlias());
+	    props.put("org.apache.wss4j.crypto.merlin.file", ConfigContext.getCurrentContextConfig().getKeystoreFile());
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Using keystore location " + ConfigContext.getCurrentContextConfig().getKeystoreFile());
