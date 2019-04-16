@@ -53,15 +53,19 @@ class XMLSearchableAttributeContentTest {
 
         ConfigContext.init(config);
         GlobalResourceLoader.stop();
-        GlobalResourceLoader.addResourceLoader([
-            getName: { -> new QName("Foo", "Bar") },
-            getService: { QName name ->
-                [
-                    parameterService: [ getParameterValueAsString: { s0,s1,s2 -> null } ] as ParameterService,
-                    kimGroupService: [ getGroupByNamespaceCodeAndName: {a,b -> null } ] as GroupService,
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def paramServiceArgClosure = { s0, s1, s2 -> null };
+        def groupServiceArgClosure = {a,b -> null };
+        def serviceClosure = { QName name ->
+            [
+                    parameterService: [ getParameterValueAsString: paramServiceArgClosure ] as ParameterService,
+                    kimGroupService: [ getGroupByNamespaceCodeAndName: groupServiceArgClosure ] as GroupService,
 
-                ][name.getLocalPart()]
-            },
+            ][name.getLocalPart()]
+        };
+        GlobalResourceLoader.addResourceLoader([
+            getName: nameClosure,
+            getService: serviceClosure,
             stop: {}
         ] as ResourceLoader)
     }

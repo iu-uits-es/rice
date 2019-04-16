@@ -64,15 +64,19 @@ class LookupFormTest {
 
         GlobalResourceLoader.addResourceLoader(new BaseResourceLoader(new QName("Foo", "Bar")) {
             def getService(QName name) {
-                [ parameterService:
-                    [ getParameterValueAsString: { s0,s1,s2 -> null },
-                      getParameterValueAsBoolean: { s0,s1,s2,s3 -> false }
+                def parameterClosure = { s0, s1, s2 -> null };
+                def parameterValueClosure = { s0, s1, s2, s3 -> false };
+                def attributeEncryptionClosure = { s0, s1 -> false };
+                def lookupableIdClosure = { s0 -> null }
+                [parameterService                  :
+                    [ getParameterValueAsString: parameterClosure,
+                      getParameterValueAsBoolean: parameterValueClosure
                     ] as ParameterService,
-                  businessObjectAuthorizationService:
-                    [ attributeValueNeedsToBeEncryptedOnFormsAndLinks: {s0,s1 -> false } ] as BusinessObjectAuthorizationService,
-                  businessObjectDictionaryService:
-                    [ getLookupableID: { s0 -> null } ] as BusinessObjectDictionaryService,
-                  kualiLookupable: {
+                 businessObjectAuthorizationService:
+                    [ attributeValueNeedsToBeEncryptedOnFormsAndLinks: attributeEncryptionClosure] as BusinessObjectAuthorizationService,
+                 businessObjectDictionaryService   :
+                    [ getLookupableID: lookupableIdClosure] as BusinessObjectDictionaryService,
+                 kualiLookupable                   : {
                       def l = new KualiLookupableImpl() {
                           void setBusinessObjectClass(Class boClass) {}
                           List getRows() { [] as List }

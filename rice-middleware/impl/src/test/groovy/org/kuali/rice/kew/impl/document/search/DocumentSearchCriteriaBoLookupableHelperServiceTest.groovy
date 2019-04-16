@@ -68,21 +68,25 @@ class DocumentSearchCriteriaBoLookupableHelperServiceTest {
         def dts = new DateTimeServiceImpl()
         dts.afterPropertiesSet()
 
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def serviceClosure = { QName name ->
+            [ dateTimeService: dts ][name.getLocalPart()]
+        };
         GlobalResourceLoader.addResourceLoader([
-            getName: { -> new QName("Foo", "Bar") },
-            getService: { QName name ->
-                [ dateTimeService: dts ][name.getLocalPart()]
-            },
+            getName: nameClosure,
+            getService: serviceClosure,
             stop: {}
         ] as ResourceLoader)
 
         DocumentTypeService documentTypeService = { null } as DocumentTypeService;
 
+        def nameClosure2 = { -> new QName("Baz", "Bif") };
+        def serviceClosure2 = { QName name ->
+            [ enDocumentTypeService: documentTypeService ][name.getLocalPart()]
+        };
         GlobalResourceLoader.addResourceLoader([
-                getName: { -> new QName("Baz", "Bif") },
-                getService: { QName name ->
-                    [ enDocumentTypeService: documentTypeService ][name.getLocalPart()]
-                },
+                getName: nameClosure2,
+                getService: serviceClosure2,
                 stop: {}
         ] as ResourceLoader)
 

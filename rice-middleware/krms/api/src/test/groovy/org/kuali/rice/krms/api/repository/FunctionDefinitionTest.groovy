@@ -36,21 +36,21 @@ class FunctionDefinitionTest {
 	private static final String TYPE_ID = "1";
 	private static final boolean ACTIVE = true;
 	private static final Long VERSION_NUMBER = 1;
-	
+
 	private static final String PARM1_ID = "2";
 	private static final String PARM1_NAME = "parameter1";
 	private static final String PARM1_DESCRIPTION = "parameter1";
 	private static final String PARM1_TYPE = "string";
 	private static final Long PARM1_VERSION_NUMBER = 1;
 	private static final Integer PARM1_SEQUENCE_NUMBER = 1;
-	
+
 	private static final String PARM2_ID = "3";
 	private static final String PARM2_NAME = "parameter2";
 	private static final String PARM2_DESCRIPTION = "parameter2";
 	private static final String PARM2_TYPE = "integer";
 	private static final Long PARM2_VERSION_NUMBER = 1;
 	private static final Integer PARM2_SEQUENCE_NUMBER = 2;
-	
+
     private static final String CTGRY1_ID = "4";
     private static final String CTGRY1_NAME = "category1";
     private static final String CTGRY1_NAMESPACE = "namespace";
@@ -108,69 +108,69 @@ class FunctionDefinitionTest {
 </function>
 """;
 
-	def checkNamespaceCode = { namespace -> FunctionDefinition.Builder.create(namespace, NAME, RETURN_TYPE, TYPE_ID) } 
-	
+	def checkNamespaceCode = { namespace -> FunctionDefinition.Builder.create(namespace, NAME, RETURN_TYPE, TYPE_ID) }
+
     @Test(expected=IllegalArgumentException.class)
     void testBuilderCreate_fail_null_namespaceCode() {
 		checkNamespaceCode null;
     }
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_empty_namespaceCode() {
 		checkNamespaceCode "";
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_whitespace_namespaceCode() {
 		checkNamespaceCode " ";
 	}
-	
+
 	def checkName = { name -> FunctionDefinition.Builder.create(NAMESPACE_CODE, name, RETURN_TYPE, TYPE_ID) }
 
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_null_name() {
 		checkName null;
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_empty_name() {
 		checkName "";
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_whitespace_name() {
 		checkName " ";
 	}
-	
+
 	def checkReturnType = { returnType -> FunctionDefinition.Builder.create(NAMESPACE_CODE, NAME, returnType, TYPE_ID) }
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_null_returnType() {
 		checkReturnType null;
 	}
-		
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_empty_returnType() {
 		checkReturnType "";
 	}
-		
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_whitespace_returnType() {
 		checkReturnType " ";
 	}
-	
+
 	def checkTypeId = { typeId -> FunctionDefinition.Builder.create(NAMESPACE_CODE, NAME, RETURN_TYPE, typeId) }
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_null_typeId() {
 		checkTypeId null;
 	}
-		
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_empty_typeId() {
 		checkTypeId "";
 	}
-		
+
 	@Test(expected=IllegalArgumentException.class)
 	void testBuilderCreate_fail_whitespace_typeId() {
 		checkTypeId " ";
@@ -190,7 +190,7 @@ class FunctionDefinitionTest {
 		assertNull functionDef.versionNumber;
 		assert functionDef.parameters.isEmpty();
 	}
-			
+
 	@Test
 	void testBuilder_fullCreate() {
 		FunctionDefinition functionDef = create();
@@ -210,7 +210,7 @@ class FunctionDefinitionTest {
 		assert parameter1.description == PARM1_DESCRIPTION;
 		assert parameter1.parameterType == PARM1_TYPE;
 		assert parameter1.versionNumber == PARM1_VERSION_NUMBER;
-		
+
 		FunctionParameterDefinition parameter2 = functionDef.getParameters().get(1);
 		assert parameter2.id == PARM2_ID;
 		assert parameter2.name == PARM2_NAME;
@@ -235,7 +235,7 @@ class FunctionDefinitionTest {
 	public void test_Xml_Marshal_Unmarshal() {
 		JAXBAssert.assertEqualXmlMarshalUnmarshal(this.create(), XML, FunctionDefinition.class)
 	}
-	
+
 	/**
 	 * Ensures that toString executes cleanly.
 	 */
@@ -248,52 +248,56 @@ class FunctionDefinitionTest {
 	}
 
     private FunctionDefinition.Builder createBuilder() {
+        FunctionParameterDefinition.Builder param1Builder = FunctionParameterDefinition.Builder.create(new FunctionParameterDefinitionContract() {
+            String id = PARM1_ID;
+            String name = PARM1_NAME;
+            String description = PARM1_DESCRIPTION;
+            String parameterType = PARM1_TYPE;
+            Integer sequenceNumber = PARM1_SEQUENCE_NUMBER;
+            Long versionNumber = PARM1_VERSION_NUMBER;
+            String functionId = ID;
+        })
+        FunctionParameterDefinition.Builder param2Builder = FunctionParameterDefinition.Builder.create(new FunctionParameterDefinitionContract() {
+            String id = PARM2_ID;
+            String name = PARM2_NAME;
+            String description = PARM2_DESCRIPTION;
+            String parameterType = PARM2_TYPE;
+            Integer sequenceNumber = PARM2_SEQUENCE_NUMBER;
+            Long versionNumber = PARM2_VERSION_NUMBER;
+            String functionId = ID;
+        });
+        CategoryDefinition.Builder category1Builder = CategoryDefinition.Builder.create(new CategoryDefinitionContract() {
+            String id = CTGRY1_ID;
+            String name = CTGRY1_NAME;
+            String namespace = CTGRY1_NAMESPACE;
+            Long versionNumber = CTGRY1_VERSION_NUMBER;
+        });
+        CategoryDefinition.Builder category2Builder = CategoryDefinition.Builder.create(new CategoryDefinitionContract() {
+            String id = CTGRY2_ID;
+            String name = CTGRY2_NAME;
+            String namespace = CTGRY2_NAMESPACE;
+            Long versionNumber = CTGRY2_VERSION_NUMBER;
+        });
 		return FunctionDefinition.Builder.create(new FunctionDefinitionContract() {
-				String id = FunctionDefinitionTest.ID;
-				String namespace = FunctionDefinitionTest.NAMESPACE_CODE;
-				String name = FunctionDefinitionTest.NAME;
-                String description = FunctionDefinitionTest.DESCRIPTION;
-				String returnType = FunctionDefinitionTest.RETURN_TYPE;
-				String typeId = FunctionDefinitionTest.TYPE_ID;
-                boolean active = FunctionDefinitionTest.ACTIVE;
-                Long versionNumber = FunctionDefinitionTest.VERSION_NUMBER;
+				String id = ID;
+				String namespace = NAMESPACE_CODE;
+				String name = NAME;
+                String description = DESCRIPTION;
+				String returnType = RETURN_TYPE;
+				String typeId = TYPE_ID;
+                boolean active = ACTIVE;
+                Long versionNumber = VERSION_NUMBER;
 				List<FunctionParameterDefinition.Builder> parameters = [
-					FunctionParameterDefinition.Builder.create(new FunctionParameterDefinitionContract() {
-						String id = FunctionDefinitionTest.PARM1_ID;
-						String name = FunctionDefinitionTest.PARM1_NAME;
-						String description = FunctionDefinitionTest.PARM1_DESCRIPTION;
-						String parameterType = FunctionDefinitionTest.PARM1_TYPE;
-						Integer sequenceNumber = FunctionDefinitionTest.PARM1_SEQUENCE_NUMBER;
-						Long versionNumber = FunctionDefinitionTest.PARM1_VERSION_NUMBER;
-						String functionId = FunctionDefinitionTest.ID;
-					}),
-					FunctionParameterDefinition.Builder.create(new FunctionParameterDefinitionContract() {
-						String id = FunctionDefinitionTest.PARM2_ID;
-						String name = FunctionDefinitionTest.PARM2_NAME;
-						String description = FunctionDefinitionTest.PARM2_DESCRIPTION;
-						String parameterType = FunctionDefinitionTest.PARM2_TYPE;
-						Integer sequenceNumber = FunctionDefinitionTest.PARM2_SEQUENCE_NUMBER;
-						Long versionNumber = FunctionDefinitionTest.PARM2_VERSION_NUMBER;
-						String functionId = FunctionDefinitionTest.ID;
-					})
+					param1Builder,
+                    param2Builder
 				]
                 List<CategoryDefinition.Builder> categories = [
-                    CategoryDefinition.Builder.create(new CategoryDefinitionContract() {
-                        String id = FunctionDefinitionTest.CTGRY1_ID;
-                        String name = FunctionDefinitionTest.CTGRY1_NAME;
-                        String namespace = FunctionDefinitionTest.CTGRY1_NAMESPACE;
-                        Long versionNumber = FunctionDefinitionTest.CTGRY1_VERSION_NUMBER;
-                    }),
-                    CategoryDefinition.Builder.create(new CategoryDefinitionContract() {
-                        String id = FunctionDefinitionTest.CTGRY2_ID;
-                        String name = FunctionDefinitionTest.CTGRY2_NAME;
-                        String namespace = FunctionDefinitionTest.CTGRY2_NAMESPACE;
-                        Long versionNumber = FunctionDefinitionTest.CTGRY2_VERSION_NUMBER;
-                    })
+                    category1Builder,
+                    category2Builder
                 ]
 			});
 	}
-	
+
 	private FunctionDefinition create() {
 		return createBuilder().build();
 	}
