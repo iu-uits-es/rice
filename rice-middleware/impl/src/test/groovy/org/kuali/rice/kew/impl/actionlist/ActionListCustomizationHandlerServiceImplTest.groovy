@@ -53,26 +53,21 @@ class ActionListCustomizationHandlerServiceImplTest {
         handlerService = handlerServiceImpl
     }
 
-    def emptyActionItemSetClosure = { String principalId, ActionItem actionItem ->
-        // empty action set
-        ActionSet.Builder.create().build()
-    };
-    def displayParametersClosure = { String principalId, ActionItem actionItem ->
-        null
-    };
     void stubService() {
-        def serviceByNameClosure = { name ->
-            [getCustomActionListAttribute: {
-                testAttribute
-            }] as DocumentType
-        };
         // our attribute
         def testAttribute= [
-            getLegalActions: emptyActionItemSetClosure,
-            getDocHandlerDisplayParameters: displayParametersClosure
+            getLegalActions: { String principalId, ActionItem actionItem -> // empty action set
+                ActionSet.Builder.create().build()
+            },
+            getDocHandlerDisplayParameters: { String principalId, ActionItem actionItem -> null
+            }
         ] as CustomActionListAttribute
         handlerServiceImpl.setDocumentTypeService([
-            findByName: serviceByNameClosure
+            findByName: { name ->
+                [ getCustomActionListAttribute: {
+                    testAttribute
+                }] as DocumentType
+            }
         ] as DocumentTypeService)
     }
 
