@@ -64,7 +64,7 @@ class DocumentSearchCriteriaBoLookupableHelperServiceTest {
 
         ConfigContext.init(config);
         GlobalResourceLoader.stop();
-        
+
         def dts = new DateTimeServiceImpl()
         dts.afterPropertiesSet()
 
@@ -123,8 +123,8 @@ class DocumentSearchCriteriaBoLookupableHelperServiceTest {
                      "category:" + DocumentStatusCategory.UNSUCCESSFUL.getCode()] as String[])
 
         lookupableHelperService.setParameters(params)
-        
-        
+
+
         GlobalVariables.doInNewGlobalVariables(new FakeUserSession(), new Callable() {
             public Object call() {
                 def crit = lookupableHelperService.loadCriteria(fields)

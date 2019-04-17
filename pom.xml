@@ -909,8 +909,6 @@
             <fork>true</fork>
             <meminitial>256</meminitial>
             <maxmem>1024</maxmem>
-            <source>1.7</source>
-            <target>1.7</target>
           </configuration>
           <dependencies>
             <dependency>

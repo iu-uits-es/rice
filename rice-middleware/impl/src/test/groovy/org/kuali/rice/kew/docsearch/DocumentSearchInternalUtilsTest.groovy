@@ -24,5 +24,5 @@ import static org.junit.Assert.assertEquals
  * Tests DocumentSearchInternalUtils
  */
 class DocumentSearchInternalUtilsTest {
-    
+
 }

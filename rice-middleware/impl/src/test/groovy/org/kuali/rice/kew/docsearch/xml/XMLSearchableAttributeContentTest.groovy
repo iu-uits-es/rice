@@ -103,7 +103,7 @@ class XMLSearchableAttributeContentTest {
         edb.configuration.put(KewApiConstants.ATTRIBUTE_XML_CONFIG_DATA, config)
         assertNotNull(new XMLSearchableAttributeContent(edb.build()).getSearchingConfig());
     }
-    
+
     /* tests that the <searchingConfig> element can be found anywhere, not just as the immediately
        child of the attribute config xml (which it really only ever should be in practice...)
      */

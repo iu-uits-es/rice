@@ -64,8 +64,8 @@ class DocumentTypePermissionServiceCustomizationTest {
     static def templateAuthorizationClosure = { principalId, namespace, permission, Map<String, String> permissionDetails, Map<String, String> roleQualifiers ->
         permissionService.invocations << [ permissionDetails: permissionDetails, roleQualifiers: roleQualifiers ]
         return permissionDetails.containsKey("ADDITIONAL_ENTRY") && (roleQualifiers.isEmpty() || roleQualifiers.containsKey("ADDITIONAL_ENTRY"))
-    };
-    static def permissionDefinitionClosure = { ns, perm, details -> true };
+    }
+    static def permissionDefinitionClosure = { ns, perm, details -> true }
     static def permissionService = [
         invocations: [],
         isAuthorizedByTemplate: templateAuthorizationClosure,
@@ -94,9 +94,11 @@ class DocumentTypePermissionServiceCustomizationTest {
     }
     def princ = "test principal id"
     def nodeNames = ["routeNode1", "routeNode2"]
+    def routeNode1 = new RouteNodeInstance() { def String getName() { "routeNode1" } }
+    def routeNode2 = new RouteNodeInstance() { def String getName() { "routeNode2" } }
     def nodeInstances = [
-        new RouteNodeInstance() { def String getName() { "routeNode1" } },
-        new RouteNodeInstance() { def String getName() { "routeNode2" } }
+            routeNode1,
+            routeNode2
     ]
 
     @Parameterized.Parameters static data() {

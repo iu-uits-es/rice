@@ -297,7 +297,7 @@ class PermissionServiceImplTest {
 		Assignee.Builder assigneeBuilder = Assignee.Builder.create("memberid", null, new ArrayList<DelegateType.Builder>());
 		List<Assignee> expectedPermissions = new ArrayList<Assignee>();
 		expectedPermissions.add(assigneeBuilder.build());
-		
+
 		mockDoService.demand.findMatching(1) {
 			Class clazz, QueryByCriteria map -> for (PermissionBo permissionBo in samplePermissions.values()) {
 				if (permissionBo.namespaceCode.equals("namespacecodeone"))
