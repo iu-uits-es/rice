@@ -55,8 +55,9 @@ class KualiControllerConfigTest {
 
         GlobalResourceLoader.addResourceLoader(new BaseResourceLoader(new QName("Foo", "Bar")) {
             def getService(QName name) {
-                [ parameterService:
-                    [ getParameterValueAsString: { ns, cmp, param -> parameterMaxFileSize } ] as ParameterService
+                def parameterServiceClosure = { ns, cmp, param -> parameterMaxFileSize };
+                [parameterService:
+                    [ getParameterValueAsString: parameterServiceClosure] as ParameterService
                 ][name.getLocalPart()]
             }
         })

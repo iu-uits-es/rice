@@ -48,17 +48,19 @@ class PersonLookupableImplTest {
         config.putProperty(KIMServiceLocatorInternal.KIM_RUN_MODE_PROPERTY, "LOCAL");
         ConfigContext.init(config);
         GlobalResourceLoader.stop();
-        GlobalResourceLoader.addResourceLoader([
-            getName: { -> new QName("Foo", "Bar") },
-            getService: { QName name ->
-                def svc = [
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def serviceClosure = { QName name ->
+            def svc = [
                     //kimUiDocumentService: [ canModifyEntity: { a,b -> true } ] as UiDocumentService,
                     kimPermissionService: [ isAuthorized: {a, b, c, d -> true} ] as PermissionService,
                     personService: [ getPersonByPrincipalName: { new PersonImpl() } ] as PersonService,
                     kualiConfigurationService: [ getPropertyValueAsString: { "KIM_BASE_PATH" } ] as ConfigurationService
-                ][name.getLocalPart()]
-                svc
-            },
+            ][name.getLocalPart()]
+            svc
+        };
+        GlobalResourceLoader.addResourceLoader([
+            getName: nameClosure,
+            getService: serviceClosure,
             stop: {}
         ] as ResourceLoader)
     }

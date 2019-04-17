@@ -47,13 +47,22 @@ class DocumentTypePermissionServiceDelegationTest {
         config.putProperty(CoreConstants.Config.APPLICATION_ID, "APPID");
         ConfigContext.init(config);
 
-        GlobalResourceLoader.stop()
+        GlobalResourceLoader.stop();
+        def nameClosure = { -> new QName("KEW Unit Test", "DocumentTypePermissionServiceDelegationTest") };
+        def serviceClosure = { QName name ->
+            [ testDocumentTypeAuthorizer: testDocumentTypeAuthorizer ][name.getLocalPart()]
+        };
+        def objectClosure = { od ->
+            try {
+                return ClassLoaderUtils.getClass(od.className, DocumentTypeAuthorizer.class).newInstance()
+            } catch (Exception e) {
+                return null
+            }
+        };
         GlobalResourceLoader.addResourceLoader([
-            getName: { -> new QName("KEW Unit Test", "DocumentTypePermissionServiceDelegationTest") },
-            getService: { QName name ->
-                [ testDocumentTypeAuthorizer: testDocumentTypeAuthorizer ][name.getLocalPart()]
-            },
-            getObject: { od -> try { return ClassLoaderUtils.getClass(od.className, DocumentTypeAuthorizer.class).newInstance() } catch (Exception e) { return null } },
+            getName: nameClosure,
+            getService: serviceClosure,
+            getObject: objectClosure,
             stop: {}
         ] as ResourceLoader)
     }

@@ -45,9 +45,11 @@ class LookupDaoOjbTest {
         ConfigContext.init(config);
 
         GlobalResourceLoader.stop()
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def serviceClosure = { [ getUpperCaseFunction: { -> upperFunction } ] as DatabasePlatform };
         GlobalResourceLoader.addResourceLoader([
-                getName: { -> new QName("Foo", "Bar") },
-                getService: { [ getUpperCaseFunction: { -> upperFunction } ] as DatabasePlatform },
+                getName: nameClosure,
+                getService: serviceClosure,
                 stop: {}
         ] as ResourceLoader)
     }

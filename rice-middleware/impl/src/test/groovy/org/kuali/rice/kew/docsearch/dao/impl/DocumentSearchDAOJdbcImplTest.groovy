@@ -46,11 +46,15 @@ class DocumentSearchDAOJdbcImplTest {
         config.putProperty(CoreConstants.Config.APPLICATION_ID, "APPID");
         ConfigContext.init(config);
 
-        GlobalResourceLoader.stop()
+        GlobalResourceLoader.stop();
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def resultClosure = { a, b, c -> resultCapValue }
+        def serviceClosure = { [getParameterValueAsString: resultClosure] as ParameterService };
+        def stopClosure = {};
         GlobalResourceLoader.addResourceLoader([
-                getName: { -> new QName("Foo", "Bar") },
-                getService: { [ getParameterValueAsString: { a, b, c -> resultCapValue } ] as ParameterService },
-                stop: {}
+                getName: nameClosure,
+                getService: serviceClosure,
+                stop: stopClosure
         ] as ResourceLoader)
     }
 

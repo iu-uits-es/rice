@@ -66,11 +66,13 @@ class ActionBoServiceImplTest {
         config.putProperty(CoreConstants.Config.APPLICATION_ID, "APPID");
         ConfigContext.init(config);
 
-        GlobalResourceLoader.stop()
-        GlobalResourceLoader.addResourceLoader([
-                getName: { -> new QName("krmsAttributeDefinitionService") },
+        GlobalResourceLoader.stop();
+		def nameClosure = { -> new QName("krmsAttributeDefinitionService") };
+		def serviceClosure = { a, b -> KrmsAttributeDefinitionBo.from(KrmsAttributeDefinition.Builder.create("123", a, b).build()) };
+		GlobalResourceLoader.addResourceLoader([
+                getName: nameClosure,
                 getService: { [
-                        getKrmsAttributeBo: { a, b -> KrmsAttributeDefinitionBo.from(KrmsAttributeDefinition.Builder.create("123", a, b).build()) }
+                        getKrmsAttributeBo: serviceClosure
                 ] as KrmsAttributeDefinitionService },
                 stop: {}
         ] as ResourceLoader);

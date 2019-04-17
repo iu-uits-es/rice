@@ -38,10 +38,12 @@ class GroupLookupableImplTest {
         def config = new JAXBConfigImpl();
         config.putProperty(CoreConstants.Config.APPLICATION_ID, "APPID");
         ConfigContext.init(config);
-        GlobalResourceLoader.stop()
+        GlobalResourceLoader.stop();
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def serviceClosure = { [ getPropertyValueAsString: { "KIM_BASE_PATH" } ] as ConfigurationService };
         GlobalResourceLoader.addResourceLoader([
-            getName: { -> new QName("Foo", "Bar") },
-            getService: { [ getPropertyValueAsString: { "KIM_BASE_PATH" } ] as ConfigurationService },
+            getName: nameClosure,
+            getService: serviceClosure,
             stop: {}
         ] as ResourceLoader)
     }

@@ -59,10 +59,13 @@ class BusClientFailureProxyTest {
         config.putProperty(CoreConstants.Config.APPLICATION_ID, "MyApp");
         ConfigContext.init(config);
 
-        GlobalResourceLoader.stop()
+        GlobalResourceLoader.stop();
+        def nameClosure = { -> new QName("Foo", "Bar") };
+        def serviceClosure = { a, b -> endpoints };
         GlobalResourceLoader.addResourceLoader([
-                getName: { -> new QName("Foo", "Bar") },
-                getService: { [ getEndpoints: { a, b -> endpoints } ] as ServiceBus },
+                getName: nameClosure,
+                getService: {
+                    [getEndpoints: serviceClosure] as ServiceBus },
                 stop: {}
         ] as ResourceLoader)
     }
@@ -98,17 +101,22 @@ class BusClientFailureProxyTest {
     }
 
     private ServiceConfiguration buildServiceConfiguration(String serviceName, String endpointUrl, String appId) {
+        def nameClosure = { -> new QName(appId, serviceName) };
+        def endpointClosure = { -> new URL(endpointUrl) };
+        def applicationClosure = { -> appId };
         return [
-                getServiceName: { -> new QName(appId, serviceName) },
-                getEndpointUrl: { -> new URL(endpointUrl) },
-                getApplicationId: { -> appId }
+                getServiceName: nameClosure,
+                getEndpointUrl: endpointClosure,
+                getApplicationId: applicationClosure
         ] as ServiceConfiguration
     }
 
     private Endpoint buildEndpoint(Object service, ServiceConfiguration serviceConfiguration) {
+        def serviceConfigClosure = { -> serviceConfiguration };
+        def serviceClosure = { -> service };
         return [
-                getServiceConfiguration: { -> serviceConfiguration },
-                getService: { -> service },
+                getServiceConfiguration: serviceConfigClosure,
+                getService: serviceClosure,
         ] as Endpoint
     }
 }

@@ -61,13 +61,15 @@ class DocumentTypePermissionServiceCustomizationTest {
 
     static def customDocumentTypeAuthorizer = new TestDocumentTypeAuthorizer()
 
+    static def templateAuthorizationClosure = { principalId, namespace, permission, Map<String, String> permissionDetails, Map<String, String> roleQualifiers ->
+        permissionService.invocations << [ permissionDetails: permissionDetails, roleQualifiers: roleQualifiers ]
+        return permissionDetails.containsKey("ADDITIONAL_ENTRY") && (roleQualifiers.isEmpty() || roleQualifiers.containsKey("ADDITIONAL_ENTRY"))
+    }
+    static def permissionDefinitionClosure = { ns, perm, details -> true }
     static def permissionService = [
         invocations: [],
-        isAuthorizedByTemplate: { principalId, namespace, permission, Map<String, String> permissionDetails, Map<String, String> roleQualifiers ->
-            permissionService.invocations << [ permissionDetails: permissionDetails, roleQualifiers: roleQualifiers ]
-            return permissionDetails.containsKey("ADDITIONAL_ENTRY") && (roleQualifiers.isEmpty() || roleQualifiers.containsKey("ADDITIONAL_ENTRY"))
-        },
-        isPermissionDefinedByTemplate: { ns, perm, details -> true }
+        isAuthorizedByTemplate: templateAuthorizationClosure,
+        isPermissionDefinedByTemplate: permissionDefinitionClosure
     ]
 
     def documentTypeAuthorizer = null
@@ -92,9 +94,11 @@ class DocumentTypePermissionServiceCustomizationTest {
     }
     def princ = "test principal id"
     def nodeNames = ["routeNode1", "routeNode2"]
+    def routeNode1 = new RouteNodeInstance() { def String getName() { "routeNode1" } }
+    def routeNode2 = new RouteNodeInstance() { def String getName() { "routeNode2" } }
     def nodeInstances = [
-        new RouteNodeInstance() { def String getName() { "routeNode1" } },
-        new RouteNodeInstance() { def String getName() { "routeNode2" } }
+            routeNode1,
+            routeNode2
     ]
 
     @Parameterized.Parameters static data() {
@@ -115,31 +119,26 @@ class DocumentTypePermissionServiceCustomizationTest {
         config.putProperty(KEWServiceLocator.KEW_RUN_MODE_PROPERTY, RunMode.LOCAL.toString());
         ConfigContext.init(config);
 
-        GlobalResourceLoader.stop()
+        GlobalResourceLoader.stop();
+        def nameClosure = { -> new QName("KEW Unit Test", "DocumentTypePermissionServiceDelegatorTest") };
+        def contentClosure = { id -> new DocumentRouteHeaderValueContent() };
+        def serviceClosure = { QName name ->
+            [testDocumentTypeAuthorizer  : documentTypeAuthorizer,
+             kimPermissionService        : permissionService as PermissionService,
+             kimGroupService             : [getMemberPrincipalIds: { ["groupmemberid"] }] as GroupService,
+             dataDictionaryService       : [getDataDictionary: {
+                 [getDocumentEntry: { null }] as DataDictionary
+             }] as DataDictionaryService,
+             enDocumentRouteHeaderService: [getContent: contentClosure] as RouteHeaderService,
+             enDocumentTypeService       : [findById  : { bo },
+                                            findByName: { bo }] as DocumentTypeService,
+             enRouteNodeService          : [getCurrentRouteNodeNames: {
+                 drhv.currentNodeNames
+             }] as RouteNodeService][name.getLocalPart()]
+        };
         GlobalResourceLoader.addResourceLoader([
-            getName: { -> new QName("KEW Unit Test", "DocumentTypePermissionServiceDelegatorTest") },
-            getService: { QName name ->
-                [
-                    testDocumentTypeAuthorizer: documentTypeAuthorizer,
-                    kimPermissionService: permissionService as PermissionService,
-                    kimGroupService: [
-                        getMemberPrincipalIds: { ["groupmemberid"] }
-                    ] as GroupService,
-                    dataDictionaryService: [
-                        getDataDictionary: { [ getDocumentEntry: { null } ] as DataDictionary }
-                    ] as DataDictionaryService,
-                    enDocumentRouteHeaderService: [
-                        getContent: { id -> new DocumentRouteHeaderValueContent() }
-                    ] as RouteHeaderService,
-                    enDocumentTypeService: [
-                        findById: { bo },
-                        findByName: { bo }
-                    ] as DocumentTypeService,
-                    enRouteNodeService: [
-                        getCurrentRouteNodeNames: { drhv.currentNodeNames }
-                    ] as RouteNodeService
-                ][name.getLocalPart()]
-            },
+            getName: nameClosure,
+            getService: serviceClosure,
             getObject: { null },
             stop: {}
         ] as ResourceLoader)
