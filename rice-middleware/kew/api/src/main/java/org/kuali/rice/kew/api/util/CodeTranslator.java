@@ -15,6 +15,7 @@
  */
 package org.kuali.rice.kew.api.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +67,7 @@ public class CodeTranslator {
         newAtLabels.put(KewApiConstants.ACTION_TAKEN_SU_ACTION_REQUEST_COMPLETED_CD, KewApiConstants.ACTION_TAKEN_SU_ACTION_REQUEST_COMPLETED);
         newAtLabels.put(KewApiConstants.ACTION_TAKEN_TAKE_WORKGROUP_AUTHORITY_CD, KewApiConstants.ACTION_TAKEN_TAKE_WORKGROUP_AUTHORITY);
         newAtLabels.put(KewApiConstants.ACTION_TAKEN_RELEASE_WORKGROUP_AUTHORITY_CD, KewApiConstants.ACTION_TAKEN_RELEASE_WORKGROUP_AUTHORITY);
-        return newAtLabels;
+        return Collections.unmodifiableMap(newAtLabels);
     }
 
     private static Map<String, String> getArLabels() {
@@ -75,7 +76,7 @@ public class CodeTranslator {
         newArLabels.put(KewApiConstants.ACTION_REQUEST_APPROVE_REQ, KewApiConstants.ACTION_REQUEST_APPROVE_REQ_LABEL);
         newArLabels.put(KewApiConstants.ACTION_REQUEST_COMPLETE_REQ, KewApiConstants.ACTION_REQUEST_COMPLETE_REQ_LABEL);
         newArLabels.put(KewApiConstants.ACTION_REQUEST_FYI_REQ, KewApiConstants.ACTION_REQUEST_FYI_REQ_LABEL);
-        return newArLabels;
+        return Collections.unmodifiableMap(newArLabels);
     }
 
     private static Map<String, String> getArStatusLabels() {
@@ -83,7 +84,7 @@ public class CodeTranslator {
         newArStatusLabels.put(ActionRequestStatus.ACTIVATED.getCode(), KewApiConstants.ACTIVE_LABEL);
         newArStatusLabels.put(ActionRequestStatus.INITIALIZED.getCode(), ActionRequestStatus.INITIALIZED.getLabel());
         newArStatusLabels.put(ActionRequestStatus.DONE.getCode(), ActionRequestStatus.DONE.getLabel());
-        return newArStatusLabels;
+        return Collections.unmodifiableMap(newArStatusLabels);
     }
 
     private static Map<String, String> getRouteStatusLabels() {
@@ -96,14 +97,14 @@ public class CodeTranslator {
         newRouteStatusLabels.put(KewApiConstants.ROUTE_HEADER_INITIATED_CD, KewApiConstants.ROUTE_HEADER_INITIATED_LABEL);
         newRouteStatusLabels.put(KewApiConstants.ROUTE_HEADER_PROCESSED_CD, KewApiConstants.ROUTE_HEADER_PROCESSED_LABEL);
         newRouteStatusLabels.put(KewApiConstants.ROUTE_HEADER_SAVED_CD, KewApiConstants.ROUTE_HEADER_SAVED_LABEL);
-        return newRouteStatusLabels;
+        return Collections.unmodifiableMap(newRouteStatusLabels);
     }
 
     private static Map<Boolean, String> getActiveIndicatorLabels() {
     	Map<Boolean, String> newActiveIndicatorLabels = new HashMap<Boolean, String>();
         newActiveIndicatorLabels.put(Boolean.TRUE, KewApiConstants.ACTIVE_LABEL_LOWER);
         newActiveIndicatorLabels.put(Boolean.FALSE, KewApiConstants.INACTIVE_LABEL_LOWER);
-        return newActiveIndicatorLabels;
+        return Collections.unmodifiableMap(newActiveIndicatorLabels);
     }
 
     private static Map<String, String> getPolicyLabels() {
@@ -111,7 +112,7 @@ public class CodeTranslator {
         newDocTypeActiveIndicatorLabels.put(KewApiConstants.TRUE_CD, KewApiConstants.YES_LABEL);
         newDocTypeActiveIndicatorLabels.put(KewApiConstants.FALSE_CD, KewApiConstants.NO_LABEL);
         newDocTypeActiveIndicatorLabels.put(KewApiConstants.INHERITED_CD, KewApiConstants.INHERITED_LABEL);
-        return newDocTypeActiveIndicatorLabels;
+        return Collections.unmodifiableMap(newDocTypeActiveIndicatorLabels);
     }
 
     private static Map<String, String> getActivationPolicyLabels() {
@@ -119,14 +120,14 @@ public class CodeTranslator {
         newActivationPolicyLabels.put(KewApiConstants.ROUTE_LEVEL_PARALLEL, KewApiConstants.ROUTE_LEVEL_PARALLEL_LABEL);
         newActivationPolicyLabels.put(KewApiConstants.ROUTE_LEVEL_SEQUENCE, KewApiConstants.ROUTE_LEVEL_SEQUENCE_LABEL);
         newActivationPolicyLabels.put(KewApiConstants.ROUTE_LEVEL_PRIORITY_PARALLEL, KewApiConstants.ROUTE_LEVEL_PRIORITY_PARALLEL_LABEL);
-        return newActivationPolicyLabels;
+        return Collections.unmodifiableMap(newActivationPolicyLabels);
     }
 
     private static Map<String, String> getApprovePolicyLabels() {
         Map<String, String> approvePolicyLabels = new HashMap<String, String>();
         approvePolicyLabels.put(ActionRequestPolicy.ALL.getCode(), ActionRequestPolicy.ALL.getLabel());
         approvePolicyLabels.put(ActionRequestPolicy.FIRST.getCode(), ActionRequestPolicy.FIRST.getLabel());
-        return approvePolicyLabels;
+        return Collections.unmodifiableMap(approvePolicyLabels);
     }
 
     /**
