@@ -15,11 +15,9 @@
  */
 package org.kuali.rice.kew.web;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.kuali.rice.kew.api.util.CodeTranslator;
-import org.kuali.rice.krad.util.ObjectUtils;
+
+import java.io.Serializable;
 
 /**
  * A bean for the web-tier when represents the recipient of an Ad Hoc request.
@@ -30,7 +28,6 @@ public class AppSpecificRouteRecipient implements Serializable {
 
 	private static final long serialVersionUID = 6587140192756322878L;
 
-	private static Map actionRequestCds;
     protected String type;
     protected String actionRequested;
     protected String id;  //can be networkId or groupId (although, currently, it's being treated as principal name or group name)
@@ -55,7 +52,7 @@ public class AppSpecificRouteRecipient implements Serializable {
     public void setType(String type) {
         this.type = type;
     }
-    
+
     public String getNamespaceCode() {
     	return namespaceCode;
     }
@@ -72,14 +69,8 @@ public class AppSpecificRouteRecipient implements Serializable {
     }
 
     public String getActionRequestedValue(){
-        if (ObjectUtils.isNull(actionRequestCds)) {
-            actionRequestCds = CodeTranslator.arLabels;
-        } else {
-            actionRequestCds.clear();
-            actionRequestCds.putAll(CodeTranslator.arLabels);
-        }
         if(getActionRequested() != null && !getActionRequested().trim().equals("")){
-            return (String) actionRequestCds.get(getActionRequested());
+            return CodeTranslator.arLabels.get(getActionRequested());
         }
         return null;
     }
