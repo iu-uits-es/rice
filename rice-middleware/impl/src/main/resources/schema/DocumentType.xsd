@@ -1130,6 +1130,9 @@ Definitions are applied to the names in the routeNodes section.
       <enumeration value="workflowid"/>
       <enumeration value="workflowId"/>
       <enumeration value="WORKFLOWID"/>
+      <enumeration value="principalid"/>
+      <enumeration value="principalId"/>
+      <enumeration value="PRINCIPALID"/>
     </restriction>
   </simpleType>
   
