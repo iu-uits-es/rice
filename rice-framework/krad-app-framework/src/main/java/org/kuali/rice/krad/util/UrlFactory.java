@@ -24,16 +24,17 @@ import java.util.Properties;
 
 /**
  * Provides utility methods for re/building URLs.
- * 
+ *
  * @author Kuali Rice Team (rice.collab@kuali.org)
  */
 public class UrlFactory {
+
     private static Logger LOG = Logger.getLogger(UrlFactory.class);
 
     /**
      * Creates a new URL by taking the given URL and appending the parameter names and values from the given Properties instance to
      * it. Note: parameter names must be non-blank; parameter values must be non-null.
-     * 
+     *
      * @param baseUrl the URL string used as the basis for reconstruction
      * @param params Properties instance containing the desired parameters and their values
      * @throws IllegalArgumentException if the given url is null or empty
@@ -43,7 +44,7 @@ public class UrlFactory {
      * @return a newly-constructed URL string which has the given parameters and their values appended to it
      */
     private static URLCodec urlCodec = new URLCodec("UTF-8");
-    
+
     public static String parameterizeUrl(String baseUrl, Properties params) {
         baseUrl = StringUtils.trim(baseUrl);
         if (StringUtils.isEmpty(baseUrl)) {
@@ -69,7 +70,7 @@ public class UrlFactory {
                 ret.append( "=" );
             } else {
                 try {
-                    ret.append( paramName );
+                    ret.append( urlCodec.encode(paramName) );
                     ret.append( "=" );
                     ret.append( urlCodec.encode(paramValue) );
                 } catch ( EncoderException ex ) {
