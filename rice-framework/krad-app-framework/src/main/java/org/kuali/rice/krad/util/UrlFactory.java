@@ -65,19 +65,26 @@ public class UrlFactory {
             if (StringUtils.isEmpty(paramName)) {
                 throw new IllegalArgumentException("invalid (blank) paramName");
             }
-            if (paramValue == null) {
-                ret.append( paramName );
+            /**
+             * Begin IU Customization
+             * 2020-11-11 - Andy Hill (athill@iu.edu)
+             * ESIMW-2275
+             *
+             * Encode URL parameters to handle square brackets in redirect parameter
+             */
+            try {
+                ret.append( urlCodec.encode(paramName) );
                 ret.append( "=" );
-            } else {
-                try {
-                    ret.append( urlCodec.encode(paramName) );
-                    ret.append( "=" );
+                if (paramValue != null) {
                     ret.append( urlCodec.encode(paramValue) );
-                } catch ( EncoderException ex ) {
-                    LOG.error("Unable to encode parameter name or value: " + paramName + "=" + paramValue, ex);
-                    throw new RuntimeException( "Unable to encode parameter name or value: " + paramName + "=" + paramValue, ex );
                 }
+            } catch ( EncoderException ex ) {
+                LOG.error("Unable to encode parameter name or value: " + paramName + "=" + paramValue, ex);
+                throw new RuntimeException( "Unable to encode parameter name or value: " + paramName + "=" + paramValue, ex );
             }
+            /**
+             * End IU Customization
+             */
             delimiter = "&";
         }
 
