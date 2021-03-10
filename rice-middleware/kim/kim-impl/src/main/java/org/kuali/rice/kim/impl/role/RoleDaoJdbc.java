@@ -33,16 +33,8 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 
 public class RoleDaoJdbc implements RoleDao {
 
@@ -50,7 +42,7 @@ public class RoleDaoJdbc implements RoleDao {
 
     @Override
     public List<RoleMemberBo> getRoleMembersForRoleIds(Collection<String> roleIds, String memberTypeCode,
-            Map<String, String> qualification) {
+                                                       Map<String, String> qualification) {
         JdbcTemplate template = new JdbcTemplate(dataSource);
         final List<String> roleIDs = new ArrayList<String>(roleIds);
         final String memberTypeCd = memberTypeCode;
@@ -248,8 +240,8 @@ public class RoleDaoJdbc implements RoleDao {
                             roleMemAttrDataBo.setKimType(KimTypeBo.from(theType));
                             roleMemAttrDataBo.setKimAttributeId(attrBuilder.getId());
                             roleMemAttrDataBo.setAttributeValue(rs.getString("ATTR_VAL"));
-                            roleMemAttrDataBo.setVersionNumber(attrBuilder.getVersionNumber());
-                            roleMemAttrDataBo.setObjectId(attrBuilder.getObjectId());
+                            roleMemAttrDataBo.setVersionNumber(rs.getLong("ATTR_DATA_VER_NBR"));
+                            roleMemAttrDataBo.setObjectId(rs.getString("ATTR_DATA_OBJ_ID"));
 
                             roleMemAttrDataBo.setKimAttribute(KimAttributeBo.from(attrBuilder.build()));
                             lastRoleMember.getAttributeDetails().add(roleMemAttrDataBo);
